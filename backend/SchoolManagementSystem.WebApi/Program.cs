@@ -1,5 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Infrastructure.Services.Auth;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
+using SchoolManagementSystem.Infrastructure.SqlRepo.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,9 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddHostedService<AdminSeeder>();
 
 var app = builder.Build();
 
