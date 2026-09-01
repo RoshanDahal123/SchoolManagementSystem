@@ -1,0 +1,59 @@
+# .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.csproj.user
+
+# ASP.NET Core configuration
+appsettings.json
+appsettings.Development.json
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea/
+.vscode/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Test / coverage
+TestResults/
+coverage/
+*.trx
+*.coverage
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database local files
+*.db
+*.db-shm
+*.db-wal
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
