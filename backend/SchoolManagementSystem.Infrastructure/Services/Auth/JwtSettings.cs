@@ -1,11 +1,8 @@
-﻿namespace SchoolManagementSystem.Infrastructure.Services.Auth;
-
-public sealed class JwtSettings
+﻿public sealed class JwtSettings
 {
-    public string SecretKey { get; init; } = default!;
-    public string Issuer { get; init; } = default!;
-    public string Audience { get; init; } = default!;
-    public int AccessTokenExpiryMinutes { get; init; }
+    public string Secret { get; init; } = string.Empty;
+    public string Issuer { get; init; } = string.Empty;
+    public string Audience { get; init; } = string.Empty;
+    public int AccessTokenExpiryMinutes { get; init; } = 15;
+    public int RefreshTokenExpiryDays { get; init; } = 7;
 }
-
-

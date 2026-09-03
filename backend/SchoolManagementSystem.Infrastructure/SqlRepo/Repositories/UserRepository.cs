@@ -32,5 +32,11 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
             return _dbContext.Users.AnyAsync(u => u.Email == normalizedEmail, cancellationToken);
         }
 
+        public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+
+            return _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        }
+
     }
 }

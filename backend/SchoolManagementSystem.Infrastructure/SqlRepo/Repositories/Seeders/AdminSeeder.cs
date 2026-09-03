@@ -8,7 +8,7 @@ using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
-namespace SchoolManagementSystem.Infrastructure.SqlRepo.Seeders;
+namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories.Seeders;
 
 public class AdminSeeder : IHostedService
 {

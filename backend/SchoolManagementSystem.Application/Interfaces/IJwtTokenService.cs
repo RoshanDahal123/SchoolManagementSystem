@@ -1,19 +1,17 @@
 ﻿using SchoolManagementSystem.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SchoolManagementSystem.Application.Interfaces;
 
-public  interface IJwtTokenService
+public sealed class GeneratedAccessToken
 {
-
-    JwtTokenResult GenerateAccessToken(User user);
-    //GenerateRefreshTokenResult GenerateRefreshToken(User user);
-
-   
+    public string Token { get; init; } = null!;
+    public DateTime ExpiresAtUtc { get; init; }
 }
 
-
-
-public sealed record JwtTokenResult(string Token, DateTime ExpiresAtUtc);
+public interface IJwtTokenService
+{
+    GeneratedAccessToken GenerateAccessToken(User user);
+    string GenerateRawRefreshToken();
+    string HashToken(string rawToken);
+    DateTime GetRefreshTokenExpiry();
+}

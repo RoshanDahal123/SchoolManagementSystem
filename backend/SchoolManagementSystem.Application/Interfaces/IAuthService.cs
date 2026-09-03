@@ -1,13 +1,10 @@
 ﻿using SchoolManagementSystem.Application.DTOs.Auth;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SchoolManagementSystem.Application.Interfaces
+namespace SchoolManagementSystem.Application.Interfaces;
+
+public interface IAuthService
 {
-    public interface IAuthService 
-    {
-        Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
-    }
-
+    Task<AuthResult> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
+    Task<AuthResult> RefreshAsync(string rawRefreshToken, CancellationToken cancellationToken = default);
+    Task LogoutAsync(string rawRefreshToken, CancellationToken cancellationToken = default);
 }

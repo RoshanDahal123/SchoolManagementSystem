@@ -7,7 +7,7 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Persistence
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users => Set<User>();
-
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         protected override void OnModelCreating(ModelBuilder modelBuilder){
             // Picks up every IEntityTypeConfiguration < T > in this assembly.
            // As Student, Teacher, etc. get their own configuration classes,
