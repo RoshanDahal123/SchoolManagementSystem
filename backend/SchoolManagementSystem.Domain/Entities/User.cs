@@ -60,4 +60,10 @@ public class User
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
+    
+    public void Activate()
+    {
+        IsActive = true;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
 }
