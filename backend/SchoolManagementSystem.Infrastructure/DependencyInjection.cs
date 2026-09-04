@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Infrastructure.Services.Auth;
+using SchoolManagementSystem.Infrastructure.Services.Email;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories.Seeders;
@@ -22,9 +23,12 @@ public static class DependencyInjection
         // JWT
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IEmailService, NullEmailService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IAccountSetupTokenRepository, AccountSetupTokenRepository>();
+        services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddHostedService<AdminSeeder>();
 
         return services;

@@ -2,9 +2,7 @@
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
 {
@@ -38,5 +36,11 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
             return _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         }
 
+
+        public async Task<User?> AddAsync(User user, CancellationToken cancellationToken = default)
+        {
+            await _dbContext.Users.AddAsync(user, cancellationToken);
+            return user;
+        }
     }
 }

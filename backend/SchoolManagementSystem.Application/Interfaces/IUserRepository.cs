@@ -11,5 +11,6 @@ namespace SchoolManagementSystem.Application.Interfaces
         Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
         
         Task<User?> GetByIdAsync(Guid Id,CancellationToken cancellationToken = default);
+        Task<User?> AddAsync(User user, CancellationToken cancellationToken = default);
     }
 }
