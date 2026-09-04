@@ -1,10 +1,17 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import App from './App.tsx';
+import { store } from './app/store.ts';
 
+import { Toaster } from './components/atoms/sonner.tsx';
+import './index.css';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <Toaster/>
+    <Provider store={store}>
+
+   <App/>
+    </Provider>
+  </StrictMode>
 )

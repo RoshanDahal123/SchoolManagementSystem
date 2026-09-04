@@ -1,29 +1,43 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { UserRole } from "./@types";
+
+export interface Credentials {
+  email: string;
+  role: UserRole;
+}
 
 interface AuthState {
-  user: null | { id: string; email: string; name: string };
+  email: string | null;
+  role: UserRole | null;
   isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
-  user: null,
+  email: null,
+  role: null,
   isAuthenticated: false,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
-    loginSuccess: (state, action) => {
-      state.user = action.payload;
+    setCredentials: (state, action: PayloadAction<Credentials>) => {
+      state.email = action.payload.email;
+      state.role = action.payload.role;
       state.isAuthenticated = true;
     },
-    logoutSuccess: (state) => {
-      state.user = null;
+    clearCredentials: (state) => {
+      state.email = null;
+      state.role = null;
       state.isAuthenticated = false;
     },
   },
 });
 
-export const { loginSuccess, logoutSuccess } = authSlice.actions;
+export const { setCredentials, clearCredentials } = authSlice.actions;
 export default authSlice.reducer;
+
+// Deliberately NO selectors exported here — see hooks/use-auth.ts.
+// Exporting them from this file would require importing RootState,
+// which would create a circular import (root-reducer -> this file -> root-reducer).

@@ -1,13 +1,8 @@
-export const validateLogin = (values: Record<string, string>) => {
-  const errors: Record<string, string> = {};
+import { z } from "zod";
 
-  if (!values.email) {
-    errors.email = 'Email is required';
-  }
+export const loginSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
 
-  if (!values.password) {
-    errors.password = 'Password is required';
-  }
-
-  return errors;
-};
+export type LoginFormValues = z.infer<typeof loginSchema>;

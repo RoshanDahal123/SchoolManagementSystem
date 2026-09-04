@@ -1,6 +1,13 @@
-import { useSelector } from 'react-redux';
+import type { RootState } from "../app/root-reducer";
+import { useAppSelector } from "./use-redux";
 
-export const useAuth = () => {
-  const auth = useSelector((state: any) => state.auth);
-  return auth;
-};
+const selectAuth = (state: RootState) => state.auth;
+export function useAuth(){
+  const {email, role, isAuthenticated}=useAppSelector(selectAuth);
+  return {
+    email,
+    role,
+    isAuthenticated,
+    isAdmin:role==="Admin"
+  }
+}

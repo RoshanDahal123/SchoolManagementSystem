@@ -1,7 +1,6 @@
-export const paths = {
-  home: '/',
-  login: '/login',
-  dashboard: '/dashboard',
-  students: '/students',
-  teachers: '/teachers',
-};
+export const PATHS = {
+  login: "/login",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
+  dashboard: "/dashboard",
+} as const;
