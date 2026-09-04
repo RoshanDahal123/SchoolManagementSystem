@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolManagementSystem.Application.DTOs.Auth;
 using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Exceptions;
+using System.Security.Claims;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 
@@ -85,6 +86,14 @@ public sealed class AuthController : ControllerBase
         return Ok(new { email, role });
     }
 
+  
+    [HttpPost("activate")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Activate(ActivateAccountRequest request, CancellationToken ct)
+    {
+        await _authService.ActivateAccountAsync(request, ct);
+        return NoContent();
+    }
     private static AuthResponse ToResponse(AuthResult result) =>
         new(result.Email, result.FirstName, result.LastName, result.Role);
 
