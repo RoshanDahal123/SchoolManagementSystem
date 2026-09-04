@@ -1,7 +1,10 @@
 ﻿using SchoolManagementSystem.Application.DTOs.Auth;
+using SchoolManagementSystem.Application.Exceptions;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Exceptions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SchoolManagementSystem.Application.Services;
 
@@ -11,17 +14,20 @@ public sealed class AuthService : IAuthService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
-
+    private readonly IAccountSetupTokenRepository _setupTokenRepository;
     public AuthService(
         IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasher passwordHasher,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IAccountSetupTokenRepository setupTokenRepository
+        )
     {
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
+        _setupTokenRepository = setupTokenRepository;
     }
 
     public async Task<AuthResult> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
@@ -82,8 +88,25 @@ public sealed class AuthService : IAuthService
             existing.Revoke();
             await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
         }
-        // No-op if token is already gone/invalid — logout should never fail loudly for the client.
+    }   // No-op if token is already gone/invalid — logout should never fail loudly for the client.
+        public async Task ActivateAccountAsync(ActivateAccountRequest request, CancellationToken ct = default)
+    {
+        var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(request.Token)));
+        var setupToken = await _setupTokenRepository.GetByTokenHashAsync(tokenHash, ct)
+            ?? throw new AuthenticationException("Invalid or expired token.");
+
+        setupToken.MarkUsed(); // throws DomainException if already used/expired — caught by your exception middleware
+
+        var user = await _userRepository.GetByIdAsync(setupToken.UserId, ct)
+            ?? throw new AuthenticationException("Invalid or expired token.");
+
+        user.ChangePassword(_passwordHasher.Hash(request.NewPassword));
+        user.Activate();
+
+        await _setupTokenRepository.SaveChangesAsync(ct);
     }
+   
+
 
     private async Task<AuthResult> IssueTokensAsync(User user, CancellationToken cancellationToken)
     {
