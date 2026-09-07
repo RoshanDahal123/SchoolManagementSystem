@@ -1,7 +1,7 @@
 ﻿// WebApi/Controllers/StudentsController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Student;
+using SchoolManagementSystem.Application.DTOs.Auth;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 
@@ -40,4 +40,12 @@ public class StudentsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<StudentResponse>> Invite(Guid id, InviteStudentRequest request, CancellationToken ct)
         => Ok(await _studentService.InviteToPortalAsync(id, request.Email, ct));
+
+    [HttpPost("{id:guid}/resend-invite")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ResendInvite(Guid id, CancellationToken ct)
+    {
+        await _studentService.ResendInviteAsync(id, ct);
+        return NoContent();
+    }
 }

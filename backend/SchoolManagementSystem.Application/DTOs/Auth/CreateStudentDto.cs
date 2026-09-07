@@ -1,5 +1,5 @@
 ﻿// Application/DTOs/Student/CreateStudentRequest.cs
-namespace SchoolManagementSystem.Application.DTOs.Student;
+namespace SchoolManagementSystem.Application.DTOs.Auth;
 
 public record CreateStudentRequest(
     string FirstName,

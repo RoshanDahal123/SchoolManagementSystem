@@ -18,7 +18,7 @@ builder.Services.AddOpenApi();
 
 
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 // CORS: specific origin required — AllowAnyOrigin() is incompatible with AllowCredentials()
 builder.Services.AddCors(options =>
 {

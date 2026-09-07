@@ -22,8 +22,9 @@ public static class DependencyInjection
 
         // JWT
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-        services.AddScoped<IEmailService, NullEmailService>();
+        services.AddScoped<IEmailService, MailKitEmailService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
