@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { PATHS } from "./paths";
 
 export function PublicOnlyRoute() {
-  const isAuthenticated= useAuth();
+  const {isAuthenticated}= useAuth();
 
   if (isAuthenticated) {
     return <Navigate to={PATHS.dashboard} replace />;

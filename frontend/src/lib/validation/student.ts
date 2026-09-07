@@ -1,13 +1,26 @@
-export const validateStudent = (values: Record<string, string>) => {
-  const errors: Record<string, string> = {};
+import { z } from "zod";
 
-  if (!values.name) {
-    errors.name = 'Name is required';
-  }
+export const createStudentSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(100, "First name is too long"),
+  lastName: z.string().min(1, "Last name is required").max(100, "Last name is too long"),
+  dateOfBirth: z.string().refine((date) => {
+    const dob = new Date(date);
+    const today = new Date();
+    return dob < today;
+  }, "Date of birth must be in the past"),
+  gender: z.enum(["Male", "Female", "Other"], {
+    errorMap: () => ({ message: "Please select a gender" }),
+  }),
+  enrollmentNumber: z
+    .string()
+    .min(1, "Enrollment number is required")
+    .max(50, "Enrollment number is too long"),
+});
 
-  if (!values.email) {
-    errors.email = 'Email is required';
-  }
+export type CreateStudentFormData = z.infer<typeof createStudentSchema>;
 
-  return errors;
-};
+export const inviteStudentSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export type InviteStudentFormData = z.infer<typeof inviteStudentSchema>;

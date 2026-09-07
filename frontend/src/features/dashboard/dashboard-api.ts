@@ -1,8 +1,14 @@
-import baseApi from '../../app/base-api';
+import { baseApi } from "../../app/base-api";
+import type { DashboardSummary } from "./@types";
 
-export const dashboardApi = {
-  getStats: () => baseApi.get('/dashboard/stats'),
-  getRecentActivities: () => baseApi.get('/dashboard/recent-activities'),
-};
+export const dashboardApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getDashboardSummary: builder.query<DashboardSummary, void>({
+      query: () => ({ url: "/dashboard/summary", method: "GET" }),
+      providesTags: ["Dashboard"],
+    }),
+  }),
+  overrideExisting: false,
+});
 
-export default dashboardApi;
+export const { useGetDashboardSummaryQuery } = dashboardApi;

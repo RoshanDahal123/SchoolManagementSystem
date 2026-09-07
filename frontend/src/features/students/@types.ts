@@ -1,14 +1,26 @@
-export interface Student {
+export interface StudentResponse {
   id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  className?: string;
-  status?: 'active' | 'inactive';
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: "Male" | "Female" | "Other";
+  enrollmentNumber: string;
+  createdAtUtc: string;
+  userId?: string | null;
+  hasPortalAccount?: boolean;
+  isPortalActive?: boolean;
+  email?: string | null;
 }
 
-export interface StudentFilters {
-  search?: string;
-  className?: string;
-  status?: string;
+export interface CreateStudentRequest {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string; // "YYYY-MM-DD" format
+  gender: "Male" | "Female" | "Other";
+  enrollmentNumber: string;
+}
+
+export interface InviteStudentRequest {
+  id: string;
+  email: string;
 }

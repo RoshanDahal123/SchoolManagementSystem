@@ -1,5 +1,5 @@
 import { baseApi } from "../../app/base-api";
-import type { AuthResponse, LoginRequest, MeResponse } from "./@types";
+import type { ActivateAccountRequest, AuthResponse, LoginRequest, MeResponse } from "./@types";
 import { clearCredentials } from "./auth-slice";
 
 export const authApi = baseApi.injectEndpoints({
@@ -27,8 +27,15 @@ export const authApi = baseApi.injectEndpoints({
       query: () => ({ url: "/auth/me" }),
       providesTags: ["Auth"],
     }),
+    activateAccount: builder.mutation<void, ActivateAccountRequest>({
+      query: (body) => ({
+        url: "/auth/activate",
+        method: "POST",
+        data: body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useLoginMutation, useLogoutMutation, useGetMeQuery } = authApi;
+export const { useLoginMutation, useLogoutMutation, useGetMeQuery ,useActivateAccountMutation} = authApi;

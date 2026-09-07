@@ -1,13 +1,14 @@
-export interface DashboardStats {
+export interface DashboardSummary {
   totalStudents: number;
   totalTeachers: number;
   totalClasses: number;
-  totalSubjects: number;
+  todayAttendancePercentage: number;
+  recentActivity: RecentActivityItem[];
 }
 
-export interface RecentActivity {
+export interface RecentActivityItem {
   id: string;
   title: string;
   description: string;
-  createdAt: string;
+  timestamp: string;
 }

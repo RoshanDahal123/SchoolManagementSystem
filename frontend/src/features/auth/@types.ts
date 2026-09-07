@@ -21,3 +21,12 @@ export interface MeResponse {
   email: string;
   role: UserRole;
 }
+export interface ActivateAccountRequest {
+  token: string
+  newPassword: string
+}
+
+export interface ActivateAccountFormData {
+  password: string
+  confirmPassword: string
+}
