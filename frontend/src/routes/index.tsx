@@ -16,7 +16,7 @@ import { AuthBootstrap } from "./auth-bootstrap";
 import { PATHS } from "./paths";
 import { ProtectedRoute } from "./protected-routes";
 import { PublicOnlyRoute } from "./public-only-route";
-import {ActivateAccountPage} from "../pages/anonymous/activate-account";
+import ActivateAccountPage from "../pages/anonymous/activate-account-page";
 
 export function AppRoutes() {
   return (

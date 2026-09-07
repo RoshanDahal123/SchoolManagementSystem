@@ -59,10 +59,10 @@ export default function StudentDetailsPage() {
           Back to Students
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" disabled title="Update functionality not available yet">
+          <Button variant="outline" >
             Edit
           </Button>
-          <Button variant="outline" disabled title="Deactivate functionality not available yet">
+          <Button variant="outline">
             Deactivate
           </Button>
         </div>

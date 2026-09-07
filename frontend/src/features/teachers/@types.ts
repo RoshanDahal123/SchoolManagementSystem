@@ -1,14 +1,30 @@
-export interface Teacher {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  subject?: string;
-  status?: 'active' | 'inactive';
+// ─── Response ─────────────────────────────────────────────────────────────────
+
+export interface TeacherResponse {
+  id: string
+  firstName: string
+  lastName: string
+  email?: string | null
+  phoneNumber?: string | null
+  /** e.g. "Mathematics", "Science" */
+  subjectSpecialization?: string | null
+  employeeId: string
+  createdAtUtc: string
+  userId?: string | null
+  hasPortalAccount?: boolean
 }
 
-export interface TeacherFilters {
-  search?: string;
-  subject?: string;
-  status?: string;
+// ─── Mutations ────────────────────────────────────────────────────────────────
+
+export interface CreateTeacherRequest {
+  firstName: string
+  lastName: string
+  employeeId: string
+  subjectSpecialization?: string
+  phoneNumber?: string
+}
+
+export interface InviteTeacherRequest {
+  id: string
+  email: string
 }

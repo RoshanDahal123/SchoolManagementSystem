@@ -1,12 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef } from "react";
 
-export function useDebounce<T>(value: T, delay = 300) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
+export function useDebouncedCallback<Args extends unknown[]>(
+    callback:(...args:Args)=>void,
+    delayMs:number
+){
+    const callbackRef = useRef(callback);
+    callbackRef.current= callback;//always call the latest closure
 
-  return debouncedValue;
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+  return useCallback(
+    (...args:Args)=>{
+        clearTimeout(timeoutRef.current);
+         timeoutRef.current = setTimeout(() => callbackRef.current(...args), delayMs);
+    },
+    [delayMs]
+  )
+
 }
