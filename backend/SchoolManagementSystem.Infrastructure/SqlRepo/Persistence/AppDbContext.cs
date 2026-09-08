@@ -10,6 +10,7 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Persistence
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         public DbSet<Student> Students => Set<Student>();
+        public DbSet<Teacher> Teachers => Set<Teacher>();
         public DbSet<AccountSetupToken> AccountSetupTokens => Set<AccountSetupToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder){

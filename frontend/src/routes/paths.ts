@@ -9,6 +9,7 @@ export const PATHS = {
   activate:"activate",
   adminStudentDetails: (id: string) => `/admin/students/${id}`,
   adminTeachers: "/admin/teachers",
+  adminTeacherDetails: (id: string) => `/admin/teachers/${id}`,
   adminAcademic: "/admin/academic",
   adminAssignments: "/admin/assignments",
   adminAttendance: "/admin/attendance",

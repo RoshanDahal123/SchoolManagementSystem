@@ -10,6 +10,7 @@ import AttendancePage from "../pages/admin/attendance";
 import AdminDashboardPage from "../pages/admin/dashboard";
 import StudentDetailsPage from "../pages/admin/student-details";
 import StudentsPage from "../pages/admin/students";
+import TeacherDetailsPage from "../pages/admin/teacher-details";
 import TeachersPage from "../pages/admin/teachers";
 import LoginPage from "../pages/anonymous/login";
 import { AuthBootstrap } from "./auth-bootstrap";
@@ -35,6 +36,7 @@ export function AppRoutes() {
               <Route path="students" element={<StudentsPage />} />
               <Route path="students/:id" element={<StudentDetailsPage />} />
               <Route path="teachers" element={<TeachersPage />} />
+              <Route path="teachers/:id" element={<TeacherDetailsPage />} />
               <Route path="academic" element={<AcademicPage />} />
               <Route path="assignments" element={<AssignmentsPage />} />
               <Route path="attendance" element={<AttendancePage />} />

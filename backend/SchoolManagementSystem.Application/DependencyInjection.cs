@@ -13,6 +13,7 @@ namespace SchoolManagementSystem.Application
           services.Configure<AppUrlOptions>(configuration.GetSection("AppUrls"));
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<ITeacherService, TeacherService>();
             
 
             return services;

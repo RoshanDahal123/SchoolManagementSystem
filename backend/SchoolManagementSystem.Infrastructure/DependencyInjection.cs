@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAccountSetupTokenRepository, AccountSetupTokenRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();
+        services.AddScoped<ITeacherRepository, TeacherRepository>();
         services.AddHostedService<AdminSeeder>();
 
         return services;

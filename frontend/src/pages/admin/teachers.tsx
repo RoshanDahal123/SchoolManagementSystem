@@ -1,3 +1,4 @@
+import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import {
   Dialog,
@@ -13,49 +14,38 @@ import { EntityListLayout } from "@/components/organisms/entity-list-layout"
 import type { TeacherResponse } from "@/features/teachers/@types"
 import {
   useCreateTeacherMutation,
-  useGetAllTeachersQuery,
+  useGetTeachersQuery,
   useInviteTeacherMutation,
   useResendTeacherInviteMutation,
 } from "@/features/teachers/teacher-api"
 import { useAuth } from "@/hooks/use-auth"
 import { usePaginatedSearch } from "@/hooks/use-paginated-search"
+import { createTeacherSchema, type CreateTeacherFormData } from "@/lib/validation/teacher"
 import { PATHS } from "@/routes/paths"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { EyeIcon, MailIcon, PlusIcon } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
-import { z } from "zod"
-
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-const createTeacherSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  employeeId: z.string().min(1, "Employee ID is required"),
-  subjectSpecialization: z.string().optional(),
-  phoneNumber: z.string().optional(),
-})
-
-type CreateTeacherFormData = z.infer<typeof createTeacherSchema>
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const PAGE_SIZE = 10
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function TeachersPage() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
 
-  // ── Search + pagination (URL-synced) ────────────────────────────────────────
+  // ── Search + pagination state (URL-synced) ──────────────────────────────────
   const { page, searchQuery, searchInput, handleSearchChange, handlePageChange } =
     usePaginatedSearch()
 
-  // ── API ─────────────────────────────────────────────────────────────────────
-  const { data: teachers = [], isLoading } = useGetAllTeachersQuery()
+  // ── API (server-side pagination + search) ───────────────────────────────────
+  const {
+    data,
+    isLoading,
+    isError,
+  } = useGetTeachersQuery({ page, search: searchQuery || undefined })
+
   const [createTeacher, { isLoading: isCreating }] = useCreateTeacherMutation()
   const [inviteTeacher, { isLoading: isInviting }] = useInviteTeacherMutation()
   const [resendTeacherInvite, { isLoading: isResending }] = useResendTeacherInviteMutation()
@@ -76,30 +66,14 @@ export default function TeachersPage() {
     resolver: zodResolver(createTeacherSchema),
   })
 
-  // ── Client-side filter + paginate ───────────────────────────────────────────
-  // When the backend gains server-side search, replace with a query that accepts
-  // { page, search } and swap `pagedData` / `totalCount` for server values.
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return teachers
-    return teachers.filter((t) => {
-      const name = `${t.firstName} ${t.lastName}`.toLowerCase()
-      const empId = t.employeeId.toLowerCase()
-      const subject = (t.subjectSpecialization ?? "").toLowerCase()
-      return name.includes(q) || empId.includes(q) || subject.includes(q)
-    })
-  }, [teachers, searchQuery])
-
-  const totalCount = filtered.length
-  const pagedData = useMemo(
-    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [filtered, page],
-  )
+  // ── Derived data ─────────────────────────────────────────────────────────────
+  const teachers = data?.items ?? []
+  const totalCount = data?.totalCount ?? 0
 
   // ── Handlers ────────────────────────────────────────────────────────────────
-  const onSubmitCreate = async (data: CreateTeacherFormData) => {
+  const onSubmitCreate = async (formData: CreateTeacherFormData) => {
     try {
-      await createTeacher(data).unwrap()
+      await createTeacher(formData).unwrap()
       toast.success("Teacher created successfully")
       setCreateDialogOpen(false)
       reset()
@@ -152,6 +126,18 @@ export default function TeachersPage() {
         ),
     },
     {
+      id: "status",
+      header: "Status",
+      cell: ({ row }: { row: { original: TeacherResponse } }) =>
+        row.original.isActive ? (
+          <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">
+            Active
+          </Badge>
+        ) : (
+          <Badge variant="destructive">Inactive</Badge>
+        ),
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }: { row: { original: TeacherResponse } }) => {
@@ -163,7 +149,7 @@ export default function TeachersPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`${PATHS.adminTeachers}/${teacher.id}`)}
+              onClick={() => navigate(PATHS.adminTeacherDetails(teacher.id))}
               title="View details"
             >
               <EyeIcon className="h-4 w-4" />
@@ -220,9 +206,9 @@ export default function TeachersPage() {
         description="Manage teaching staff and assignments"
         cardTitle="Staff Directory"
         columns={columns}
-        data={pagedData as unknown as Record<string, unknown>[]}
+        data={teachers as unknown as Record<string, unknown>[]}
         isLoading={isLoading}
-        totalCount={isLoading ? undefined : totalCount}
+        totalCount={isLoading ? undefined : isError ? 0 : totalCount}
         search={{
           value: searchInput,
           placeholder: "Search by name, ID or subject…",
@@ -235,10 +221,18 @@ export default function TeachersPage() {
           onPageChange: handlePageChange,
         }}
         emptyMessage={
-          searchQuery ? `No teachers match "${searchQuery}"` : "No teachers yet"
+          isError
+            ? "Failed to load teachers"
+            : searchQuery
+              ? `No teachers match "${searchQuery}"`
+              : "No teachers yet"
         }
         emptyDescription={
-          !searchQuery && isAdmin ? "Get started by adding a new teacher record." : undefined
+          isError
+            ? "Please try refreshing the page."
+            : !searchQuery && isAdmin
+              ? "Get started by adding a new teacher record."
+              : undefined
         }
         primaryAction={
           isAdmin ? (
