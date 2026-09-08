@@ -1,4 +1,5 @@
 ﻿// Application/Services/StudentService.cs
+using SchoolManagementSystem.Application.Common;
 using SchoolManagementSystem.Application.DTOs.Auth;
 using SchoolManagementSystem.Application.DTOs.Email;
 using SchoolManagementSystem.Application.Interfaces;
@@ -65,7 +66,81 @@ public sealed class StudentService : IStudentService
     public async Task<List<StudentResponse>> GetAllAsync(CancellationToken ct = default)
     {
         var students = await _studentRepository.GetAllAsync(ct);
-        return students.Select(s => ToResponse(s)).ToList();   // ← use lambda
+        return students.Select(s => ToResponse(s)).ToList();
+    }
+
+    public async Task<PagedResult<StudentResponse>> GetPagedAsync(
+        int page,
+        int pageSize,
+        string? search,
+        CancellationToken ct = default)
+    {
+        var pagedStudents = await _studentRepository.GetPagedAsync(page, pageSize, search, ct);
+
+        return new PagedResult<StudentResponse>
+        {
+            Items = pagedStudents.Items.Select(s => ToResponse(s)).ToList(),
+            Page = pagedStudents.Page,
+            PageSize = pagedStudents.PageSize,
+            TotalCount = pagedStudents.TotalCount
+        };
+    }
+
+    public async Task<StudentResponse?> UpdateAsync(Guid id, UpdateStudentRequest request, CancellationToken ct = default)
+    {
+        var student = await _studentRepository.GetByIdAsync(id, ct);
+        if (student is null) return null;
+
+        if (!Enum.TryParse<Gender>(request.Gender, ignoreCase: true, out var gender))
+            throw new DomainException($"Invalid gender value: '{request.Gender}'.");
+
+        if (await _studentRepository.EnrollmentNumberExistsForOtherStudentAsync(request.EnrollmentNumber, id, ct))
+            throw new DomainException($"Enrollment number '{request.EnrollmentNumber}' is already in use by another student.");
+
+        student.Update(
+            request.FirstName,
+            request.LastName,
+            request.DateOfBirth,
+            gender,
+            request.EnrollmentNumber);
+
+        await _studentRepository.SaveChangesAsync(ct);
+
+        return ToResponse(student);
+    }
+
+    public async Task DeactivateAsync(Guid id, CancellationToken ct = default)
+    {
+        var student = await _studentRepository.GetByIdAsync(id, ct)
+            ?? throw new DomainException("Student not found.");
+
+        student.Deactivate();
+
+        // Also deactivate the linked portal user if one exists
+        if (student.UserId is not null)
+        {
+            var user = await _userRepository.GetByIdAsync(student.UserId.Value, ct);
+            user?.Deactivate();
+        }
+
+        await _studentRepository.SaveChangesAsync(ct);
+    }
+
+    public async Task ReactivateAsync(Guid id, CancellationToken ct = default)
+    {
+        var student = await _studentRepository.GetByIdAsync(id, ct)
+            ?? throw new DomainException("Student not found.");
+
+        student.Reactivate();
+
+        // Also reactivate the linked portal user if one exists
+        if (student.UserId is not null)
+        {
+            var user = await _userRepository.GetByIdAsync(student.UserId.Value, ct);
+            user?.Activate();
+        }
+
+        await _studentRepository.SaveChangesAsync(ct);
     }
 
     public async Task<StudentResponse> InviteToPortalAsync(Guid studentId, string email, CancellationToken ct = default)
@@ -106,7 +181,7 @@ public sealed class StudentService : IStudentService
 
         await _emailService.SendAsync(emailMessage, ct);
 
-        return ToResponse(student,user);
+        return ToResponse(student, user);
     }
 
     public async Task ResendInviteAsync(Guid studentId, CancellationToken ct = default)
@@ -123,7 +198,6 @@ public sealed class StudentService : IStudentService
         if (user.IsActive)
             throw new DomainException("This account is already activated. No need to resend the invitation.");
 
-        // Generate new token
         var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
 
@@ -146,6 +220,7 @@ public sealed class StudentService : IStudentService
 
         await _emailService.SendAsync(emailMessage, ct);
     }
+
     private static StudentResponse ToResponse(Student s, User? user = null) => new(
         s.Id,
         s.FirstName,
@@ -154,6 +229,7 @@ public sealed class StudentService : IStudentService
         s.Gender.ToString(),
         s.EnrollmentNumber,
         s.CreatedAtUtc,
+        s.IsActive,
         s.UserId,
         s.UserId is not null,
         user?.IsActive,

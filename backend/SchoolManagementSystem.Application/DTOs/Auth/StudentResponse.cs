@@ -9,6 +9,7 @@ public record StudentResponse(
     string Gender,
     string EnrollmentNumber,
     DateTime CreatedAtUtc,
+    bool IsActive,
     Guid? UserId,
     bool HasPortalAccount,          // UserId != null
     bool? IsPortalActive,            // optional – requires join

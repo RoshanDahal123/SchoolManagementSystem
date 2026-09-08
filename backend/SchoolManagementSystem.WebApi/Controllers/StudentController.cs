@@ -1,15 +1,15 @@
 ﻿// WebApi/Controllers/StudentsController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolManagementSystem.Application.Common;
 using SchoolManagementSystem.Application.DTOs.Auth;
 using SchoolManagementSystem.Application.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 
 [ApiController]
 [Route("api/students")]
-[Authorize] // tighten to a role once authorization step is done
+[Authorize]
 public class StudentsController : ControllerBase
 {
     private readonly IStudentService _studentService;
@@ -31,11 +31,43 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<StudentResponse>>> GetAll(CancellationToken ct)
+    public async Task<ActionResult<PagedResult<StudentResponse>>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        CancellationToken ct = default)
     {
-        return Ok(await _studentService.GetAllAsync(ct));
+        var result = await _studentService.GetPagedAsync(page, pageSize, search, ct);
+        return Ok(result);
     }
- 
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<StudentResponse>> Update(
+        Guid id,
+        UpdateStudentRequest request,
+        CancellationToken ct)
+    {
+        var result = await _studentService.UpdateAsync(id, request, ct);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost("{id:guid}/deactivate")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Deactivate(Guid id, CancellationToken ct)
+    {
+        await _studentService.DeactivateAsync(id, ct);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/reactivate")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Reactivate(Guid id, CancellationToken ct)
+    {
+        await _studentService.ReactivateAsync(id, ct);
+        return NoContent();
+    }
+
     [HttpPost("{id:guid}/invite")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<StudentResponse>> Invite(Guid id, InviteStudentRequest request, CancellationToken ct)

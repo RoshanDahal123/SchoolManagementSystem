@@ -38,6 +38,11 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
 
         builder.Property(s => s.CreatedAtUtc)
             .IsRequired();
+
+        builder.Property(s => s.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         // Infrastructure/SqlRepo/Persistence/Configurations/StudentConfiguration.cs — add inside Configure():
         builder.HasOne<User>()
             .WithOne()
