@@ -15,7 +15,7 @@ import { EntityListLayout } from "@/components/organisms/entity-list-layout"
 import type { StudentResponse } from "@/features/students/@types"
 import {
   useCreateStudentMutation,
-  useGetAllStudentsQuery,
+  useGetStudentsQuery,
   useInviteStudentMutation,
   useResendInviteMutation,
 } from "@/features/students/student-api"
@@ -26,7 +26,7 @@ import { PATHS } from "@/routes/paths"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { EyeIcon, MailIcon, PlusIcon } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
@@ -41,8 +41,13 @@ export default function StudentsPage() {
   const { page, searchQuery, searchInput, handleSearchChange, handlePageChange } =
     usePaginatedSearch()
 
-  // ── API ─────────────────────────────────────────────────────────────────────
-  const { data: students = [], isLoading } = useGetAllStudentsQuery()
+  // ── API (server-side pagination + search) ───────────────────────────────────
+  const {
+    data,
+    isLoading,
+    isError,
+  } = useGetStudentsQuery({ page, search: searchQuery || undefined })
+
   const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation()
   const [inviteStudent, { isLoading: isInviting }] = useInviteStudentMutation()
   const [resendInvite, { isLoading: isResending }] = useResendInviteMutation()
@@ -65,29 +70,14 @@ export default function StudentsPage() {
     resolver: zodResolver(createStudentSchema),
   })
 
-  // ── Client-side filter + paginate ───────────────────────────────────────────
-  // When the backend gains server-side search/pagination, replace this block
-  // with a single server-driven query (e.g. useGetStudentsQuery({ page, search })).
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return students
-    return students.filter((s) => {
-      const name = `${s.firstName} ${s.lastName}`.toLowerCase()
-      const enrollment = s.enrollmentNumber.toLowerCase()
-      return name.includes(q) || enrollment.includes(q)
-    })
-  }, [students, searchQuery])
-
-  const totalCount = filtered.length
-  const pagedData = useMemo(
-    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [filtered, page],
-  )
+  // ── Derived data ─────────────────────────────────────────────────────────────
+  const students = data?.items ?? []
+  const totalCount = data?.totalCount ?? 0
 
   // ── Handlers ────────────────────────────────────────────────────────────────
-  const onSubmitCreate = async (data: CreateStudentFormData) => {
+  const onSubmitCreate = async (formData: CreateStudentFormData) => {
     try {
-      await createStudent(data).unwrap()
+      await createStudent(formData).unwrap()
       toast.success("Student created successfully")
       setCreateDialogOpen(false)
       reset()
@@ -210,9 +200,9 @@ export default function StudentsPage() {
         description="Manage student records and enrollments"
         cardTitle="Directory"
         columns={columns}
-        data={pagedData as unknown as Record<string, unknown>[]}
+        data={students as unknown as Record<string, unknown>[]}
         isLoading={isLoading}
-        totalCount={isLoading ? undefined : totalCount}
+        totalCount={isLoading ? undefined : isError ? 0 : totalCount}
         search={{
           value: searchInput,
           placeholder: "Search by name or enrollment…",
@@ -225,12 +215,18 @@ export default function StudentsPage() {
           onPageChange: handlePageChange,
         }}
         emptyMessage={
-          searchQuery ? `No students match "${searchQuery}"` : "No students yet"
+          isError
+            ? "Failed to load students"
+            : searchQuery
+              ? `No students match "${searchQuery}"`
+              : "No students yet"
         }
         emptyDescription={
-          !searchQuery && isAdmin
-            ? "Get started by adding a new student record."
-            : undefined
+          isError
+            ? "Please try refreshing the page."
+            : !searchQuery && isAdmin
+              ? "Get started by adding a new student record."
+              : undefined
         }
         primaryAction={
           isAdmin ? (

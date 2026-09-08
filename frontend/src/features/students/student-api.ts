@@ -1,14 +1,32 @@
 import { baseApi } from "../../app/base-api";
-import type { CreateStudentRequest, InviteStudentRequest, StudentResponse } from "./@types";
+import type {
+  CreateStudentRequest,
+  InviteStudentRequest,
+  PaginatedStudents,
+  StudentResponse,
+  UpdateStudentRequest,
+} from "./@types";
 
 export const studentsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllStudents: builder.query<StudentResponse[], void>({
-      query: () => ({ url: "/students", method: "GET" }),
+    getStudents: builder.query<PaginatedStudents, { page: number; search?: string }>({
+      query: ({ page, search }) => {
+        const params = new URLSearchParams({
+          page: String(page),
+          pageSize: "10",
+        });
+        if (search?.trim()) {
+          params.set("search", search.trim());
+        }
+        return {
+          url: `/students?${params.toString()}`,
+          method: "GET",
+        };
+      },
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: "Student" as const, id })),
+              ...result.items.map(({ id }) => ({ type: "Student" as const, id })),
               { type: "Student", id: "LIST" },
             ]
           : [{ type: "Student", id: "LIST" }],
@@ -24,6 +42,40 @@ export const studentsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Student", id: "LIST" }],
     }),
 
+    updateStudent: builder.mutation<StudentResponse, { id: string; data: UpdateStudentRequest }>({
+      query: ({ id, data }) => ({
+        url: `/students/${id}`,
+        method: "PUT",
+        data,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Student", id },
+        { type: "Student", id: "LIST" },
+      ],
+    }),
+
+    deactivateStudent: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/students/${id}/deactivate`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "Student", id },
+        { type: "Student", id: "LIST" },
+      ],
+    }),
+
+    reactivateStudent: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/students/${id}/reactivate`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "Student", id },
+        { type: "Student", id: "LIST" },
+      ],
+    }),
+
     inviteStudent: builder.mutation<StudentResponse, InviteStudentRequest>({
       query: ({ id, email }) => ({
         url: `/students/${id}/invite`,
@@ -36,7 +88,6 @@ export const studentsApi = baseApi.injectEndpoints({
       ],
     }),
 
-    // New endpoint
     resendInvite: builder.mutation<void, string>({
       query: (id) => ({
         url: `/students/${id}/resend-invite`,
@@ -52,9 +103,12 @@ export const studentsApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetAllStudentsQuery,
+  useGetStudentsQuery,
   useGetStudentByIdQuery,
   useCreateStudentMutation,
+  useUpdateStudentMutation,
+  useDeactivateStudentMutation,
+  useReactivateStudentMutation,
   useInviteStudentMutation,
   useResendInviteMutation,
 } = studentsApi;
