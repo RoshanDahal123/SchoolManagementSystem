@@ -1,3 +1,4 @@
+import { Collapsible, CollapsibleContent } from "@/components/atoms/collapsible"
 import {
   Sidebar,
   SidebarContent,
@@ -10,20 +11,31 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
-} from "@/components/atoms/sidebar";
-import { NavUser } from "@/components/organisms/nav-user";
-import { Navbar } from "@/components/organisms/navbar";
-import { NAV_ITEMS } from "@/config/nav-item";
-import { GraduationCapIcon } from "lucide-react";
-import { Link, Outlet, useLocation } from "react-router";
+} from "@/components/atoms/sidebar"
+import { NavUser } from "@/components/organisms/nav-user"
+import { Navbar } from "@/components/organisms/navbar"
+import { NAV_ITEMS } from "@/config/nav-item"
+import { cn } from "@/lib/utils"
+import { ChevronRightIcon, GraduationCapIcon } from "lucide-react"
+import { useState } from "react"
+import { Link, Outlet, useLocation } from "react-router"
 
 export function AdminLayout() {
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
   const isActiveRoute = (path: string) =>
     pathname === path || pathname.startsWith(`${path}/`)
+
+  const isSubActive = (path: string) => {
+    const [subPath, query] = path.split("?")
+    return pathname === subPath && (!query || search.includes(query))
+  }
 
   return (
     <SidebarProvider>
@@ -49,10 +61,59 @@ export function AdminLayout() {
               <SidebarMenu>
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon
+                  const activeParent = isActiveRoute(item.path)
+
+                  if (item.items?.length) {
+                    const isOpen = openGroups[item.path] ?? activeParent
+                    return (
+                      <Collapsible
+                        key={item.path}
+                        open={isOpen}
+                        onOpenChange={(open) =>
+                          setOpenGroups((prev) => ({ ...prev, [item.path]: open }))
+                        }
+                      >
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            isActive={activeParent}
+                            tooltip={item.title}
+                            onClick={() =>
+                              setOpenGroups((prev) => ({ ...prev, [item.path]: !isOpen }))
+                            }
+                          >
+                            <Icon />
+                            <span>{item.title}</span>
+                            <ChevronRightIcon
+                              className={cn(
+                                "ml-auto size-4 transition-transform duration-200",
+                                isOpen && "rotate-90"
+                              )}
+                            />
+                          </SidebarMenuButton>
+
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              {item.items.map((sub) => (
+                                <SidebarMenuSubItem key={sub.path}>
+                                  <SidebarMenuSubButton
+                                    isActive={isSubActive(sub.path)}
+                                    render={<Link to={sub.path} />}
+                                  >
+                                    <span>{sub.title}</span>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    )
+                  }
+
                   return (
                     <SidebarMenuItem key={item.path}>
                       <SidebarMenuButton
-                        isActive={isActiveRoute(item.path)}
+                        isActive={activeParent}
                         tooltip={item.title}
                         render={<Link to={item.path} />}
                       >

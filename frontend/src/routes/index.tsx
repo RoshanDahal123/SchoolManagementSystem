@@ -3,7 +3,8 @@
 
 
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import { AdminLayout } from "../layouts/admin-layout";
+
+import { AdminLayout } from "@/layouts/admin-layout";
 import AcademicPage from "../pages/admin/academic";
 import AssignmentsPage from "../pages/admin/assignments";
 import AttendancePage from "../pages/admin/attendance";
@@ -12,12 +13,12 @@ import StudentDetailsPage from "../pages/admin/student-details";
 import StudentsPage from "../pages/admin/students";
 import TeacherDetailsPage from "../pages/admin/teacher-details";
 import TeachersPage from "../pages/admin/teachers";
+import ActivateAccountPage from "../pages/anonymous/activate-account-page";
 import LoginPage from "../pages/anonymous/login";
 import { AuthBootstrap } from "./auth-bootstrap";
 import { PATHS } from "./paths";
 import { ProtectedRoute } from "./protected-routes";
 import { PublicOnlyRoute } from "./public-only-route";
-import ActivateAccountPage from "../pages/anonymous/activate-account-page";
 
 export function AppRoutes() {
   return (

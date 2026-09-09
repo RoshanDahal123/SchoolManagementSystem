@@ -2,15 +2,19 @@ export const PATHS = {
   login: "/login",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
-  dashboard: "/dashboard", // Keep for backward compatibility, will redirect to admin
+  dashboard: "/dashboard",
   admin: "/admin",
   adminDashboard: "/admin/dashboard",
   adminStudents: "/admin/students",
-  activate:"activate",
+  activate: "activate",
   adminStudentDetails: (id: string) => `/admin/students/${id}`,
   adminTeachers: "/admin/teachers",
   adminTeacherDetails: (id: string) => `/admin/teachers/${id}`,
   adminAcademic: "/admin/academic",
+  adminAcademicYears: "/admin/academic?tab=years",
+  adminAcademicGrades: "/admin/academic?tab=grades",
+  adminAcademicSubjects: "/admin/academic?tab=subjects",
+  adminAcademicCurriculum: "/admin/academic?tab=curriculum",
   adminAssignments: "/admin/assignments",
   adminAttendance: "/admin/attendance",
-} as const;
+} as const

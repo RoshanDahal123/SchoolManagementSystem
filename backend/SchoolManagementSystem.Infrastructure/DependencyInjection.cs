@@ -31,6 +31,12 @@ public static class DependencyInjection
         services.AddScoped<IAccountSetupTokenRepository, AccountSetupTokenRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<ITeacherRepository, TeacherRepository>();
+        services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
+        services.AddScoped<IGradeLevelRepository, GradeLevelRepository>();
+        services.AddScoped<ISectionRepository, SectionRepository>();
+        services.AddScoped<ISubjectRepository, SubjectRepository>();
+        services.AddScoped<IClassSubjectRepository, ClassSubjectRepository>();
+        services.AddScoped<IClassSubjectTeacherRepository, ClassSubjectTeacherRepository>();
         services.AddHostedService<AdminSeeder>();
 
         return services;

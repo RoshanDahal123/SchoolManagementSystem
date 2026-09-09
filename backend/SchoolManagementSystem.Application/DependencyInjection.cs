@@ -14,6 +14,11 @@ namespace SchoolManagementSystem.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<ITeacherService, TeacherService>();
+            services.AddScoped<IAcademicYearService, AcademicYearService>();
+            services.AddScoped<IGradeLevelService, GradeLevelService>();
+            services.AddScoped<ISectionService, SectionService>();
+            services.AddScoped<ISubjectService, SubjectService>();
+            services.AddScoped<IClassSubjectService, ClassSubjectService>();
             
 
             return services;

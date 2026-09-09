@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 
@@ -11,9 +12,11 @@ using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260908092050_AddAcademicYear")]
+    partial class AddAcademicYear
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,86 +95,6 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
                     b.ToTable("AccountSetupTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.ClassSubject", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AcademicYearId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("GradeLevelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
-
-                    b.HasIndex("SubjectId");
-
-                    b.HasIndex("GradeLevelId", "SubjectId", "AcademicYearId")
-                        .IsUnique();
-
-                    b.ToTable("ClassSubjects", (string)null);
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.ClassSubjectTeacher", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("AssignedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ClassSubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TeacherId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassSubjectId")
-                        .IsUnique();
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("ClassSubjectTeachers", (string)null);
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.GradeLevel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("GradeLevels", (string)null);
-                });
-
             modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -207,36 +130,6 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens", (string)null);
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.Section", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Capacity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("GradeLevelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GradeLevelId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("Sections", (string)null);
                 });
 
             modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.Student", b =>
@@ -289,43 +182,6 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
                         .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Students", (string)null);
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.Subject", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreditHours")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.Teacher", b =>
@@ -437,63 +293,6 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.ClassSubject", b =>
-                {
-                    b.HasOne("SchoolManagementSystem.Domain.Entities.AcademicYear", "AcademicYear")
-                        .WithMany()
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SchoolManagementSystem.Domain.Entities.GradeLevel", "GradeLevel")
-                        .WithMany()
-                        .HasForeignKey("GradeLevelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SchoolManagementSystem.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AcademicYear");
-
-                    b.Navigation("GradeLevel");
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.ClassSubjectTeacher", b =>
-                {
-                    b.HasOne("SchoolManagementSystem.Domain.Entities.ClassSubject", "ClassSubject")
-                        .WithMany("TeacherAssignments")
-                        .HasForeignKey("ClassSubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SchoolManagementSystem.Domain.Entities.Teacher", "Teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ClassSubject");
-
-                    b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.Section", b =>
-                {
-                    b.HasOne("SchoolManagementSystem.Domain.Entities.GradeLevel", "GradeLevel")
-                        .WithMany("Sections")
-                        .HasForeignKey("GradeLevelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("GradeLevel");
-                });
-
             modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.Student", b =>
                 {
                     b.HasOne("SchoolManagementSystem.Domain.Entities.User", null)
@@ -508,16 +307,6 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
                         .WithOne()
                         .HasForeignKey("SchoolManagementSystem.Domain.Entities.Teacher", "UserId")
                         .OnDelete(DeleteBehavior.SetNull);
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.ClassSubject", b =>
-                {
-                    b.Navigation("TeacherAssignments");
-                });
-
-            modelBuilder.Entity("SchoolManagementSystem.Domain.Entities.GradeLevel", b =>
-                {
-                    b.Navigation("Sections");
                 });
 #pragma warning restore 612, 618
         }
