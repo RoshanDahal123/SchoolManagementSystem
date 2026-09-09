@@ -27,10 +27,6 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
             .IsRequired()
             .HasDefaultValue(0);
 
-        builder.Property(s => s.IsActive)
-            .IsRequired()
-            .HasDefaultValue(true);
-
         builder.Property(s => s.CreatedAtUtc)
             .IsRequired();
     }

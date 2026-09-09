@@ -49,5 +49,5 @@ public sealed class SubjectService : ISubjectService
 
         return ToResponse(subject);
     }
-  private static SubjectResponse ToResponse(Subject s) => new(s.Id, s.Name, s.Code, s.CreditHours, s.IsActive, s.CreatedAtUtc);
+  private static SubjectResponse ToResponse(Subject s) => new(s.Id, s.Name, s.Code, s.CreditHours, s.CreatedAtUtc);
 }

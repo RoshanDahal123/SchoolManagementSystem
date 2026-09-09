@@ -41,7 +41,6 @@ public class Subject
             Name = name.Trim(),
             Code = code.Trim().ToUpper(),
             CreditHours = creditHours,
-            IsActive = true,
             CreatedAtUtc = DateTime.UtcNow
         };
     }
@@ -68,6 +67,5 @@ public class Subject
         CreditHours = creditHours;
     }
 
-    public void Deactivate() => IsActive = false;
-    public void Reactivate() => IsActive = true;
 }
+
