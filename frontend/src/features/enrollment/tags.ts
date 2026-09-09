@@ -1,0 +1,1 @@
+export const STUDENT_ENROLLMENT_TAGS = ["StudentEnrollment"] as const

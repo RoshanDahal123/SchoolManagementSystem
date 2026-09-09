@@ -43,7 +43,7 @@ export function CurriculumPanel({ isAdmin }: { isAdmin: boolean }) {
   const [removeTarget, setRemoveTarget] = useState<ClassSubjectResponse | null>(null)
 
   const assignedSubjectIds = new Set(classSubjects.map((cs) => cs.subjectId))
-  const availableSubjects = subjects.filter((s) => s.isActive && !assignedSubjectIds.has(s.id))
+  const availableSubjects = subjects.filter((s) =>  !assignedSubjectIds.has(s.id))
 
   const handleAssignSubject = async (subjectId: string) => {
     try {

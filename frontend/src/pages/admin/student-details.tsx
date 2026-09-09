@@ -23,6 +23,9 @@ import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
 import { Input } from "@/components/atoms/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select"
 import { Skeleton } from "@/components/atoms/skeleton"
+import { EnrollStudentDialog } from "@/features/enrollment/components/enroll-student-dialog"
+import { TransferStudentDialog } from "@/features/enrollment/components/transfer-studetnt-dialog"
+import { useChangeEnrollmentStatusMutation, useEnrollStudentMutation, useGetEnrollmentHistoryQuery, useTransferStudentMutation } from "@/features/enrollment/enrollment-api"
 import {
   useDeactivateStudentMutation,
   useGetStudentByIdQuery,
@@ -52,7 +55,18 @@ export default function StudentDetailsPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
   const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false)
+//Student-enrollment-state
+const { data: enrollments = [] } = useGetEnrollmentHistoryQuery(id!, { skip: !id })
+const currentEnrollment = enrollments.find((e) => e.status === "Active") ?? null
+const pastEnrollments = enrollments.filter((e) => e.status !== "Active")
 
+const [enrollStudent, { isLoading: isEnrolling }] = useEnrollStudentMutation()
+const [transferStudent, { isLoading: isTransferring }] = useTransferStudentMutation()
+const [changeEnrollmentStatus, { isLoading: isChangingStatus }] = useChangeEnrollmentStatusMutation()
+
+const [enrollDialogOpen, setEnrollDialogOpen] = useState(false)
+const [transferDialogOpen, setTransferDialogOpen] = useState(false)
+const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
   // ── Edit form ────────────────────────────────────────────────────────────────
   const {
     register,
@@ -91,7 +105,7 @@ export default function StudentDetailsPage() {
       toast.error(message)
     }
   }
-
+//deactivate/reactivate handlers
   const handleDeactivate = async () => {
     if (!student) return
     try {
@@ -117,6 +131,47 @@ export default function StudentDetailsPage() {
       toast.error(message)
     }
   }
+const handleEnroll = async (data: import("@/features/enrollment/@types").EnrollStudentRequest) => {
+  if (!student) return
+  try {
+    await enrollStudent({ studentId: student.id, data }).unwrap()
+    toast.success("Student enrolled")
+    setEnrollDialogOpen(false)
+  } catch (err: any) {
+    toast.error(err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to enroll student")
+  }
+}
+
+
+const handleTransfer = async (newSectionId: string) => {
+  if (!student || !currentEnrollment) return
+  try {
+    await transferStudent({
+      enrollmentId: currentEnrollment.id,
+      studentId: student.id,
+      data: { newSectionId },
+    }).unwrap()
+    toast.success("Student transferred")
+    setTransferDialogOpen(false)
+  } catch (err: any) {
+    toast.error(err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to transfer student")
+  }
+}
+
+const handleWithdraw = async () => {
+  if (!student || !currentEnrollment) return
+  try {
+    await changeEnrollmentStatus({
+      enrollmentId: currentEnrollment.id,
+      studentId: student.id,
+      data: { status: "Withdrawn" },
+    }).unwrap()
+    toast.success("Enrollment marked as withdrawn")
+    setWithdrawDialogOpen(false)
+  } catch (err: any) {
+    toast.error(err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to update enrollment")
+  }
+}
 
   // ── Loading state ────────────────────────────────────────────────────────────
   if (isLoading) {
@@ -293,6 +348,65 @@ export default function StudentDetailsPage() {
         </Card>
       </div>
 
+{/* Academic Enrollment card */}
+<Card>
+  <CardHeader className="flex flex-row items-center justify-between">
+    <CardTitle>Academic Enrollment</CardTitle>
+    {currentEnrollment ? (
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={() => setTransferDialogOpen(true)}>
+          Transfer
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/40"
+          onClick={() => setWithdrawDialogOpen(true)}
+        >
+          Withdraw
+        </Button>
+      </div>
+    ) : (
+      <Button size="sm" onClick={() => setEnrollDialogOpen(true)}>Enroll</Button>
+    )}
+  </CardHeader>
+  <CardContent className="space-y-4">
+    {currentEnrollment ? (
+      <div className="flex items-center gap-3">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Currently enrolled</p>
+          <p className="text-base">
+            {currentEnrollment.gradeLevelName} · {currentEnrollment.sectionName}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {currentEnrollment.academicYearName} · since{" "}
+            {format(new Date(currentEnrollment.enrolledOn), "MMM dd, yyyy")}
+          </p>
+        </div>
+        <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">Active</Badge>
+      </div>
+    ) : (
+      <p className="text-sm text-muted-foreground">
+        This student isn't enrolled in a section yet.
+      </p>
+    )}
+
+    {pastEnrollments.length > 0 && (
+      <div className="pt-2 border-t">
+        <p className="text-sm font-medium text-muted-foreground mb-2">History</p>
+        <ul className="space-y-1.5">
+          {pastEnrollments.map((e) => (
+            <li key={e.id} className="text-sm flex items-center justify-between">
+              <span>{e.gradeLevelName} · {e.sectionName} ({e.academicYearName})</span>
+              <Badge variant="outline">{e.status}</Badge>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </CardContent>
+</Card>
+
       {/* ── Edit Dialog ─────────────────────────────────────────────────────────── */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -419,6 +533,41 @@ export default function StudentDetailsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EnrollStudentDialog
+  open={enrollDialogOpen}
+  onOpenChange={setEnrollDialogOpen}
+  studentName={`${student.firstName} ${student.lastName}`}
+  isSaving={isEnrolling}
+  onEnroll={handleEnroll}
+/>
+
+<TransferStudentDialog
+  open={transferDialogOpen}
+  onOpenChange={setTransferDialogOpen}
+  studentName={`${student.firstName} ${student.lastName}`}
+  currentEnrollment={currentEnrollment}
+  isSaving={isTransferring}
+  onTransfer={handleTransfer}
+/>
+
+<AlertDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Withdraw enrollment</AlertDialogTitle>
+      <AlertDialogDescription>
+        This marks {student.firstName} {student.lastName}'s current enrollment as withdrawn.
+        This doesn't deactivate their account — use "Deactivate" above for that.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction variant="destructive" disabled={isChangingStatus} onClick={handleWithdraw}>
+        {isChangingStatus ? "Withdrawing…" : "Withdraw"}
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
     </>
   )
 }
