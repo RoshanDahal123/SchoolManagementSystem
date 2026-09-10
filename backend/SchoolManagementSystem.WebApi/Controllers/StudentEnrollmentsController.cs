@@ -30,6 +30,12 @@ public class StudentEnrollmentsController : ControllerBase
         Guid id, TransferStudentRequest request, CancellationToken ct)
         => Ok(await _service.TransferStudentAsync(id, request, ct));
 
+    [HttpPost("api/enrollments/{id:guid}/promote")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<StudentEnrollmentResponse>> Promote(
+    Guid id, PromoteStudentRequest request, CancellationToken ct)
+    => Ok(await _service.PromoteStudentAsync(id, request, ct));
+
     [HttpPatch("api/enrollments/{id:guid}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<StudentEnrollmentResponse>> ChangeStatus(

@@ -1,5 +1,5 @@
 import { baseApi } from "@/app/base-api";
-import type { ChangeEnrollmentStatusRequest, EnrollStudentRequest, StudentEnrollmentResponse, TransferStudentRequest } from "./@types";
+import type { ChangeEnrollmentStatusRequest, EnrollStudentRequest, PromoteStudentRequest, StudentEnrollmentResponse, TransferStudentRequest } from "./@types";
 
 
 
@@ -45,6 +45,14 @@ changeEnrollmentStatus: builder.mutation
       }),
       invalidatesTags: (_r, _e, { studentId }) => [{ type: "StudentEnrollment", id: studentId }],
     }),
+    promoteStudent:builder.mutation<StudentEnrollmentResponse,{enrollmentId:string;studentId:string; data:PromoteStudentRequest}>({
+      query:({enrollmentId, data}) => ({
+        url:`/enrollments/${enrollmentId}/promote`,
+        method:"POST",
+        data,
+      }),
+      invalidatesTags:(_r,_e,{studentId}) => [{ type: "StudentEnrollment", id: studentId }]
+    }),
  getSectionRoster: builder.query<StudentEnrollmentResponse[],{sectionId:string,academicYearId:string}>({
       query: ({sectionId,academicYearId}) => ({
         url: `/sections/${sectionId}/academic-years/${academicYearId}/enrollments`,
@@ -62,5 +70,6 @@ export const {
     useEnrollStudentMutation,
     useTransferStudentMutation,
     useChangeEnrollmentStatusMutation,
-    useGetSectionRosterQuery
+    useGetSectionRosterQuery,
+    usePromoteStudentMutation
 }= enrollmentApi;

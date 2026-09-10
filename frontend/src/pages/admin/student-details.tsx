@@ -24,8 +24,9 @@ import { Input } from "@/components/atoms/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { EnrollStudentDialog } from "@/features/enrollment/components/enroll-student-dialog"
+import { PromoteStudentDialog } from "@/features/enrollment/components/promote-student-dialog"
 import { TransferStudentDialog } from "@/features/enrollment/components/transfer-studetnt-dialog"
-import { useChangeEnrollmentStatusMutation, useEnrollStudentMutation, useGetEnrollmentHistoryQuery, useTransferStudentMutation } from "@/features/enrollment/enrollment-api"
+import { useChangeEnrollmentStatusMutation, useEnrollStudentMutation, useGetEnrollmentHistoryQuery, usePromoteStudentMutation, useTransferStudentMutation } from "@/features/enrollment/enrollment-api"
 import {
   useDeactivateStudentMutation,
   useGetStudentByIdQuery,
@@ -63,10 +64,11 @@ const pastEnrollments = enrollments.filter((e) => e.status !== "Active")
 const [enrollStudent, { isLoading: isEnrolling }] = useEnrollStudentMutation()
 const [transferStudent, { isLoading: isTransferring }] = useTransferStudentMutation()
 const [changeEnrollmentStatus, { isLoading: isChangingStatus }] = useChangeEnrollmentStatusMutation()
-
+const[promoteStudent,{isLoading:isPromoting}] = usePromoteStudentMutation();
 const [enrollDialogOpen, setEnrollDialogOpen] = useState(false)
 const [transferDialogOpen, setTransferDialogOpen] = useState(false)
 const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
+const[promoteDialogOpen, setPromoteDialogOpen] = useState(false);
   // ── Edit form ────────────────────────────────────────────────────────────────
   const {
     register,
@@ -171,8 +173,33 @@ const handleWithdraw = async () => {
   } catch (err: any) {
     toast.error(err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to update enrollment")
   }
+}//enrollmentstatus handler
+
+const handleStatusChange= async(newStatus:"Active"|"Completed"|"Withdrawn")=>{
+ if (!student || !currentEnrollment || newStatus === currentEnrollment.status) return
+   try {
+    await changeEnrollmentStatus({
+      enrollmentId: currentEnrollment.id,
+      studentId: student.id,
+      data: { status: newStatus },
+    }).unwrap()
+    toast.success(`Enrollment status updated to ${newStatus}`)
+  } catch (err: any) {
+    toast.error(err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to update status")
+  }
 }
 
+//promote handler
+const handlePromote = async (data: import("@/features/enrollment/@types").PromoteStudentRequest) => {
+  if (!student || !currentEnrollment) return
+  try {
+    await promoteStudent({ enrollmentId: currentEnrollment.id, studentId: student.id, data }).unwrap()
+    toast.success("Student promoted")
+    setPromoteDialogOpen(false)
+  } catch (err: any) {
+    toast.error(err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to promote student")
+  }
+}
   // ── Loading state ────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
@@ -350,26 +377,32 @@ const handleWithdraw = async () => {
 
 {/* Academic Enrollment card */}
 <Card>
-  <CardHeader className="flex flex-row items-center justify-between">
-    <CardTitle>Academic Enrollment</CardTitle>
-    {currentEnrollment ? (
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={() => setTransferDialogOpen(true)}>
-          Transfer
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/40"
-          onClick={() => setWithdrawDialogOpen(true)}
-        >
-          Withdraw
-        </Button>
-      </div>
-    ) : (
-      <Button size="sm" onClick={() => setEnrollDialogOpen(true)}>Enroll</Button>
-    )}
-  </CardHeader>
+ <CardHeader className="flex flex-row items-center justify-between">
+  <CardTitle>Academic Enrollment</CardTitle>
+  {currentEnrollment ? (
+    <div className="flex items-center gap-2">
+      <Select
+        value={currentEnrollment.status}
+        onValueChange={(value) => handleStatusChange(value as "Active" | "Completed" | "Withdrawn")}
+      >
+        <SelectTrigger className="h-8 w-[130px]">
+          <span className="text-sm">{currentEnrollment.status}</span>
+        </SelectTrigger>
+        <SelectContent side="bottom" align="start" sideOffset={6} alignItemWithTrigger={false}>
+          <SelectItem value="Active">Active</SelectItem>
+          <SelectItem value="Completed">Completed</SelectItem>
+          <SelectItem value="Withdrawn">Withdrawn</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button variant="outline" size="sm" onClick={() => setTransferDialogOpen(true)}>Transfer</Button>
+      <Button size="sm" onClick={() => setPromoteDialogOpen(true)}>Promote</Button>
+    </div>
+  ) : (
+    <Button size="sm" onClick={() => setEnrollDialogOpen(true)}>Enroll</Button>
+  )}
+</CardHeader>
+
+
   <CardContent className="space-y-4">
     {currentEnrollment ? (
       <div className="flex items-center gap-3">
@@ -549,6 +582,15 @@ const handleWithdraw = async () => {
   currentEnrollment={currentEnrollment}
   isSaving={isTransferring}
   onTransfer={handleTransfer}
+/>
+
+<PromoteStudentDialog
+  open={promoteDialogOpen}
+  onOpenChange={setPromoteDialogOpen}
+  studentName={`${student.firstName} ${student.lastName}`}
+  currentEnrollment={currentEnrollment}
+  isSaving={isPromoting}
+  onPromote={handlePromote}
 />
 
 <AlertDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>

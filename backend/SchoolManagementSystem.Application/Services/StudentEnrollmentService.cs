@@ -39,9 +39,16 @@ public sealed class StudentEnrollmentService : IStudentEnrollmentService
 
         var existing = await _enrollmentRepo.GetByStudentAndYearAsync(studentId, request.AcademicYearId, ct);
         if (existing is not null)
-            throw new DomainException(
-                $"{student.FirstName} {student.LastName} is already enrolled for {year.Name}. Use transfer to change their section instead.");
-
+        {
+            if (existing.Status == EnrollmentStatus.Active)
+            {
+                throw new DomainException(
+                     $"{student.FirstName} {student.LastName} is already enrolled for {year.Name}. Use transfer to change their section instead.");
+            }
+            existing.Reenroll(request.SectionId, request.EnrolledOn); // domain guards "already in this section"
+            await _enrollmentRepo.SaveChangesAsync(ct);
+            return await ToResponseAsync(existing.Id, ct);
+        }
         var enrollment = StudentEnrollment.Create(studentId, request.AcademicYearId, request.SectionId, request.EnrolledOn);
         await _enrollmentRepo.AddAsync(enrollment, ct);
         await _enrollmentRepo.SaveChangesAsync(ct);
@@ -96,6 +103,40 @@ public sealed class StudentEnrollmentService : IStudentEnrollmentService
         return items.Select(ToResponse).ToList();
     }
 
+    public async Task<StudentEnrollmentResponse> PromoteStudentAsync(Guid enrollmentId,PromoteStudentRequest request, CancellationToken ct = default)
+    {
+        var current = await _enrollmentRepo.GetByIdAsync(enrollmentId, ct)
+       ?? throw new DomainException("Enrollment not found.");
+
+        if (current.Status != EnrollmentStatus.Active)
+            throw new DomainException("Only an active enrollment can be promoted.");
+
+        if (request.AcademicYearId == current.AcademicYearId)
+            throw new DomainException("Promotion must target a different academic year.");
+        _ = await _yearRepo.GetByIdAsync(request.AcademicYearId, ct)
+     ?? throw new DomainException("Target academic year not found.");
+
+        _ = await _sectionRepo.GetByIdAsync(request.SectionId, ct)
+            ?? throw new DomainException("Target section not found.");
+        var studentId = current.StudentId;
+        var target = await _enrollmentRepo.GetByStudentAndYearAsync(studentId, request.AcademicYearId, ct);
+        if (target is not null && target.Status == EnrollmentStatus.Active)
+            throw new DomainException("Student already has an active enrollment for the target academic year.");
+        current.ChangeStatus(EnrollmentStatus.Completed);
+
+        if (target is not null)
+            target.Reenroll(request.SectionId, request.EnrolledOn); // target year had a lapsed row — reuse it
+        else
+        {
+            target = StudentEnrollment.Create(studentId, request.AcademicYearId, request.SectionId, request.EnrolledOn);
+            await _enrollmentRepo.AddAsync(target, ct);
+        }
+
+        await _enrollmentRepo.SaveChangesAsync(ct);
+
+        return await ToResponseAsync(target.Id, ct);
+
+    }
     private async Task<StudentEnrollmentResponse> ToResponseAsync(Guid enrollmentId, CancellationToken ct)
     {
         var full = await _enrollmentRepo.GetByIdWithDetailsAsync(enrollmentId, ct)

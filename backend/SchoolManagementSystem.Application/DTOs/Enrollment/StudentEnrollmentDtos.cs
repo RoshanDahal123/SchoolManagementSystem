@@ -22,4 +22,7 @@ public record EnrollStudentRequest(Guid AcademicYearId, Guid SectionId, DateOnly
 
 public record TransferStudentRequest(Guid NewSectionId);
 
-public record ChangeEnrollmentStatusRequest(string Status); // parsed to EnrollmentStatus in the service
+public record ChangeEnrollmentStatusRequest(string Status); 
+// parsed to EnrollmentStatus in the service
+
+public record PromoteStudentRequest(Guid AcademicYearId,Guid SectionId, DateOnly EnrolledOn);

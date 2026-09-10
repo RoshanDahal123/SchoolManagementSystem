@@ -9,4 +9,8 @@ public interface IStudentEnrollmentService
     Task<StudentEnrollmentResponse> ChangeStatusAsync(Guid enrollmentId, ChangeEnrollmentStatusRequest request, CancellationToken ct = default);
     Task<List<StudentEnrollmentResponse>> GetHistoryForStudentAsync(Guid studentId, CancellationToken ct = default);
     Task<List<StudentEnrollmentResponse>> GetRosterAsync(Guid sectionId, Guid academicYearId, CancellationToken ct = default);
+    Task<StudentEnrollmentResponse> PromoteStudentAsync(Guid enrollmentId, PromoteStudentRequest request, CancellationToken ct = default);
+
 }
+
+

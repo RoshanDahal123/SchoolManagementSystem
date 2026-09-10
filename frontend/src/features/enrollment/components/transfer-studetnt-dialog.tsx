@@ -1,6 +1,6 @@
 import { Button } from "@/components/atoms/button"
 import {
-    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/atoms/dialog"
 import { Field, FieldLabel } from "@/components/atoms/field"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select"
@@ -27,11 +27,13 @@ export function TransferStudentDialog({
   useEffect(() => {
     if (open && currentEnrollment) {
       setGradeLevelId(currentEnrollment.gradeLevelId)
-      setSectionId("") // don't pre-select the section they're already in — force a deliberate pick
+      setSectionId("")
     }
   }, [open, currentEnrollment])
 
   const sections = gradeLevels.find((g) => g.id === gradeLevelId)?.sections ?? []
+  const selectedGrade = gradeLevels.find((g) => g.id === gradeLevelId)
+  const selectedSection = sections.find((s) => s.id === sectionId)
   const canSubmit = !!sectionId && sectionId !== currentEnrollment?.sectionId
 
   return (
@@ -50,12 +52,16 @@ export function TransferStudentDialog({
             <FieldLabel className="mb-1.5 text-sm font-medium text-foreground">Grade level</FieldLabel>
             <Select
               value={gradeLevelId}
-              onValueChange={(value) => { setGradeLevelId(value); setSectionId("") }}
+              onValueChange={(value) => {if(value){ setGradeLevelId(value); setSectionId("") }}}
             >
               <SelectTrigger className="h-9 w-full">
-                <SelectValue placeholder="Select grade level…" />
+                {selectedGrade ? (
+                  <span className="text-sm">{selectedGrade.name}</span>
+                ) : (
+                  <SelectValue placeholder="Select grade level…" />
+                )}
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent side="bottom" align="start" sideOffset={6} alignItemWithTrigger={false}>
                 {gradeLevels.map((g) => (
                   <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
                 ))}
@@ -65,11 +71,15 @@ export function TransferStudentDialog({
 
           <Field>
             <FieldLabel className="mb-1.5 text-sm font-medium text-foreground">New section</FieldLabel>
-            <Select value={sectionId} onValueChange={setSectionId} disabled={!gradeLevelId}>
+            <Select value={sectionId} onValueChange={(value)=>{if(value){ setSectionId(value) }}} disabled={!gradeLevelId}>
               <SelectTrigger className="h-9 w-full">
-                <SelectValue placeholder="Select section…" />
+                {selectedSection ? (
+                  <span className="text-sm">{selectedSection.name} · {selectedSection.capacity} seats</span>
+                ) : (
+                  <SelectValue placeholder="Select section…" />
+                )}
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent side="bottom" align="start" sideOffset={6} alignItemWithTrigger={false}>
                 {sections.map((s) => (
                   <SelectItem key={s.id} value={s.id} disabled={s.id === currentEnrollment?.sectionId}>
                     {s.name} · {s.capacity} seats{s.id === currentEnrollment?.sectionId ? " (current)" : ""}

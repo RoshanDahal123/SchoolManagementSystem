@@ -28,3 +28,9 @@ export interface TransferStudentRequest {
 export interface ChangeEnrollmentStatusRequest {
   status: "Active" | "Completed" | "Withdrawn"
 }
+
+export interface PromoteStudentRequest {
+  academicYearId: string
+  sectionId: string
+  enrolledOn: string
+}

@@ -71,5 +71,16 @@ namespace SchoolManagementSystem.Domain.Entities
             UpdatedAtUtc = DateTime.UtcNow;
         }
 
+        public void Reenroll(Guid sectionId, DateOnly enrolledOn)
+        {
+            if (sectionId == Guid.Empty)
+                throw new DomainException("Section is required.");
+            if(Status==EnrollmentStatus.Active)
+                throw new DomainException("Enrollment is already active. Cannot reenroll an active enrollment.");
+            SectionId = sectionId;
+            EnrolledOn = enrolledOn;
+            Status = EnrollmentStatus.Active;
+            UpdatedAtUtc = DateTime.UtcNow;
+        }
     }
 }
