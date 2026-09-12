@@ -9,14 +9,13 @@ public class Teacher
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public string EmployeeId { get; private set; } = string.Empty;
-    public string? SubjectSpecialization { get; private set; }
     public string? PhoneNumber { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public bool IsActive { get; private set; } = true;
     public Guid? UserId { get; private set; } // optional link to a user account
 
     private Teacher() { } // EF Core needs a parameterless ctor
-
+    public ICollection<TeacherSubject> Specializations { get; private set; } = new List<TeacherSubject>();
     public void LinkToUser(Guid userId)
     {
         if (userId == Guid.Empty)
@@ -28,7 +27,6 @@ public class Teacher
         string firstName,
         string lastName,
         string employeeId,
-        string? subjectSpecialization,
         string? phoneNumber)
     {
         if (string.IsNullOrWhiteSpace(firstName))
@@ -43,7 +41,6 @@ public class Teacher
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
         EmployeeId = employeeId.Trim();
-        SubjectSpecialization = subjectSpecialization?.Trim();
         PhoneNumber = phoneNumber?.Trim();
     }
 
@@ -55,7 +52,6 @@ public class Teacher
         string firstName,
         string lastName,
         string employeeId,
-        string? subjectSpecialization,
         string? phoneNumber)
     {
         if (string.IsNullOrWhiteSpace(firstName))
@@ -73,7 +69,6 @@ public class Teacher
             FirstName = firstName.Trim(),
             LastName = lastName.Trim(),
             EmployeeId = employeeId.Trim(),
-            SubjectSpecialization = subjectSpecialization?.Trim(),
             PhoneNumber = phoneNumber?.Trim(),
             CreatedAtUtc = DateTime.UtcNow,
             IsActive = true

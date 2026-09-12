@@ -6,4 +6,5 @@ public record UpdateTeacherRequest(
     string LastName,
     string EmployeeId,
     string? SubjectSpecialization,
-    string? PhoneNumber);
+    string? PhoneNumber,
+    List<Guid> SubjectIds);

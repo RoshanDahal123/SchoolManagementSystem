@@ -5,7 +5,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 import { ConfirmDialog } from "@/components/molecules/confirm-dialog"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { useGetAcademicYearsQuery } from "@/features/academic-years/academic-year-api"
-import { useGetTeachersQuery } from "@/features/teachers/teacher-api"
+import { useGetAllTeachersQuery } from "@/features/teachers/teacher-api"
 import { BoxesIcon, PlusIcon } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -24,8 +24,8 @@ export function CurriculumPanel({ isAdmin }: { isAdmin: boolean }) {
   const { data: grades = [] } = useGetGradeLevelsQuery()
   const { data: years = [] } = useGetAcademicYearsQuery()
   const { data: subjects = [] } = useGetSubjectsQuery()
-  const { data: teachersData } = useGetTeachersQuery({ page: 1 })
-  const teachers = (teachersData?.items ?? []).filter((t) => t.isActive)
+  const {data:teachersData}= useGetAllTeachersQuery();
+  const teachers = (teachersData ?? []).filter((t) => t.isActive);
 
   const [gradeId, setGradeId] = useState("")
   const [yearId, setYearId] = useState(() => years.find((y) => y.isActive)?.id ?? "")

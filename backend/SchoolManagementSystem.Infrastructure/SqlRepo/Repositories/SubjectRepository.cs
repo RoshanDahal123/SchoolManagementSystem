@@ -14,6 +14,8 @@ public class SubjectRepository : ISubjectRepository
     public Task<Subject?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         _context.Subjects.FirstOrDefaultAsync(s => s.Id == id, ct);
 
+    public Task<List<Subject>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default) =>
+    _context.Subjects.Where(s => ids.Contains(s.Id)).ToListAsync(ct);
     public Task<List<Subject>> GetAllAsync(CancellationToken ct = default) =>
         _context.Subjects
             .AsNoTracking()

@@ -37,8 +37,7 @@ public class TeacherRepository : ITeacherRepository
             query = query.Where(t =>
                 t.FirstName.ToLower().Contains(term) ||
                 t.LastName.ToLower().Contains(term) ||
-                t.EmployeeId.ToLower().Contains(term) ||
-                (t.SubjectSpecialization != null && t.SubjectSpecialization.ToLower().Contains(term)));
+                t.EmployeeId.ToLower().Contains(term));
         }
 
         return query

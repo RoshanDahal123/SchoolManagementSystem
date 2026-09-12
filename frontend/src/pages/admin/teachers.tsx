@@ -11,7 +11,9 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
 import { Input } from "@/components/atoms/input"
 import { EntityListLayout } from "@/components/organisms/entity-list-layout"
+import { useGetSubjectsQuery } from "@/features/academic/academic-api"
 import type { TeacherResponse } from "@/features/teachers/@types"
+import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field"
 import {
   useCreateTeacherMutation,
   useGetTeachersQuery,
@@ -25,7 +27,7 @@ import { PATHS } from "@/routes/paths"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { EyeIcon, MailIcon, PlusIcon } from "lucide-react"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 
@@ -50,6 +52,8 @@ export default function TeachersPage() {
   const [inviteTeacher, { isLoading: isInviting }] = useInviteTeacherMutation()
   const [resendTeacherInvite, { isLoading: isResending }] = useResendTeacherInviteMutation()
 
+  const { data: subjects = [] } = useGetSubjectsQuery()
+
   // ── Dialog state ────────────────────────────────────────────────────────────
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
@@ -60,10 +64,12 @@ export default function TeachersPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<CreateTeacherFormData>({
     resolver: zodResolver(createTeacherSchema),
+    defaultValues: { subjectIds: [] },
   })
 
   // ── Derived data ─────────────────────────────────────────────────────────────
@@ -110,10 +116,18 @@ export default function TeachersPage() {
         `${row.original.firstName} ${row.original.lastName}`,
     },
     {
-      id: "subjectSpecialization",
-      header: "Subject",
+      id: "specializations",
+      header: "Subjects",
       cell: ({ row }: { row: { original: TeacherResponse } }) =>
-        row.original.subjectSpecialization ?? (
+        row.original.specializations.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {row.original.specializations.map((s) => (
+              <Badge key={s.subjectId} variant="outline">
+                {s.subjectCode}
+              </Badge>
+            ))}
+          </div>
+        ) : (
           <span className="text-muted-foreground text-xs">—</span>
         ),
     },
@@ -272,14 +286,22 @@ export default function TeachersPage() {
               </Field>
 
               <Field>
-                <FieldLabel>Subject Specialization</FieldLabel>
-                <Input {...register("subjectSpecialization")} placeholder="Mathematics" />
-              </Field>
-
-              <Field>
                 <FieldLabel>Phone Number</FieldLabel>
                 <Input {...register("phoneNumber")} placeholder="+1 555 000 0000" />
               </Field>
+
+              <Controller
+                name="subjectIds"
+                control={control}
+                render={({ field }) => (
+                  <SubjectChecklistField
+                    subjects={subjects}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.subjectIds?.message}
+                  />
+                )}
+              />
             </div>
             <DialogFooter>
               <Button

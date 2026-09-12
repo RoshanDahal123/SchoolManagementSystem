@@ -17,6 +17,8 @@ namespace SchoolManagementSystem.Application.Services;
 public sealed class TeacherService : ITeacherService
 {
     private readonly ITeacherRepository _teacherRepository;
+    private readonly ITeacherSubjectRepository _teacherSubjectRepository;
+    private readonly ISubjectRepository _subjectRepository;
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IAccountSetupTokenRepository _setupTokenRepository;
@@ -25,6 +27,8 @@ public sealed class TeacherService : ITeacherService
 
     public TeacherService(
         ITeacherRepository teacherRepository,
+        ITeacherSubjectRepository teacherSubjectRepository,
+        ISubjectRepository subjectRepository,
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IAccountSetupTokenRepository setupTokenRepository,
@@ -32,6 +36,8 @@ public sealed class TeacherService : ITeacherService
         IOptions<AppUrlOptions> appUrlOptions)
     {
         _teacherRepository = teacherRepository;
+        _teacherSubjectRepository = teacherSubjectRepository;
+        _subjectRepository = subjectRepository;
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _setupTokenRepository = setupTokenRepository;
@@ -44,29 +50,45 @@ public sealed class TeacherService : ITeacherService
         if (await _teacherRepository.EmployeeIdExistsAsync(request.EmployeeId, ct))
             throw new DomainException($"Employee ID '{request.EmployeeId}' is already in use.");
 
+        var subjects = await ValidateAndResolveSubjectsAsync(request.SubjectIds, ct);
+
         var teacher = Teacher.Create(
             request.FirstName,
             request.LastName,
             request.EmployeeId,
-            request.SubjectSpecialization,
             request.PhoneNumber);
 
         await _teacherRepository.AddAsync(teacher, ct);
+
+        var specializations = subjects.Select(s => TeacherSubject.Create(teacher.Id, s.Id)).ToList();
+        await _teacherSubjectRepository.AddRangeAsync(specializations, ct);
+
         await _teacherRepository.SaveChangesAsync(ct);
 
-        return ToResponse(teacher);
+        return ToResponse(teacher, subjects);
     }
 
     public async Task<TeacherResponse?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var teacher = await _teacherRepository.GetByIdAsync(id, ct);
-        return teacher is null ? null : ToResponse(teacher);
+        if (teacher is null) return null;
+
+        var specializations = await _teacherSubjectRepository.GetByTeacherAsync(id, ct);
+        return ToResponse(teacher, specializations.Select(s => s.Subject).ToList());
     }
 
     public async Task<List<TeacherResponse>> GetAllAsync(CancellationToken ct = default)
     {
         var teachers = await _teacherRepository.GetAllAsync(ct);
-        return teachers.Select(t => ToResponse(t)).ToList();
+        var result = new List<TeacherResponse>(teachers.Count);
+
+        foreach (var t in teachers)
+        {
+            var specializations = await _teacherSubjectRepository.GetByTeacherAsync(t.Id, ct);
+            result.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList()));
+        }
+
+        return result;
     }
 
     public async Task<PagedResult<TeacherResponse>> GetPagedAsync(
@@ -76,10 +98,17 @@ public sealed class TeacherService : ITeacherService
         CancellationToken ct = default)
     {
         var paged = await _teacherRepository.GetPagedAsync(page, pageSize, search, ct);
+        var items = new List<TeacherResponse>(paged.Items.Count);
+
+        foreach (var t in paged.Items)
+        {
+            var specializations = await _teacherSubjectRepository.GetByTeacherAsync(t.Id, ct);
+            items.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList()));
+        }
 
         return new PagedResult<TeacherResponse>
         {
-            Items = paged.Items.Select(t => ToResponse(t)).ToList(),
+            Items = items,
             Page = paged.Page,
             PageSize = paged.PageSize,
             TotalCount = paged.TotalCount
@@ -94,16 +123,19 @@ public sealed class TeacherService : ITeacherService
         if (await _teacherRepository.EmployeeIdExistsForOtherTeacherAsync(request.EmployeeId, id, ct))
             throw new DomainException($"Employee ID '{request.EmployeeId}' is already in use by another teacher.");
 
+        var subjects = await ValidateAndResolveSubjectsAsync(request.SubjectIds, ct);
+
         teacher.Update(
             request.FirstName,
             request.LastName,
             request.EmployeeId,
-            request.SubjectSpecialization,
             request.PhoneNumber);
+
+        await SyncSpecializationsAsync(id, subjects.Select(s => s.Id).ToList(), ct);
 
         await _teacherRepository.SaveChangesAsync(ct);
 
-        return ToResponse(teacher);
+        return ToResponse(teacher, subjects);
     }
 
     public async Task DeactivateAsync(Guid id, CancellationToken ct = default)
@@ -113,7 +145,6 @@ public sealed class TeacherService : ITeacherService
 
         teacher.Deactivate();
 
-        // Also deactivate the linked portal user if one exists
         if (teacher.UserId is not null)
         {
             var user = await _userRepository.GetByIdAsync(teacher.UserId.Value, ct);
@@ -130,7 +161,6 @@ public sealed class TeacherService : ITeacherService
 
         teacher.Reactivate();
 
-        // Also reactivate the linked portal user if one exists
         if (teacher.UserId is not null)
         {
             var user = await _userRepository.GetByIdAsync(teacher.UserId.Value, ct);
@@ -179,7 +209,8 @@ public sealed class TeacherService : ITeacherService
 
         await _emailService.SendAsync(emailMessage, ct);
 
-        return ToResponse(teacher, user);
+        var specializations = await _teacherSubjectRepository.GetByTeacherAsync(teacherId, ct);
+        return ToResponse(teacher, specializations.Select(s => s.Subject).ToList(), user);
     }
 
     public async Task ResendInviteAsync(Guid teacherId, CancellationToken ct = default)
@@ -219,18 +250,52 @@ public sealed class TeacherService : ITeacherService
         await _emailService.SendAsync(emailMessage, ct);
     }
 
-    private static TeacherResponse ToResponse(Teacher t, User? user = null) => new(
+    // ─── Private helpers ────────────────────────────────────────────────
+
+    private async Task<List<Subject>> ValidateAndResolveSubjectsAsync(List<Guid> subjectIds, CancellationToken ct)
+    {
+        if (subjectIds is null || subjectIds.Count == 0)
+            throw new DomainException("A teacher must have at least one subject specialization.");
+
+        var distinctIds = subjectIds.Distinct().ToList();
+        var subjects = await _subjectRepository.GetByIdsAsync(distinctIds, ct);
+
+        if (subjects.Count != distinctIds.Count)
+            throw new DomainException("One or more selected subjects do not exist.");
+
+        return subjects;
+    }
+
+    private async Task SyncSpecializationsAsync(Guid teacherId, List<Guid> requestedSubjectIds, CancellationToken ct)
+    {
+        var existing = await _teacherSubjectRepository.GetByTeacherAsync(teacherId, ct);
+        var existingIds = existing.Select(ts => ts.SubjectId).ToHashSet();
+        var requestedIds = requestedSubjectIds.ToHashSet();
+
+        var toRemove = existing.Where(ts => !requestedIds.Contains(ts.SubjectId)).ToList();
+        if (toRemove.Count > 0)
+            _teacherSubjectRepository.RemoveRange(toRemove);
+
+        var toAddIds = requestedIds.Where(sid => !existingIds.Contains(sid)).ToList();
+        if (toAddIds.Count > 0)
+        {
+            var toAdd = toAddIds.Select(sid => TeacherSubject.Create(teacherId, sid)).ToList();
+            await _teacherSubjectRepository.AddRangeAsync(toAdd, ct);
+        }
+    }
+
+    private static TeacherResponse ToResponse(Teacher t, List<Subject> subjects, User? user = null) => new(
         t.Id,
         t.FirstName,
         t.LastName,
         t.EmployeeId,
-        t.SubjectSpecialization,
         t.PhoneNumber,
         t.CreatedAtUtc,
         t.IsActive,
         t.UserId,
         t.UserId is not null,
         user?.IsActive,
-        user?.Email
+        user?.Email,
+        subjects.Select(s => new TeacherSubjectSummary(s.Id, s.Name, s.Code)).ToList()
     );
 }

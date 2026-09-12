@@ -1,11 +1,11 @@
-import { baseApi } from "../../app/base-api"
+import { baseApi } from "../../app/base-api";
 import type {
   CreateTeacherRequest,
   InviteTeacherRequest,
   PaginatedTeachers,
   TeacherResponse,
   UpdateTeacherRequest,
-} from "./@types"
+} from "./@types";
 
 export const teachersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -36,6 +36,17 @@ export const teachersApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `/teachers/${id}`, method: "GET" }),
       providesTags: (_result, _error, id) => [{ type: "Teacher", id }],
     }),
+    getAllTeachers: builder.query<TeacherResponse[],void>({
+      query: () => ({ url: "/teachers/all", method: "GET" }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Teacher" as const, id })),
+              { type: "Teacher", id: "LIST" },
+            ]
+          : [{ type: "Teacher", id: "LIST" }],
+    }),
+
 
     createTeacher: builder.mutation<TeacherResponse, CreateTeacherRequest>({
       query: (body) => ({ url: "/teachers", method: "POST", data: body }),
@@ -105,10 +116,12 @@ export const teachersApi = baseApi.injectEndpoints({
 export const {
   useGetTeachersQuery,
   useGetTeacherByIdQuery,
+  useGetAllTeachersQuery,
   useCreateTeacherMutation,
   useUpdateTeacherMutation,
   useDeactivateTeacherMutation,
   useReactivateTeacherMutation,
   useInviteTeacherMutation,
   useResendTeacherInviteMutation,
+
 } = teachersApi

@@ -1,11 +1,16 @@
-// ─── Response ─────────────────────────────────────────────────────────────────
+
+
+export interface TeacherSubjectSummary {
+  subjectId: string
+  subjectName: string
+  subjectCode: string
+}
 
 export interface TeacherResponse {
   id: string
   firstName: string
   lastName: string
   employeeId: string
-  subjectSpecialization?: string | null
   phoneNumber?: string | null
   createdAtUtc: string
   isActive: boolean
@@ -13,6 +18,7 @@ export interface TeacherResponse {
   hasPortalAccount?: boolean
   isPortalActive?: boolean | null
   email?: string | null
+  specializations: TeacherSubjectSummary[]
 }
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
@@ -21,16 +27,16 @@ export interface CreateTeacherRequest {
   firstName: string
   lastName: string
   employeeId: string
-  subjectSpecialization?: string
   phoneNumber?: string
+  subjectIds: string[]
 }
 
 export interface UpdateTeacherRequest {
   firstName: string
   lastName: string
   employeeId: string
-  subjectSpecialization?: string
   phoneNumber?: string
+  subjectIds: string[]
 }
 
 export interface InviteTeacherRequest {

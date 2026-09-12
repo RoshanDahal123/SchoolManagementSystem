@@ -26,10 +26,6 @@ public class TeacherConfiguration : IEntityTypeConfiguration<Teacher>
 
         builder.HasIndex(t => t.EmployeeId)
             .IsUnique();
-
-        builder.Property(t => t.SubjectSpecialization)
-            .HasMaxLength(200);
-
         builder.Property(t => t.PhoneNumber)
             .HasMaxLength(30);
 

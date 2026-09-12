@@ -20,7 +20,9 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Persistence
         public DbSet<ClassSubjectTeacher> ClassSubjectTeachers => Set<ClassSubjectTeacher>();
 
             public DbSet<StudentEnrollment> StudentEnrollments => Set<StudentEnrollment>();
+        public DbSet<TeacherSubject> TeacherSubjects => Set<TeacherSubject>();
 
+        public DbSet<Attendance> Attendances => Set<Attendance>();
         protected override void OnModelCreating(ModelBuilder modelBuilder){
             // Picks up every IEntityTypeConfiguration < T > in this assembly.
            // As Student, Teacher, etc. get their own configuration classes,

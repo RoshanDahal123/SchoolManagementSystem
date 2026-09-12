@@ -5,5 +5,6 @@ public record CreateTeacherRequest(
     string FirstName,
     string LastName,
     string EmployeeId,
-    string? SubjectSpecialization,
-    string? PhoneNumber);
+    string? PhoneNumber,
+    List<Guid> SubjectIds
+    );

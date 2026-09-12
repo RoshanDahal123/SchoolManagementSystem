@@ -22,6 +22,8 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
 import { Input } from "@/components/atoms/input"
 import { Skeleton } from "@/components/atoms/skeleton"
+import { useGetSubjectsQuery } from "@/features/academic/academic-api"
+import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field"
 import {
   useDeactivateTeacherMutation,
   useGetTeacherByIdQuery,
@@ -34,7 +36,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { ArrowLeftIcon, MailIcon } from "lucide-react"
 import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router"
 import { toast } from "sonner"
 
@@ -47,6 +49,8 @@ export default function TeacherDetailsPage() {
   const [deactivateTeacher, { isLoading: isDeactivating }] = useDeactivateTeacherMutation()
   const [reactivateTeacher, { isLoading: isReactivating }] = useReactivateTeacherMutation()
 
+  const { data: subjects = [] } = useGetSubjectsQuery()
+
   // ── Dialog state ────────────────────────────────────────────────────────────
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
@@ -56,6 +60,7 @@ export default function TeacherDetailsPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<CreateTeacherFormData>({
@@ -69,8 +74,8 @@ export default function TeacherDetailsPage() {
         firstName: teacher.firstName,
         lastName: teacher.lastName,
         employeeId: teacher.employeeId,
-        subjectSpecialization: teacher.subjectSpecialization ?? "",
         phoneNumber: teacher.phoneNumber ?? "",
+        subjectIds: teacher.specializations.map((s) => s.subjectId),
       })
     }
   }, [editDialogOpen, teacher, reset])
@@ -237,12 +242,20 @@ export default function TeacherDetailsPage() {
                 <p className="text-base font-mono">{teacher.employeeId}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Subject Specialization</p>
-                <p className="text-base">
-                  {teacher.subjectSpecialization ?? (
+                <p className="text-sm font-medium text-muted-foreground">Subject Specializations</p>
+                {teacher.specializations.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {teacher.specializations.map((s) => (
+                      <Badge key={s.subjectId} variant="outline">
+                        {s.subjectName}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-base">
                     <span className="text-muted-foreground">—</span>
-                  )}
-                </p>
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Joined Since</p>
@@ -328,14 +341,22 @@ export default function TeacherDetailsPage() {
               </Field>
 
               <Field>
-                <FieldLabel>Subject Specialization</FieldLabel>
-                <Input {...register("subjectSpecialization")} placeholder="Mathematics" />
-              </Field>
-
-              <Field>
                 <FieldLabel>Phone Number</FieldLabel>
                 <Input {...register("phoneNumber")} placeholder="+1 555 000 0000" />
               </Field>
+
+              <Controller
+                name="subjectIds"
+                control={control}
+                render={({ field }) => (
+                  <SubjectChecklistField
+                    subjects={subjects}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.subjectIds?.message}
+                  />
+                )}
+              />
             </div>
             <DialogFooter>
               <Button

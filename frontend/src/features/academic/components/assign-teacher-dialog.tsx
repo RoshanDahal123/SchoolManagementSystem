@@ -42,7 +42,17 @@ export function AssignTeacherDialog({
     if (open) setTeacherId(classSubject?.assignedTeacherId ?? "")
   }, [open, classSubject])
 
-  const selected = teachers.find((t) => t.id === teacherId)
+  // UX-only filter — the real enforcement is the backend check in
+  // ClassSubjectService.AssignTeacherAsync. Keep the currently-assigned
+  // teacher selectable even if they're no longer specialized, so the
+  // dialog doesn't silently hide who's already assigned.
+  const eligibleTeachers = teachers.filter(
+    (t) =>
+      t.id === classSubject?.assignedTeacherId ||
+      t.specializations.some((s) => s.subjectId === classSubject?.subjectId)
+  )
+
+  const selected = eligibleTeachers.find((t) => t.id === teacherId)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,13 +78,8 @@ export function AssignTeacherDialog({
             >
               <SelectTrigger className="h-9 w-full">
                 {selected ? (
-                  <span className="flex items-center gap-1.5 text-sm">
-                    <span>{selected.firstName} {selected.lastName}</span>
-                    {selected.subjectSpecialization && (
-                      <span className="text-muted-foreground">
-                        · {selected.subjectSpecialization}
-                      </span>
-                    )}
+                  <span className="text-sm">
+                    {selected.firstName} {selected.lastName}
                   </span>
                 ) : (
                   <SelectValue placeholder="Select teacher…" />
@@ -87,17 +92,15 @@ export function AssignTeacherDialog({
                 sideOffset={6}
                 alignItemWithTrigger={false}
               >
-                {teachers.map((t) => (
+                {eligibleTeachers.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    No teacher is specialized in this subject yet.
+                  </div>
+                )}
+                {eligibleTeachers.map((t) => (
                   <SelectItem key={t.id} value={t.id}>
-                    <span className="flex flex-col gap-0.5">
-                      <span className="font-medium">
-                        {t.firstName} {t.lastName}
-                      </span>
-                      {t.subjectSpecialization && (
-                        <span className="text-[11px] text-muted-foreground">
-                          {t.subjectSpecialization}
-                        </span>
-                      )}
+                    <span className="font-medium">
+                      {t.firstName} {t.lastName}
                     </span>
                   </SelectItem>
                 ))}

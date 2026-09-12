@@ -1,3 +1,4 @@
+
 // WebApi/Controllers/TeachersController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,12 @@ public class TeachersController : ControllerBase
         var result = await _teacherService.GetPagedAsync(page, pageSize, search, ct);
         return Ok(result);
     }
+    [HttpGet("all")]
+    public async Task<ActionResult<List<TeacherResponse>>> GetAllUnpaged(CancellationToken ct) {
+        var result = await _teacherService.GetAllAsync(ct);
+        return Ok(result);
+    }
+
 
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin")]

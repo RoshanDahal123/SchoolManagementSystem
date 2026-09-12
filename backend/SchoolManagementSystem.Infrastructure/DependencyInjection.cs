@@ -6,6 +6,7 @@ using SchoolManagementSystem.Infrastructure.Services.Auth;
 using SchoolManagementSystem.Infrastructure.Services.Email;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
+
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories.Seeders;
 
 namespace SchoolManagementSystem.Infrastructure;
@@ -38,7 +39,8 @@ public static class DependencyInjection
         services.AddScoped<IClassSubjectRepository, ClassSubjectRepository>();
         services.AddScoped<IClassSubjectTeacherRepository, ClassSubjectTeacherRepository>();
         services.AddScoped<IStudentEnrollmentRepository, StudentEnrollmentRepository>();
-
+        services.AddScoped<ITeacherSubjectRepository, TeacherSubjectRepository>();
+        services.AddScoped<IAttendanceRepository,AttendanceRepository>();
         services.AddHostedService<AdminSeeder>();
 
         return services;

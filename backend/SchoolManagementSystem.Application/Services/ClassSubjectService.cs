@@ -14,6 +14,7 @@ public sealed class ClassSubjectService : IClassSubjectService
     private readonly IAcademicYearRepository _yearRepo;
     private readonly ITeacherRepository _teacherRepo;
     private readonly ISubjectRepository _subjectRepo;
+    private readonly ITeacherSubjectRepository _teacherSubjectRepo;
 
     public ClassSubjectService(
         IClassSubjectRepository classSubjectRepo,
@@ -21,7 +22,8 @@ public sealed class ClassSubjectService : IClassSubjectService
         IGradeLevelRepository gradeLevelRepo,
         IAcademicYearRepository yearRepo,
         ITeacherRepository teacherRepo,
-        ISubjectRepository subjectRepo)
+        ISubjectRepository subjectRepo,
+        ITeacherSubjectRepository teacherSubjectRepo)
     {
         _classSubjectRepo = classSubjectRepo;
         _teacherAssignmentRepo = teacherAssignmentRepo;
@@ -29,6 +31,7 @@ public sealed class ClassSubjectService : IClassSubjectService
         _yearRepo = yearRepo;
         _teacherRepo = teacherRepo;
         _subjectRepo = subjectRepo;
+        _teacherSubjectRepo = teacherSubjectRepo;
     }
 
     public async Task<ClassSubjectResponse> AssignSubjectAsync(
@@ -94,6 +97,12 @@ public sealed class ClassSubjectService : IClassSubjectService
         var teacher = await _teacherRepo.GetByIdAsync(request.TeacherId, ct)
             ?? throw new DomainException("Teacher not found.");
 
+
+        var isSpecialized= await _teacherSubjectRepo.ExistsAsync(teacher.Id, cs.SubjectId, ct);
+
+        if (!isSpecialized)
+            throw new DomainException(
+                $"{teacher.FirstName} {teacher.LastName} is not specialized in this subject and cannot be assigned to teach it.");
         // Remove existing assignment if present (replace semantics)
         var existing = await _teacherAssignmentRepo.GetByClassSubjectAsync(classSubjectId, ct);
         if (existing is not null)

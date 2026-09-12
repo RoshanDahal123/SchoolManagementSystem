@@ -6,12 +6,14 @@ public record TeacherResponse(
     string FirstName,
     string LastName,
     string EmployeeId,
-    string? SubjectSpecialization,
     string? PhoneNumber,
     DateTime CreatedAtUtc,
     bool IsActive,
     Guid? UserId,
-    bool HasPortalAccount,      // UserId != null
-    bool? IsPortalActive,        // optional – requires join
-    string? Email               // optional – requires join
+    bool HasPortalAccount,      
+    bool? IsPortalActive,        
+    string? Email,   
+    List<TeacherSubjectSummary> Specializations
 );
+
+public record TeacherSubjectSummary(Guid SubjectId, string SubjectName, string SubjectCode);
