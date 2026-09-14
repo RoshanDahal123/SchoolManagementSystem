@@ -15,6 +15,7 @@ export const PATHS = {
   adminAcademicGrades: "/admin/academic?tab=grades",
   adminAcademicSubjects: "/admin/academic?tab=subjects",
   adminAcademicCurriculum: "/admin/academic?tab=curriculum",
+  adminAcademicRoster: "/admin/academic?tab=roster",
   adminAssignments: "/admin/assignments",
   adminAttendance: "/admin/attendance",
 } as const
