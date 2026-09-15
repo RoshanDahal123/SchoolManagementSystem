@@ -22,7 +22,10 @@ public sealed class TeacherService : ITeacherService
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IAccountSetupTokenRepository _setupTokenRepository;
+    private readonly IClassSubjectTeacherRepository _classSubjectTeacherRepository;
     private readonly IEmailService _emailService;
+
+
     private readonly AppUrlOptions _appUrls;
 
     public TeacherService(
@@ -33,6 +36,7 @@ public sealed class TeacherService : ITeacherService
         IPasswordHasher passwordHasher,
         IAccountSetupTokenRepository setupTokenRepository,
         IEmailService emailService,
+        IClassSubjectTeacherRepository classSubjectTeacherRepository,
         IOptions<AppUrlOptions> appUrlOptions)
     {
         _teacherRepository = teacherRepository;
@@ -41,8 +45,10 @@ public sealed class TeacherService : ITeacherService
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _setupTokenRepository = setupTokenRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
         _emailService = emailService;
         _appUrls = appUrlOptions.Value;
+
     }
 
     public async Task<TeacherResponse> CreateAsync(CreateTeacherRequest request, CancellationToken ct = default)
@@ -298,4 +304,23 @@ public sealed class TeacherService : ITeacherService
         user?.Email,
         subjects.Select(s => new TeacherSubjectSummary(s.Id, s.Name, s.Code)).ToList()
     );
+
+    public async Task<List<TeacherAssignmentResponse>> GetAssignmentAsync(Guid teacherId, CancellationToken ct = default)
+    {
+        var assignments = await _classSubjectTeacherRepository.GetByTeacherAsync(teacherId, ct);
+        return assignments.
+            OrderByDescending(a => a.ClassSubject.AcademicYear.StartDate)
+            .ThenBy(a => a.ClassSubject.GradeLevel.SortOrder)
+            .Select(a => new TeacherAssignmentResponse(
+                a.ClassSubjectId,
+                a.ClassSubject.GradeLevelId,
+                a.ClassSubject.GradeLevel.Name,
+                a.ClassSubject.SubjectId,
+                a.ClassSubject.Subject.Name,
+                a.ClassSubject.Subject.Code,
+                a.ClassSubject.AcademicYearId,
+                a.ClassSubject.AcademicYear.Name,
+                a.AssignedAtUtc
+                )).ToList();
+    }
 }

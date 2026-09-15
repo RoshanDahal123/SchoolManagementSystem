@@ -23,12 +23,14 @@ import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
 import { Input } from "@/components/atoms/input"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { useGetSubjectsQuery } from "@/features/academic/academic-api"
+import type { TeacherAssignmentResponse } from "@/features/teachers/@types"
 import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field"
 import {
   useDeactivateTeacherMutation,
+  useGetTeacherAssignmentsQuery,
   useGetTeacherByIdQuery,
   useReactivateTeacherMutation,
-  useUpdateTeacherMutation,
+  useUpdateTeacherMutation
 } from "@/features/teachers/teacher-api"
 import { createTeacherSchema, type CreateTeacherFormData } from "@/lib/validation/teacher"
 import { PATHS } from "@/routes/paths"
@@ -39,7 +41,6 @@ import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router"
 import { toast } from "sonner"
-
 export default function TeacherDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -48,8 +49,15 @@ export default function TeacherDetailsPage() {
   const [updateTeacher, { isLoading: isUpdating }] = useUpdateTeacherMutation()
   const [deactivateTeacher, { isLoading: isDeactivating }] = useDeactivateTeacherMutation()
   const [reactivateTeacher, { isLoading: isReactivating }] = useReactivateTeacherMutation()
-
   const { data: subjects = [] } = useGetSubjectsQuery()
+  const {data:assignments=[],isLoading:isAssignmentsLoading}= useGetTeacherAssignmentsQuery(id!,{
+    skip:!id
+  })
+
+const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentResponse[]>>((acc, a) => {
+    (acc[a.academicYearName] ??= []).push(a)
+    return acc
+  }, {})
 
   // ── Dialog state ────────────────────────────────────────────────────────────
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -309,6 +317,42 @@ export default function TeacherDetailsPage() {
                 )}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Teaching Assignments</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            {isAssignmentsLoading ?(
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            ):assignments.length===0?(
+             <p className="text-sm text-muted-foreground">
+              Not currently assigned to teach any class. Assign this teacher form
+              Academic → Curriculum screen
+             </p>
+            ):(
+               <div className="space-y-4">
+                {
+                  Object.entries(assignmentsByYear).map(([yearName,rows])=>(
+                    <div key={yearName}>
+                       <p className="text-sm font-medium text-muted-foreground mb-2">{yearName}</p>
+                       <ul className="space-y-1.5">
+                      {rows.map((a) => (
+                        <li key={a.classSubjectId} className="text-sm flex items-center gap-2">
+                          <Badge variant="outline">{a.gradeLevelName}</Badge>
+                          <span>{a.subjectName}</span>
+                          <span className="text-xs text-muted-foreground">({a.subjectCode})</span>
+                        </li>
+                      ))}
+                    </ul>
+                    </div>
+                  ))
+                }
+               </div>
+            )}
           </CardContent>
         </Card>
       </div>

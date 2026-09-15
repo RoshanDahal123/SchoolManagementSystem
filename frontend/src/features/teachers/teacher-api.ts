@@ -3,30 +3,37 @@ import type {
   CreateTeacherRequest,
   InviteTeacherRequest,
   PaginatedTeachers,
+  TeacherAssignmentResponse,
   TeacherResponse,
   UpdateTeacherRequest,
 } from "./@types";
 
 export const teachersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTeachers: builder.query<PaginatedTeachers, { page: number; search?: string }>({
+    getTeachers: builder.query<
+      PaginatedTeachers,
+      { page: number; search?: string }
+    >({
       query: ({ page, search }) => {
         const params = new URLSearchParams({
           page: String(page),
           pageSize: "10",
-        })
+        });
         if (search?.trim()) {
-          params.set("search", search.trim())
+          params.set("search", search.trim());
         }
         return {
           url: `/teachers?${params.toString()}`,
           method: "GET",
-        }
+        };
       },
       providesTags: (result) =>
         result
           ? [
-              ...result.items.map(({ id }) => ({ type: "Teacher" as const, id })),
+              ...result.items.map(({ id }) => ({
+                type: "Teacher" as const,
+                id,
+              })),
               { type: "Teacher", id: "LIST" },
             ]
           : [{ type: "Teacher", id: "LIST" }],
@@ -36,7 +43,7 @@ export const teachersApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `/teachers/${id}`, method: "GET" }),
       providesTags: (_result, _error, id) => [{ type: "Teacher", id }],
     }),
-    getAllTeachers: builder.query<TeacherResponse[],void>({
+    getAllTeachers: builder.query<TeacherResponse[], void>({
       query: () => ({ url: "/teachers/all", method: "GET" }),
       providesTags: (result) =>
         result
@@ -47,13 +54,15 @@ export const teachersApi = baseApi.injectEndpoints({
           : [{ type: "Teacher", id: "LIST" }],
     }),
 
-
     createTeacher: builder.mutation<TeacherResponse, CreateTeacherRequest>({
       query: (body) => ({ url: "/teachers", method: "POST", data: body }),
       invalidatesTags: [{ type: "Teacher", id: "LIST" }],
     }),
 
-    updateTeacher: builder.mutation<TeacherResponse, { id: string; data: UpdateTeacherRequest }>({
+    updateTeacher: builder.mutation<
+      TeacherResponse,
+      { id: string; data: UpdateTeacherRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/teachers/${id}`,
         method: "PUT",
@@ -109,9 +118,19 @@ export const teachersApi = baseApi.injectEndpoints({
         { type: "Teacher", id: "LIST" },
       ],
     }),
+    getTeacherAssignments: builder.query<TeacherAssignmentResponse[], string>({
+      query: (id) => ({ url: `/teachers/${id}/assignments`, method: "GET" }),
+      providesTags: (_r, _e, id) => [
+        {
+          type: "Teacher",
+          id: `${id}-ASSIGNMENTS`,
+        },
+      ],
+    }),
   }),
+
   overrideExisting: false,
-})
+});
 
 export const {
   useGetTeachersQuery,
@@ -123,5 +142,5 @@ export const {
   useReactivateTeacherMutation,
   useInviteTeacherMutation,
   useResendTeacherInviteMutation,
-
-} = teachersApi
+  useGetTeacherAssignmentsQuery
+} = teachersApi;

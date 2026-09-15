@@ -15,4 +15,5 @@ public interface ITeacherService
     Task ReactivateAsync(Guid id, CancellationToken ct = default);
     Task<TeacherResponse> InviteToPortalAsync(Guid teacherId, string email, CancellationToken ct = default);
     Task ResendInviteAsync(Guid teacherId, CancellationToken ct = default);
+    Task<List<TeacherAssignmentResponse>> GetAssignmentAsync(Guid teacherId, CancellationToken ct = default);
 }

@@ -51,3 +51,15 @@ export interface PaginatedTeachers {
   totalCount: number
   totalPages: number
 }
+
+export interface TeacherAssignmentResponse{
+  classSubjectId: string
+  gradeLevelId: string
+  gradeLevelName: string
+  subjectId: string
+  subjectName: string
+  subjectCode: string
+  academicYearId: string
+  academicYearName: string
+  assignedAtUtc: string
+}

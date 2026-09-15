@@ -17,3 +17,19 @@ public record TeacherResponse(
 );
 
 public record TeacherSubjectSummary(Guid SubjectId, string SubjectName, string SubjectCode);
+
+
+public record TeacherAssignmentResponse
+(
+    Guid ClassSubjectId,
+    Guid GradeLevelId,
+    string GradeLevelName,
+    Guid SubjectId,
+    string SubjectName,
+    string SubjectCode,
+    Guid AcademicYearId,
+    string AcademicYearName,
+    DateTime AssignedAtUtc
+);
+
+
