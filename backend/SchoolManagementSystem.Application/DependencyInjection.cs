@@ -21,7 +21,7 @@ namespace SchoolManagementSystem.Application
             services.AddScoped<IClassSubjectService, ClassSubjectService>();
             services.AddScoped<IStudentEnrollmentService, StudentEnrollmentService>();
             services.AddScoped<IAttendanceService, AttendanceService>();
-
+            services.AddScoped<IAnnouncementService, AnnouncementService>();
             return services;
         }
     }
