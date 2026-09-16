@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IStudentEnrollmentRepository, StudentEnrollmentRepository>();
         services.AddScoped<ITeacherSubjectRepository, TeacherSubjectRepository>();
         services.AddScoped<IAttendanceRepository,AttendanceRepository>();
+
         services.AddHostedService<AdminSeeder>();
 
         return services;
