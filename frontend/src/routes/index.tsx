@@ -19,6 +19,7 @@ import { AuthBootstrap } from "./auth-bootstrap";
 import { PATHS } from "./paths";
 import { ProtectedRoute } from "./protected-routes";
 import { PublicOnlyRoute } from "./public-only-route";
+import AnnouncementsPage from "@/pages/admin/announcement";
 
 export function AppRoutes() {
   return (
@@ -41,6 +42,8 @@ export function AppRoutes() {
               <Route path="academic" element={<AcademicPage />} />
               <Route path="assignments" element={<AssignmentsPage />} />
               <Route path="attendance" element={<AttendancePage />} />
+              <Route path="announcements" element={<AnnouncementsPage/>}/>
+
             </Route>
             
             {/* Redirect old dashboard to new admin dashboard */}

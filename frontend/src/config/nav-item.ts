@@ -2,11 +2,11 @@ import { PATHS } from "@/routes/paths"
 import {
   BookOpenIcon,
   CalendarCheckIcon,
-  ClipboardListIcon,
   GraduationCapIcon,
   LayoutDashboardIcon,
+  MegaphoneIcon,
   UsersIcon,
-  type LucideIcon,
+  type LucideIcon
 } from "lucide-react"
 
 export interface NavSubItem {
@@ -38,6 +38,6 @@ export const NAV_ITEMS: NavItem[] = [
       {title: "Roster", path: PATHS.adminAcademicRoster}
     ],
   },
-  { title: "Assignments", path: PATHS.adminAssignments, icon: ClipboardListIcon },
   { title: "Attendance", path: PATHS.adminAttendance, icon: CalendarCheckIcon },
+  {title:"Announcements", path:PATHS.adminAnnouncements,icon:MegaphoneIcon}
 ]

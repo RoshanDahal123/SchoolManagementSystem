@@ -1,0 +1,1 @@
+export const ANNOUNCEMENT_TAGS = ["Announcement"] as const

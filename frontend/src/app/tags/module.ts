@@ -1,3 +1,4 @@
+import { ANNOUNCEMENT_TAGS } from "@/features/announcements/tags";
 import { ATTENDANCE_TAGS } from "@/features/attendance/tags";
 import { STUDENT_ENROLLMENT_TAGS } from "@/features/enrollment/tags";
 import { ACADEMIC_YEAR_TAGS } from "../../features/academic-years/tags";
@@ -19,6 +20,7 @@ export const TAG_TYPES = [
   ...CLASS_SUBJECT_TAGS,
   ...STUDENT_ENROLLMENT_TAGS,
   ...ATTENDANCE_TAGS,
+  ...ANNOUNCEMENT_TAGS
 ] as const;
 
 export type TagTypes = (typeof TAG_TYPES)[number];
