@@ -8,7 +8,7 @@ namespace SchoolManagementSystem.Domain.Enums
     {
        All=1,
         Teachers = 2,
-        Student=3
+        Students=3
     }
 
 }
