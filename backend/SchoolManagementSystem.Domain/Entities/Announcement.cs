@@ -18,9 +18,9 @@ namespace SchoolManagementSystem.Domain.Entities
         //not the full user graphs
 
         public Guid CreatedByUserId { get; private set; }
-        public DateTime CreatedAtUtc { get; private set; }
-
-        public DateTime? UpdatedAtUtc { get; private set; }
+        public DateTimeOffset CreatedAtUtc { get; private set; }
+       
+        public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
         private Announcement() { }//For EF core
 
@@ -58,7 +58,7 @@ namespace SchoolManagementSystem.Domain.Entities
                 Body = body.Trim(),
                 TargetRole = targetRole,
                 CreatedByUserId = createdByUserId,
-                CreatedAtUtc = DateTime.UtcNow
+                CreatedAtUtc = DateTimeOffset.UtcNow
             };
         }
 
@@ -84,7 +84,7 @@ namespace SchoolManagementSystem.Domain.Entities
             Title = title.Trim();
             Body = body.Trim();
             TargetRole = targetRole;
-            UpdatedAtUtc = DateTime.UtcNow;
+            UpdatedAtUtc = DateTimeOffset.UtcNow;
 
         }
     } 

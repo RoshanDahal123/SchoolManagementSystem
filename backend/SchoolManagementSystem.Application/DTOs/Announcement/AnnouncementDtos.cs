@@ -14,8 +14,8 @@ namespace SchoolManagementSystem.Application.DTOs.Announcement
         string Body,
         string TargetRole,
         Guid CreatedByUserId,
-        DateTime CreatedAtUtc,
-        DateTime? UpdatedAtUtc
+        DateTimeOffset CreatedAtUtc,
+        DateTimeOffset? UpdatedAtUtc
     );
 
 }

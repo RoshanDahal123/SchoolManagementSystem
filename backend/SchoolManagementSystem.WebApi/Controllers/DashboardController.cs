@@ -10,7 +10,7 @@ namespace SchoolManagementSystem.WebApi.Controllers
     [Authorize(Roles = "Admin")]
     public class DashboardController(IDashboardService _dashboardService) : ControllerBase
     {
-
+        [HttpGet("{summary}")]
         public async Task<ActionResult<DashboardSummaryResponse>> GetSummary(CancellationToken ct)
         {
             var summary = await _dashboardService.GetSummaryAsync(ct);

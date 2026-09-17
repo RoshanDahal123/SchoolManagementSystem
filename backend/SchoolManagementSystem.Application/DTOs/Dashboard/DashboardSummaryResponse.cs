@@ -12,6 +12,6 @@ namespace SchoolManagementSystem.Application.DTOs.Dashboard
         List<RecentActivityItemResponse> RecentActivity
         );
 
-    public record RecentActivityItemResponse(Guid Id, string Title, string Body, DateTime TimeStamp);
+    public record RecentActivityItemResponse(Guid Id, string Title, string Body, DateTimeOffset TimeStamp);
 
 }

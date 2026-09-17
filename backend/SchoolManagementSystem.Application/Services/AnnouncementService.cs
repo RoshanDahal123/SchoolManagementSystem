@@ -64,7 +64,7 @@ public sealed class AnnouncementService(IAnnouncementRepository  _announcementRe
 
         var visibleRoles = role switch
         {
-            UserRole.Student => new[] { AnnouncementTargetRole.All, AnnouncementTargetRole.Student },
+            UserRole.Student => new[] { AnnouncementTargetRole.All, AnnouncementTargetRole.Students },
             UserRole.Teacher => new[] { AnnouncementTargetRole.All, AnnouncementTargetRole.Teachers },
             _ => Enum.GetValues<AnnouncementTargetRole>() 
         };

@@ -9,6 +9,6 @@ export interface DashboardSummary {
 export interface RecentActivityItem {
   id: string;
   title: string;
-  description: string;
-  timestamp: string;
+  body: string;
+  timeStamp: string;
 }
