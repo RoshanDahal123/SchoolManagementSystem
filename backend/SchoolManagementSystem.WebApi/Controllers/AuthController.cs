@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolManagementSystem.Application.DTOs.Auth;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
 using System.Security.Claims;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
@@ -17,11 +19,17 @@ public sealed class AuthController : ControllerBase
 
     private readonly IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
+    private readonly ITeacherRepository _teacherRepository;
+    private readonly IStudentRepository _studentRepository;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService,ITeacherRepository teacherRepository,IStudentRepository studentRepository, ILogger<AuthController> logger)
     {
         _authService = authService;
         _logger = logger;
+        _teacherRepository = teacherRepository;
+       _studentRepository = studentRepository;
+
+
     }
 
     [HttpPost("login")]
@@ -74,16 +82,30 @@ public sealed class AuthController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public IActionResult Me()
+    public async Task<IActionResult> Me(CancellationToken ct)
     {
         // Reads straight from the validated JWT — no DB call needed for a simple identity check.
         var email = User.FindFirstValue(ClaimTypes.Email);
         var role = User.FindFirstValue(ClaimTypes.Role);
-
-        if (email is null)
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (email is null || role is null || userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
             return Unauthorized();
 
-        return Ok(new { email, role });
+        Guid? teacherId = null;
+        Guid? studentId = null;
+        if (role == UserRole.Teacher.ToString())
+        {
+            var teacher = await _teacherRepository.GetByUserIdAsync(userId, ct);
+            teacherId = teacher?.Id;
+        }
+        else if (role == UserRole.Student.ToString())
+        {
+            var student = await _studentRepository.GetByUserIdAsync(userId, ct);
+            studentId = student?.Id;
+        }
+
+
+        return Ok(new { email, role,teacherId,studentId });
     }
 
   

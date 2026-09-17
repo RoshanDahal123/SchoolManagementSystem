@@ -20,6 +20,12 @@ public class TeacherRepository : ITeacherRepository
     public Task<Teacher?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         _context.Teachers.FirstOrDefaultAsync(t => t.Id == id, ct);
 
+    public async Task<Teacher?> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
+    {
+        return await _context.Teachers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.UserId == userId, ct);
+    }
     public Task<List<Teacher>> GetAllAsync(CancellationToken ct = default) =>
         _context.Teachers.AsNoTracking().OrderBy(t => t.LastName).ToListAsync(ct);
 

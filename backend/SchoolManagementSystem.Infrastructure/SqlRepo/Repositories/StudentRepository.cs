@@ -19,7 +19,12 @@ public class StudentRepository : IStudentRepository
 
     public Task<Student?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         _context.Students.FirstOrDefaultAsync(s => s.Id == id, ct);
-
+    public async Task<Student?> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
+    {
+        return await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.UserId == userId, ct);
+    }
     public Task<List<Student>> GetAllAsync(CancellationToken ct = default) =>
         _context.Students.AsNoTracking().OrderBy(s => s.LastName).ToListAsync(ct);
 

@@ -7,6 +7,8 @@ namespace SchoolManagementSystem.Application.Interfaces;
 public interface ITeacherRepository
 {
     Task<Teacher?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<Teacher?> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
+
     Task<List<Teacher>> GetAllAsync(CancellationToken ct = default);
     Task<PagedResult<Teacher>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct = default);
     Task AddAsync(Teacher teacher, CancellationToken ct = default);
