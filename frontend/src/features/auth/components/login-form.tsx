@@ -81,6 +81,8 @@ export function LoginForm() {
       setCredentials({
         email: data.email,
         role: data.role,
+        teacherId:data?.teacherId,
+        studentId:data?.studentId
       }),
     );
 
@@ -117,11 +119,11 @@ export function LoginForm() {
     <Card className="w-full sm:max-w-sm">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">
-          Admin Login
+          User Login
         </CardTitle>
 
         <CardDescription>
-          Sign in to manage the school system.
+          Sign in to access your school account.
         </CardDescription>
       </CardHeader>
 

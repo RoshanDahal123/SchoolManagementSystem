@@ -49,6 +49,7 @@ public class TeachersController : ControllerBase
     }
 
     [HttpGet("{id:guid}/assignments")]
+    [Authorize(Roles ="Admin, Teacher")]
     public async Task<ActionResult<List<TeacherAssignmentResponse>>>GetAssignments(Guid id,CancellationToken ct) 
     {
         return Ok(await _teacherService.GetAssignmentAsync(id, ct));

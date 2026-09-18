@@ -8,6 +8,8 @@ export interface AuthResponse {
   firstName: string;
   lastName: string;
   role: UserRole;
+  teacherId:string;
+  studentId:string;
 }
 
 export interface LoginRequest {

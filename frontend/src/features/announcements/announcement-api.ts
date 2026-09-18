@@ -1,8 +1,8 @@
 import { baseApi } from "../../app/base-api";
 import type {
-    AnnouncementResponse,
-    CreateAnnouncementRequest,
-    UpdateAnnouncementRequest,
+  AnnouncementResponse,
+  CreateAnnouncementRequest,
+  UpdateAnnouncementRequest,
 } from "./@types";
 
 export const announcementsApi = baseApi.injectEndpoints({
@@ -40,6 +40,13 @@ export const announcementsApi = baseApi.injectEndpoints({
         "Dashboard",
       ],
     }),
+
+    getAnnouncementFeed:builder.query<AnnouncementResponse[],void>({
+      query:()=>({
+        url:"/announcements/feed", method:"GET"
+      }),
+      providesTags:[{type:"Announcement",id:"FEED"}]
+    })
   }),
   overrideExisting: false,
 });
@@ -49,4 +56,5 @@ export const {
   useCreateAnnouncementMutation,
   useUpdateAnnouncementMutation,
   useDeleteAnnouncementMutation,
+  useGetAnnouncementFeedQuery
 } = announcementsApi;

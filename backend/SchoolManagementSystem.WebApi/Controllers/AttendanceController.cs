@@ -67,6 +67,7 @@ namespace SchoolManagementSystem.WebApi.Controllers
         private async Task<bool> CanAccessStudentDataAsync(Guid studentId, CancellationToken ct)
         {
             var role = User.FindFirstValue(ClaimTypes.Role);
+            //teacher and admin can access any student data
             if (role != UserRole.Student.ToString())
                 return true;
 
