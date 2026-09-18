@@ -22,7 +22,7 @@ export interface NavItem {
 }
 
 // Single source of truth for the admin nav — sidebar and breadcrumb both read from this.
-export const NAV_ITEMS: NavItem[] = [
+export const ADMIN_NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", path: PATHS.adminDashboard, icon: LayoutDashboardIcon },
   { title: "Students", path: PATHS.adminStudents, icon: UsersIcon },
   { title: "Teachers", path: PATHS.adminTeachers, icon: GraduationCapIcon },
@@ -40,4 +40,12 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { title: "Attendance", path: PATHS.adminAttendance, icon: CalendarCheckIcon },
   {title:"Announcements", path:PATHS.adminAnnouncements,icon:MegaphoneIcon}
+]
+
+export const TEACHER_NAV_ITEMS: NavItem[] = [
+  { title: "Dashboard", path: PATHS.teacherDashboard, icon: LayoutDashboardIcon },
+]
+
+export const STUDENT_NAV_ITEMS: NavItem[] = [
+  { title: "Dashboard", path: PATHS.studentDashboard, icon: LayoutDashboardIcon },
 ]

@@ -18,6 +18,10 @@ export function AuthBootstrap({
     isSuccess,
     isError
   } = useGetMeQuery();
+    const hasResolvedOnce = React.useRef(false);
+  if (isSuccess || isError) {
+    hasResolvedOnce.current = true;
+  }
 
   React.useEffect(() => {
     if (isSuccess && data) {
@@ -25,6 +29,8 @@ export function AuthBootstrap({
         setCredentials({
           email: data.email,
           role: data.role,
+          teacherId:data.teacherId,
+          studentId:data.studentId
         })
       );
     }
@@ -35,7 +41,7 @@ export function AuthBootstrap({
   }, [data, isSuccess, isError, dispatch]);
 
   // Auth check hasn't finished yet
-  if (!isSuccess && !isError) {
+  if (!hasResolvedOnce.current) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <span className="text-sm text-muted-foreground">

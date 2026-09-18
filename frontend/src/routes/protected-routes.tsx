@@ -1,9 +1,13 @@
 import { Loader2 } from "lucide-react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useGetMeQuery } from "../features/auth/auth-api";
-import { PATHS } from "./paths";
+import { dashboardPathForRole, PATHS } from "./paths";
+import type { UserRole } from "@/features/auth/@types";
 
-export function ProtectedRoute() {
+  interface ProtectedRouteProps {
+  allowedRoles: UserRole[];
+}
+export function ProtectedRoute({allowedRoles}:ProtectedRouteProps) {
   const location = useLocation();
   const { data, isLoading, isError ,isFetching} = useGetMeQuery();
 
@@ -15,9 +19,11 @@ export function ProtectedRoute() {
     );
   }
 
-  if (isError || data?.role !== "Admin") {
+  if (isError || !data ){
     return <Navigate to={PATHS.login} state={{ from: location }} replace />;
   }
-
+ if (!allowedRoles.includes(data.role)) {
+    return <Navigate to={dashboardPathForRole(data.role)} replace />;
+  }
   return <Outlet />;
 }

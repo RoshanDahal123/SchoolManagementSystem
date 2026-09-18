@@ -18,5 +18,22 @@ export const PATHS = {
   adminAcademicRoster: "/admin/academic?tab=roster",
   adminAssignments: "/admin/assignments",
   adminAttendance: "/admin/attendance",
-  adminAnnouncements:"/admin/announcements"
+  adminAnnouncements:"/admin/announcements",
+
+  teacher: "/teacher",
+  teacherDashboard: "/teacher/dashboard",
+  student: "/student",
+  studentDashboard: "/student/dashboard",
 } as const
+
+
+import type { UserRole } from "@/features/auth/@types"
+
+export function dashboardPathForRole(role: UserRole | null): string {
+  switch (role) {
+    case "Teacher": return PATHS.teacherDashboard;
+    case "Student": return PATHS.studentDashboard;
+    case "Admin":
+    default: return PATHS.adminDashboard;
+  }
+}

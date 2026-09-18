@@ -1,20 +1,19 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from "@/components/atoms/breadcrumb"
 import { Separator } from "@/components/atoms/separator"
 import { SidebarTrigger } from "@/components/atoms/sidebar"
-import { NAV_ITEMS } from "@/config/nav-item"
-import { PATHS } from "@/routes/paths"
+import type { NavItem } from "@/config/nav-item"
 import { Link, useLocation } from "react-router"
 
-export function Navbar() {
+interface NavbarProps {
+  navItems: NavItem[]
+  homePath: string
+}
+
+export function Navbar({ navItems, homePath }: NavbarProps) {
   const { pathname } = useLocation()
-  const current = NAV_ITEMS.find(
+  const current = navItems.find(
     (item) => pathname === item.path || pathname.startsWith(`${item.path}/`)
   )
 
@@ -25,9 +24,7 @@ export function Navbar() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem className="hidden md:block">
-            <BreadcrumbLink render={<Link to={PATHS.adminDashboard} />}>
-              School MS
-            </BreadcrumbLink>
+            <BreadcrumbLink render={<Link to={homePath} />}>School MS</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator className="hidden md:block" />
           <BreadcrumbItem>

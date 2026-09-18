@@ -1,14 +1,12 @@
-// public-only-route.tsx
+import { useGetMeQuery } from "@/features/auth/auth-api";
 import { Navigate, Outlet } from "react-router";
-
-import { useAuth } from "@/hooks/use-auth";
-import { PATHS } from "./paths";
+import { dashboardPathForRole } from "./paths";
 
 export function PublicOnlyRoute() {
-  const {isAuthenticated}= useAuth();
+  const { data, isSuccess } = useGetMeQuery();
 
-  if (isAuthenticated) {
-    return <Navigate to={PATHS.dashboard} replace />;
+  if (isSuccess && data) {
+    return <Navigate to={dashboardPathForRole(data.role)} replace />;
   }
 
   return <Outlet />;
