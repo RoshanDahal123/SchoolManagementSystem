@@ -22,8 +22,13 @@ export const PATHS = {
 
   teacher: "/teacher",
   teacherDashboard: "/teacher/dashboard",
+   teacherCoursework: "/teacher/coursework",
+  teacherCourseworkDetails: (id: string) => `/teacher/coursework/${id}`,
   student: "/student",
   studentDashboard: "/student/dashboard",
+  studentCoursework: "/student/coursework",
+  studentProgressReport: "/student/progress-report",
+  
 } as const
 
 

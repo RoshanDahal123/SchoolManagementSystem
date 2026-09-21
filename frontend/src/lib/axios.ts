@@ -1,4 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { uploadProgressStore } from "./upload-progress";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    uploadId?: string;
+  }
+}
 
 type FailedRequest = {
   resolve: () => void;
@@ -34,6 +41,35 @@ const processQueue = (error: unknown = null) => {
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     //add anything that should be included with every request here
+    // * Upload progress.
+    //  *
+    //  * Attaching onUploadProgress here rather than at each call site means every upload in the
+    //  * app reports progress the same way, and a feature opts in simply by passing `uploadId`.
+    //  * XHR fires this event as bytes leave the browser, so it measures the upload itself and
+    //  * not the server's work afterwards — which is why hitting 100% switches to "processing"
+    //  * rather than "done". Only the response interceptor can call it done. */
+    const uploadId = config.uploadId;
+    if (uploadId && typeof FormData !== "undefined" && config.data instanceof FormData) {
+      uploadProgressStore.set(uploadId, {
+        percent: 0,
+        loaded: 0,
+        total: 0,
+        status: "uploading",
+      });
+config.onUploadProgress = (event) => {
+        // event.total can be missing when the body is sent chunked. Without a total there is
+        // no honest percentage, so the UI falls back to an indeterminate bar.
+        const total = event.total ?? 0;
+        const percent = total > 0 ? Math.min(100, Math.round((event.loaded / total) * 100)) : 0;
+
+        uploadProgressStore.set(uploadId, {
+          percent,
+          loaded: event.loaded,
+          total,
+          status: total > 0 && percent >= 100 ? "processing" : "uploading",
+        });
+      };
+    }
     return config;
   },
   (error) => {
@@ -45,6 +81,11 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
+    const uploadId = response.config.uploadId;
+    if(uploadId){
+      const current= uploadProgressStore.getSnapshot(uploadId);
+      uploadProgressStore.set(uploadId, { ...current, percent: 100, status: "done" });
+    }
     return response;
   },
   async (error: AxiosError) => {

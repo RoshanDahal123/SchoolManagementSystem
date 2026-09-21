@@ -9,12 +9,18 @@ type AxiosBaseQueryArgs = {
   data?: AxiosRequestConfig["data"];
   params?: AxiosRequestConfig["params"];
   headers?: AxiosRequestConfig["headers"];
+  /**
+   * Opt-in tag for upload progress. The request interceptor in lib/axios.ts picks this up and
+   * publishes byte-level progress under this id; components read it with useUploadProgress.
+   * Only meaningful when `data` is a FormData.
+   */
+  uploadId?: string;
 };
 
 type AxiosBaseQueryError = { status?: number; data?: unknown };
 type AxiosBaseQueryFn = BaseQueryFn<AxiosBaseQueryArgs, unknown, AxiosBaseQueryError>;
 
-const axiosBaseQuery = (): AxiosBaseQueryFn => async ({ url, method, data, params, headers }) => {
+const axiosBaseQuery = (): AxiosBaseQueryFn => async ({ url, method, data, params, headers,uploadId}) => {
   try {
     const isFormData = data instanceof FormData;
 
@@ -23,6 +29,7 @@ const axiosBaseQuery = (): AxiosBaseQueryFn => async ({ url, method, data, param
       method,
       data,
       params,
+      uploadId,
       headers: {
         ...headers,
         ...(isFormData ? { "Content-Type": undefined } : {}), // let the browser set the multipart boundary itself
