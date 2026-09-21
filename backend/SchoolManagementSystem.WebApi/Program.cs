@@ -1,11 +1,9 @@
-using System.Text;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-
-
 using SchoolManagementSystem.Infrastructure;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();      
+builder.Services.AddOpenApi();
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 60 * 1024 * 1024; // 60 MB per request
+    options.ValueLengthLimit = int.MaxValue;
+});
 
 
 builder.Services.AddInfrastructure(builder.Configuration);

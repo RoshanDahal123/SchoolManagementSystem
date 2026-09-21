@@ -35,13 +35,22 @@ public class StudentEnrollmentRepository : IStudentEnrollmentRepository
             .OrderByDescending(e => e.AcademicYear.StartDate)
             .ToListAsync(ct);
 
-    public Task<List<StudentEnrollment>> GetBySectionAndYearAsync(Guid sectionId, Guid academicYearId, CancellationToken ct = default) =>
+    public Task<List<StudentEnrollment>> GetByGradeLevelAndYearAsync(Guid gradeLevelId, Guid academicYearId, CancellationToken ct = default) =>
         _context.StudentEnrollments
             .AsNoTracking()
             .Include(e => e.Student)
             .Include(e => e.AcademicYear)
             .Include(e => e.Section).ThenInclude(s => s.GradeLevel)
-            .Where(e => e.SectionId == sectionId && e.AcademicYearId == academicYearId)
+            .Where(e => e.Section.GradeLevelId == gradeLevelId && e.AcademicYearId == academicYearId)
+            .OrderBy(e => e.Student.LastName).ThenBy(e => e.Student.FirstName)
+            .ToListAsync(ct);
+    public Task<List<StudentEnrollment>> GetBySectionAndYearAsync(Guid gradeLevelId, Guid academicYearId, CancellationToken ct = default) =>
+        _context.StudentEnrollments
+            .AsNoTracking()
+            .Include(e => e.Student)
+            .Include(e => e.AcademicYear)
+            .Include(e => e.Section).ThenInclude(s => s.GradeLevel)
+            .Where(e => e.Section.GradeLevelId == gradeLevelId && e.AcademicYearId == academicYearId)
             .OrderBy(e => e.Student.LastName).ThenBy(e => e.Student.FirstName)
             .ToListAsync(ct);
 

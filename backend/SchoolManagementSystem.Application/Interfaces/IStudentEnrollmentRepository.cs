@@ -12,7 +12,7 @@ public interface IStudentEnrollmentRepository
     Task<StudentEnrollment?> GetByStudentAndYearAsync(Guid studentId, Guid academicYearId, CancellationToken ct = default);
     Task<List<StudentEnrollment>> GetByStudentAsync(Guid studentId, CancellationToken ct = default);
     Task<List<StudentEnrollment>> GetBySectionAndYearAsync(Guid sectionId, Guid academicYearId, CancellationToken ct = default);
-
+    Task<List<StudentEnrollment>> GetByGradeLevelAndYearAsync(Guid gradeLevelId, Guid academicYearId, CancellationToken ct = default);
     Task AddAsync(StudentEnrollment enrollment, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 }

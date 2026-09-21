@@ -6,7 +6,7 @@ using SchoolManagementSystem.Infrastructure.Services.Auth;
 using SchoolManagementSystem.Infrastructure.Services.Email;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
-
+using SchoolManagementSystem.Infrastructure.Services.Storage;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories.Seeders;
 
 namespace SchoolManagementSystem.Infrastructure;
@@ -42,7 +42,12 @@ public static class DependencyInjection
         services.AddScoped<ITeacherSubjectRepository, TeacherSubjectRepository>();
         services.AddScoped<IAttendanceRepository,AttendanceRepository>();
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+        services.AddScoped<ICourseWorkRepository, CourseworkRepository>();
+        services.AddScoped<ICourseWorkSubmissionRepository, CourseworkSubmissionRepository>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
+       
+
         services.AddHostedService<AdminSeeder>();
 
         return services;
