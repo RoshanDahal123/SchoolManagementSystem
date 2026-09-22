@@ -1,9 +1,11 @@
 
 import {
   PencilIcon,
+  PowerIcon,
+  PowerOffIcon,
   Trash2Icon,
 } from "lucide-react"
-
+import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button"
 import {
   TableCell,
@@ -11,6 +13,7 @@ import {
 } from "@/components/atoms/table"
 
 import type { SubjectResponse } from "../@types"
+import { cn } from "@/lib/utils"
 
 interface SubjectRowProps {
   subject: SubjectResponse
@@ -18,16 +21,18 @@ interface SubjectRowProps {
   onEdit: (
     subject: SubjectResponse,
   ) => void
-  onDelete: (
-    subject: SubjectResponse,
-  ) => void
+onDeactivate: (subject: SubjectResponse) => void
+  onReactivate: (subject: SubjectResponse) => void
+  isMutating?: boolean
 }
 
 export function SubjectRow({
   subject,
   isAdmin,
   onEdit,
-  onDelete
+  onDeactivate,
+  onReactivate,
+  isMutating
 }: SubjectRowProps) {
 
   return (
@@ -47,7 +52,15 @@ export function SubjectRow({
       <TableCell className="px-4 py-2 text-center tabular-nums">
         {subject.creditHours}
       </TableCell>
-
+{/* Status */}
+      <TableCell className="px-4 py-2 text-center">
+        <Badge
+          variant={subject.isActive ? "secondary" : "outline"}
+          className={cn(!subject.isActive && "text-muted-foreground")}
+        >
+          {subject.isActive ? "Active" : "Inactive"}
+        </Badge>
+      </TableCell>
       {/* Actions */}
       {isAdmin && (
         <TableCell className="px-4 py-2 text-right">
@@ -65,16 +78,29 @@ export function SubjectRow({
               <PencilIcon className="h-4 w-4" />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              aria-label={`Delete ${subject.name}`}
-              onClick={() => onDelete(subject)}
-            >
-              <Trash2Icon className="h-4 w-4" />
-            </Button>
-
+              {subject.isActive ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={() => onDeactivate(subject)}
+                disabled={isMutating}
+                aria-label={`Deactivate ${subject.name}`}
+              >
+                <PowerOffIcon className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onReactivate(subject)}
+                disabled={isMutating}
+                aria-label={`Reactivate ${subject.name}`}
+              >
+                <PowerIcon className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </TableCell>
       )}

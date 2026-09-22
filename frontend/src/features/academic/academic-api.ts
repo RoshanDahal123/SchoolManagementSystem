@@ -87,8 +87,12 @@ export const academicApi = baseApi.injectEndpoints({
     }),
 
     // ── Subjects ───────────────────────────────────────────────────────────────
-    getSubjects: builder.query<SubjectResponse[], void>({
-      query: () => ({ url: "/subjects", method: "GET" }),
+    getSubjects: builder.query<SubjectResponse[], { includeInactive?: boolean } | void>({
+      query: (args) => ({
+        url: "/subjects",
+        method: "GET",
+        params: args?.includeInactive ? { includeInactive: true } : undefined,
+      }),
       providesTags: (result) =>
         result
           ? [...result.map(({ id }) => ({ type: "Subject" as const, id })), { type: "Subject", id: "LIST" }]

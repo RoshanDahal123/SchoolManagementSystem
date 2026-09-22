@@ -67,7 +67,7 @@ function toCourseWorkFormData(input:CreateCourseworkInput ): FormData
       query:(input)=>({
         url:"/coursework",
         method:"POST",
-        body:toCourseWorkFormData(input),
+        data:toCourseWorkFormData(input),
         uploadId:UPLOAD_IDS.createCoursework,
       }),
       invalidatesTags: [

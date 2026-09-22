@@ -21,6 +21,10 @@ import { PATHS } from "./paths";
 import { ProtectedRoute } from "./protected-routes";
 import { PublicOnlyRoute } from "./public-only-route";
 import { RoleBasedRedirect } from "./role-based-redirect";
+import StudentCourseworkPage from "@/pages/student/coursework";
+import StudentProgressReportPage from "@/pages/student/prgress-report";
+import TeacherCourseworkPage from "@/pages/teacher/coursework";
+import TeacherCourseworkDetailsPage from "@/pages/teacher/coursework-details";
 
 export function AppRoutes() {
   return (
@@ -35,7 +39,10 @@ export function AppRoutes() {
 
           <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
             <Route path={PATHS.admin} element={<AdminLayout />}>
-              <Route index element={<Navigate to={PATHS.adminDashboard} replace />} />
+              <Route
+                index
+                element={<Navigate to={PATHS.adminDashboard} replace />}
+              />
               <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="students" element={<StudentsPage />} />
               <Route path="students/:id" element={<StudentDetailsPage />} />
@@ -50,15 +57,31 @@ export function AppRoutes() {
 
           <Route element={<ProtectedRoute allowedRoles={["Teacher"]} />}>
             <Route path={PATHS.teacher} element={<TeacherLayout />}>
-              <Route index element={<Navigate to={PATHS.teacherDashboard} replace />} />
+              <Route
+                index
+                element={<Navigate to={PATHS.teacherDashboard} replace />}
+              />
               <Route path="dashboard" element={<TeacherDashboardPage />} />
+              <Route path="coursework" element={<TeacherCourseworkPage />} />
+              <Route
+                path="coursework/:id"
+                element={<TeacherCourseworkDetailsPage />}
+              />
             </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["Student"]} />}>
             <Route path={PATHS.student} element={<StudentLayout />}>
-              <Route index element={<Navigate to={PATHS.studentDashboard} replace />} />
+              <Route
+                index
+                element={<Navigate to={PATHS.studentDashboard} replace />}
+              />
               <Route path="dashboard" element={<StudentDashboardPage />} />
+              <Route path="coursework" element={<StudentCourseworkPage />} />
+              <Route
+                path="progress-report"
+                element={<StudentProgressReportPage />}
+              />
             </Route>
           </Route>
 

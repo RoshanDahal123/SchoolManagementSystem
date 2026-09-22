@@ -152,10 +152,9 @@ export function CourseworkFormDialog({ open, onOpenChange, editing, assignments 
         }).unwrap()
         toast.success("Coursework posted to your class")
       }
-
       onOpenChange(false)
     } catch (error) {
-      toast.error(getErrorMessage(error, "Couldn't save this coursework"))
+      toast.error(getErrorMessage(error, "Couldn't save coursework"))
     }
   }
 

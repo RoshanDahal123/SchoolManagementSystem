@@ -7,6 +7,7 @@ type AxiosBaseQueryArgs = {
   url: string;
   method?: AxiosRequestConfig["method"];
   data?: AxiosRequestConfig["data"];
+  body?: AxiosRequestConfig["data"];
   params?: AxiosRequestConfig["params"];
   headers?: AxiosRequestConfig["headers"];
   /**
@@ -20,14 +21,15 @@ type AxiosBaseQueryArgs = {
 type AxiosBaseQueryError = { status?: number; data?: unknown };
 type AxiosBaseQueryFn = BaseQueryFn<AxiosBaseQueryArgs, unknown, AxiosBaseQueryError>;
 
-const axiosBaseQuery = (): AxiosBaseQueryFn => async ({ url, method, data, params, headers,uploadId}) => {
+const axiosBaseQuery = (): AxiosBaseQueryFn => async ({ url, method, data, body, params, headers, uploadId }) => {
   try {
-    const isFormData = data instanceof FormData;
+    const payload = data ?? body;
+    const isFormData = payload instanceof FormData;
 
     const result = await axiosInstance({
       url,
       method,
-      data,
+      data: payload,
       params,
       uploadId,
       headers: {
