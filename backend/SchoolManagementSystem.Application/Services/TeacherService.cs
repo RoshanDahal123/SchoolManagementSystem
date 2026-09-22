@@ -78,9 +78,14 @@ public sealed class TeacherService : ITeacherService
     {
         var teacher = await _teacherRepository.GetByIdAsync(id, ct);
         if (teacher is null) return null;
+        User? user = null;
+        if (teacher.UserId.HasValue)
+        {
+            user= await _userRepository.GetByIdAsync(teacher.UserId.Value, ct);
+        }
 
         var specializations = await _teacherSubjectRepository.GetByTeacherAsync(id, ct);
-        return ToResponse(teacher, specializations.Select(s => s.Subject).ToList());
+        return ToResponse(teacher, specializations.Select(s => s.Subject).ToList(),user);
     }
 
     public async Task<List<TeacherResponse>> GetAllAsync(CancellationToken ct = default)
