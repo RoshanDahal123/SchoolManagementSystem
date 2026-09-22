@@ -31,7 +31,7 @@ namespace SchoolManagementSystem.Application.Services
                     throw new CannotUnloadAppDomainException($"Enrollment {entry.EnrollmentId} does not belong to section {sectionId} for academic year {academicYearId}.");
 
                 if (!Enum.TryParse<AttendanceStatus>(entry.Status, ignoreCase: true, out var status))
-                    new DomainException($"Invalid attendance status: {entry.Status} for enrollment {entry.EnrollmentId}.");
+                    throw new DomainException($"Invalid attendance status: {entry.Status} for enrollment {entry.EnrollmentId}.");
 
                 var existing = await _attendanceRepo.GetByEnrollmentAndDateAsync(entry.EnrollmentId, request.Date, ct);
                 if (existing is not null

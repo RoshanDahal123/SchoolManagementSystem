@@ -22,14 +22,16 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
             )
         {
             return _context.Attendances.AsNoTracking().
-                Where(a => a.Date == date && a.StudentEnrollment.SectionId == sectionId && a.StudentEnrollment.AcademicYearId == academicYearId)
+                Where(a => a
+                .Date == date && a.StudentEnrollment.SectionId == sectionId && a.StudentEnrollment.AcademicYearId == academicYearId)
                 .ToListAsync(ct);
         }
 
         public Task<List<Attendance>> GetByStudentAsync(Guid studentId, DateOnly? from, DateOnly? to, CancellationToken ct = default)
         {
             var query = _context.Attendances
-                .AsNoTracking().
+                .AsNoTracking()
+                .Include(a=>a.StudentEnrollment).
                 Where(a => a.StudentEnrollment.StudentId == studentId);
             if (from is not null) query = query.Where(a => a.Date >= from);
             if (to is not null) query = query.Where(a => a.Date <= to);
