@@ -5,6 +5,7 @@ obj/
 *.user
 *.suo
 *.csproj.user
+Storage/
 
 # ASP.NET Core configuration
 appsettings.json
