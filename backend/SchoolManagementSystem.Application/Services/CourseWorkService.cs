@@ -1,4 +1,4 @@
-﻿using SchoolManagementSystem.Application.DTOs.CourseWork;
+using SchoolManagementSystem.Application.DTOs.CourseWork;
 using SchoolManagementSystem.Application.DTOs.Storage;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
@@ -54,6 +54,9 @@ public sealed class CourseworkService : ICourseworkService
         bool isAdmin,
         CancellationToken ct = default)
     {
+        if (request.ClassSubjectId == Guid.Empty)
+            throw new DomainException("Class subject is required.");
+
         // Existence check only — the returned entity isn't needed, the ownership check below
         // and the reload at the end cover everything else.
         _ = await _classSubjectRepo.GetByIdAsync(request.ClassSubjectId, ct)
