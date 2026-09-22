@@ -60,7 +60,14 @@ public sealed class StudentService : IStudentService
     public async Task<StudentResponse?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var student = await _studentRepository.GetByIdAsync(id, ct);
-        return student is null ? null : ToResponse(student);
+        if (student is null) return null;
+
+        User? user = null;
+        if (student.UserId.HasValue)
+        {
+            user = await _userRepository.GetByIdAsync(student.UserId.Value, ct);
+        }
+        return ToResponse(student, user);
     }
 
     public async Task<List<StudentResponse>> GetAllAsync(CancellationToken ct = default)

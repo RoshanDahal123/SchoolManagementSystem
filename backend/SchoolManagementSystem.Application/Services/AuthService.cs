@@ -39,8 +39,11 @@ public sealed class AuthService : IAuthService
 
         if (user is null || !passwordValid)
             throw new InvalidCredentialsException();
-
+        // Block deactivated user accounts
+        if (!user.IsActive)
+            throw new DomainException("Your account has been deactivated. Please contact the administrator.");
         return await IssueTokensAsync(user, cancellationToken);
+
     }
 
     public async Task<AuthResult> RefreshAsync(string rawRefreshToken, CancellationToken cancellationToken = default)
@@ -53,6 +56,9 @@ public sealed class AuthService : IAuthService
 
         var user = await _userRepository.GetByIdAsync(existing.UserId, cancellationToken)
             ?? throw new InvalidCredentialsException();
+
+        if (!user.IsActive)
+            throw new DomainException("Your account has been deactivated. Please contact the administrator.");
 
         // Build the new tokens first so we know the new hash before touching the old row —
         // then persist both changes in ONE SaveChanges call (fixes formApi's two-round-trip issue).
