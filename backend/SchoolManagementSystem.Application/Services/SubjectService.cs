@@ -14,6 +14,22 @@ public sealed class SubjectService : ISubjectService
 
     public async Task<SubjectResponse> CreateAsync(CreateSubjectRequest request, CancellationToken ct = default)
     {
+        var existing = await _repository.GetByCodeIncludingInactiveAsync(request.Code, ct);
+
+        if(existing is not null)
+        {
+            if (existing.IsActive)
+            {
+                throw new DomainException($"Subject code '{request.Code.ToUpper()}' is already in use.");
+            }
+
+            existing.Reactivate(request.Name, request.CreditHours);
+            await _repository.SaveChangesAsync();
+
+            return ToResponse(existing);
+        }
+
+
         if (await _repository.CodeExistsAsync(request.Code, ct))
             throw new DomainException($"Subject code '{request.Code.ToUpper()}' is already in use.");
 
@@ -30,9 +46,9 @@ public sealed class SubjectService : ISubjectService
         return subject is null ? null : ToResponse(subject);
     }
 
-    public async Task<List<SubjectResponse>> GetAllAsync(CancellationToken ct = default)
+    public async Task<List<SubjectResponse>> GetAllAsync(bool includeInactive= false, CancellationToken ct = default)
     {
-        var subjects = await _repository.GetAllAsync(ct);
+        var subjects = await _repository.GetAllAsync(includeInactive,ct);
         return subjects.Select(ToResponse).ToList();
     }
 
@@ -49,5 +65,26 @@ public sealed class SubjectService : ISubjectService
 
         return ToResponse(subject);
     }
-  private static SubjectResponse ToResponse(Subject s) => new(s.Id, s.Name, s.Code, s.CreditHours, s.CreatedAtUtc);
+
+    public async Task ReactivateAsync(Guid id, CancellationToken ct = default)
+    {
+        var subject = await _repository.GetByIdAsync(id, ct)
+            ?? throw new DomainException("Subject not found.");
+        subject.Reactivate(subject.Name, subject.CreditHours);
+        await _repository.SaveChangesAsync(ct);
+    }
+
+    public async Task DeactivateAsync(Guid id, CancellationToken ct = default)
+    {
+        var subject = await _repository.GetByIdAsync(id, ct) ??
+            throw new DomainException("Subject Not found");
+
+        subject.Deactivate();
+        await _repository.SaveChangesAsync(ct);
+
+
+    }
+
+
+    private static SubjectResponse ToResponse(Subject s) => new(s.Id, s.Name,s.IsActive,s.Code, s.CreditHours, s.CreatedAtUtc);
 }

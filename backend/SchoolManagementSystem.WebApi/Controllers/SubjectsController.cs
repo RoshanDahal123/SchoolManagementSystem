@@ -15,8 +15,8 @@ public class SubjectsController : ControllerBase
     public SubjectsController(ISubjectService service) => _service = service;
 
     [HttpGet]
-    public async Task<ActionResult<List<SubjectResponse>>> GetAll(CancellationToken ct)
-        => Ok(await _service.GetAllAsync(ct));
+    public async Task<ActionResult<List<SubjectResponse>>> GetAll([FromQuery] bool includeInactive, CancellationToken ct)
+        => Ok(await _service.GetAllAsync(includeInactive,ct));
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<SubjectResponse>> GetById(Guid id, CancellationToken ct)
@@ -41,5 +41,19 @@ public class SubjectsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-   
+    [HttpPost("{id:guid}/deactivate")]
+    [Authorize(Roles ="Admin")]
+
+     public async Task<IActionResult> Deactivate(Guid id , CancellationToken ct = default)
+    {
+        await _service.DeactivateAsync(id, ct);
+        return NoContent();
+    }
+    [HttpPost("{id:guid}/reactivate")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Reactivate(Guid id, CancellationToken ct)
+    {
+        await _service.ReactivateAsync(id, ct);
+        return NoContent();
+    }
 }

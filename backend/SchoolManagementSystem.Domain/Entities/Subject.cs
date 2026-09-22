@@ -1,5 +1,6 @@
 // Domain/Entities/Subject.cs
 using SchoolManagementSystem.Domain.Exceptions;
+using System.Xml.Linq;
 
 namespace SchoolManagementSystem.Domain.Entities;
 
@@ -16,6 +17,7 @@ public class Subject
     public int CreditHours { get; private set; }               // 0 = not applicable
     public DateTime CreatedAtUtc { get; private set; }
 
+    public bool IsActive { get; private set; } = true;
     private Subject() { }
 
     public static Subject Create(string name, string code, int creditHours = 0)
@@ -41,7 +43,8 @@ public class Subject
             Name = name.Trim(),
             Code = code.Trim().ToUpper(),
             CreditHours = creditHours,
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
+            IsActive = true
         };
     }
 
@@ -67,5 +70,27 @@ public class Subject
         CreditHours = creditHours;
     }
 
+    public void Deactivate()
+    {
+        if(!IsActive)
+            throw new DomainException($"'{Name}' is already inactive.");
+        IsActive = false;
+    }
+
+    public void Reactivate(string name , int creditHours)
+    {
+        if(string.IsNullOrWhiteSpace(name))
+            throw new DomainException("Subject name is required.");
+
+        if (name.Trim().Length > 100)
+            throw new DomainException("Subject name must be 100 characters or fewer.");
+
+        if (creditHours < 0)
+            throw new DomainException("Credit hours cannot be negative.");
+        Name = name.Trim();
+        CreditHours= creditHours;
+        IsActive = true;
+
+    }
 }
 

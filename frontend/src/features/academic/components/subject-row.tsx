@@ -18,13 +18,18 @@ interface SubjectRowProps {
   onEdit: (
     subject: SubjectResponse,
   ) => void
+  onDelete: (
+    subject: SubjectResponse,
+  ) => void
 }
 
 export function SubjectRow({
   subject,
   isAdmin,
   onEdit,
+  onDelete
 }: SubjectRowProps) {
+
   return (
     <TableRow className="h-11 hover:bg-muted/30">
 
@@ -65,6 +70,7 @@ export function SubjectRow({
               size="icon"
               className="h-8 w-8"
               aria-label={`Delete ${subject.name}`}
+              onClick={() => onDelete(subject)}
             >
               <Trash2Icon className="h-4 w-4" />
             </Button>
