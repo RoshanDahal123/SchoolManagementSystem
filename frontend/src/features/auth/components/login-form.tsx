@@ -116,7 +116,7 @@ export function LoginForm() {
     : null;
 
   return (
-    <Card className="w-full sm:max-w-sm">
+    <Card className="w-full sm:max-w-md shadow-xs">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">
           User Login
