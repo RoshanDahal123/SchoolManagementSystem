@@ -3,6 +3,7 @@ import {
 } from "@/components/atoms/breadcrumb"
 import { Separator } from "@/components/atoms/separator"
 import { SidebarTrigger } from "@/components/atoms/sidebar"
+import { ModeToggle } from "@/components/molecules/mode-toggle"
 import type { NavItem } from "@/config/nav-item"
 import { Link, useLocation } from "react-router"
 
@@ -32,6 +33,9 @@ export function Navbar({ navItems, homePath }: NavbarProps) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <div className="ml-auto flex items-center gap-2">
+        <ModeToggle />
+      </div>
     </header>
   )
 }
