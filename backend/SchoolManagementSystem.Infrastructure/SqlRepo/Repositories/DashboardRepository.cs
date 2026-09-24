@@ -20,13 +20,25 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
 
             var todayAttendancePercentage = todayTotal > 0 ? (double)todayPresent / todayTotal * 100 : 0;
 
+            var studentsByGrade = await _context.GradeLevels
+                .OrderBy(g => g.SortOrder)
+                .Select(g => new GradeStudentCount(
+                    g.Id,
+                    g.Name,
+                    _context.StudentEnrollments.Count(e => e.Status == EnrollmentStatus.Active &&
+                    e.AcademicYear.IsActive &&
+                    e.Section.GradeLevelId == g.Id)
+                    )).ToListAsync(ct);
+                
 
             return new DashboardCount
             (
                  totalActiveStudents,
              totalActiveTeachers,
                 totalClasses,
-              todayAttendancePercentage
+              todayAttendancePercentage,
+              studentsByGrade
+
             );
         }
     }
