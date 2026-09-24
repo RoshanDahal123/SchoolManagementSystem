@@ -3,7 +3,7 @@
 
 namespace SchoolManagementSystem.Domain.Entities
 {
-    public class SectionHomeRoomTeacher
+    public class SectionHomeroomTeacher
     {
         public Guid Id { get; private set; }
         public Guid SectionId { get; private set; }

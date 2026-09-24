@@ -18,9 +18,13 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Persistence.Configuratio
             //one homeroom teacher per section per academic year
             builder.HasIndex(t => new { t.SectionId, t.AcademicYearId }).IsUnique();
 
-            // Fast "which sections is this teacher homeroom teacher of" lookups
-            // (needed by the authorization handler ).
-            builder.HasIndex(t => t.TeacherId);
+           //GetByTeacherandAcademicYear
+            builder.HasIndex(t => new
+            {
+                t.TeacherId,
+                t.AcademicYearId
+            });
+
             builder.Property(t => t.AssignedAtUtc)
            .IsRequired();
 
