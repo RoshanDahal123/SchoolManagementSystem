@@ -17,7 +17,7 @@ export function AcademicYearRow({ year, isAdmin, onEdit, onActivate }: Props) {
     <TableRow>
       <TableCell className="font-medium">{year.name}</TableCell>
       <TableCell className="text-muted-foreground">
-        {format(new Date(year.startDate), "MMM d, yyyy")} – {format(new Date(year.endDate), "MMM d, yyyy")}
+        {format(new Date(year?.startDate), "MMM d, yyyy")} – {format(new Date(year?.endDate), "MMM d, yyyy")}
       </TableCell>
       <TableCell>
         {year.isActive ? (
@@ -31,7 +31,7 @@ export function AcademicYearRow({ year, isAdmin, onEdit, onActivate }: Props) {
       {isAdmin && (
         <TableCell>
           <div className="flex items-center justify-end gap-1">
-            {!year.isActive && (
+            {!year?.isActive && (
               <Button variant="ghost" size="sm" onClick={() => onActivate(year)}>Set active</Button>
             )}
             <Button variant="ghost" size="icon-sm" onClick={() => onEdit(year)} title="Edit academic year">

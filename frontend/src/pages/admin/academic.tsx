@@ -112,28 +112,28 @@ export default function AcademicPage() {
         {/* Tablet: scrollable pills. Desktop (lg+): full-width grid, no scroll needed */}
         {/* Tablet: scrollable pills. Desktop (lg+): full-width grid, no scroll needed */}
         <div className="hidden sm:block sm:overflow-x-auto sm:pb-1">
-<TabsList
-  className="
+          <TabsList
+            className="
     !h-10 w-full min-w-max gap-1.5
     md:!h-12 md:gap-2
     lg:!h-14 lg:grid lg:grid-cols-5
   "
->
-  {TABS.map(({ value, label, icon: Icon }) => (
-    <TabsTrigger
-      key={value}
-      value={value}
-      className="
+          >
+            {TABS.map(({ value, label, icon: Icon }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="
         gap-2 px-3 text-sm
         md:px-3.5
         lg:px-4 lg:text-base
       "
-    >
-      <Icon className="h-4 w-4 lg:h-[18px] lg:w-[18px]" />
-      {label}
-    </TabsTrigger>
-  ))}
-</TabsList>
+              >
+                <Icon className="h-4 w-4 lg:h-[18px] lg:w-[18px]" />
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </div>
 
         <TabsContent value="years" className="mt-6 focus-visible:outline-none">
