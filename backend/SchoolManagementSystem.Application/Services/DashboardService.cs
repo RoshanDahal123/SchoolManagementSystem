@@ -18,12 +18,15 @@ namespace SchoolManagementSystem.Application.Services;
         var recentActivity = announcements.Take(5)
             .Select(a => new RecentActivityItemResponse(a.Id, a.Title, Truncate(a.Body, 120), a.CreatedAtUtc)).ToList();
 
+        var studentsByGrade = counts.StudentsByGrade.Select(s => new GradeStudentCountResponse(s.GradeLevelId, s.GradeLevelName, s.StudentCount)).ToList();
         return new DashboardSummaryResponse(
             counts.TotalActiveStudents,
             counts.TotalActiveTeachers,
             counts.TotalClasses,
             counts.TodayAttendancePercentage,
-            recentActivity
+            recentActivity,
+            studentsByGrade
+
         );
 
 

@@ -13,5 +13,8 @@ namespace SchoolManagementSystem.Application.Interfaces
         int TotalActiveStudents,
         int TotalActiveTeachers,
         int TotalClasses,
-        double TodayAttendancePercentage);
+        double TodayAttendancePercentage,
+        List<GradeStudentCount> StudentsByGrade);
+
+    public record GradeStudentCount(Guid GradeLevelId, string GradeLevelName, int StudentCount);
 }

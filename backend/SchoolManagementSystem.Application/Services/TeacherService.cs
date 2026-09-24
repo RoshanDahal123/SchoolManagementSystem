@@ -96,7 +96,10 @@ public sealed class TeacherService : ITeacherService
         foreach (var t in teachers)
         {
             var specializations = await _teacherSubjectRepository.GetByTeacherAsync(t.Id, ct);
-            result.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList()));
+            User? user = t.UserId.HasValue
+                ? await _userRepository.GetByIdAsync(t.UserId.Value, ct)
+                : null;
+            result.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList(), user));
         }
 
         return result;
@@ -114,7 +117,10 @@ public sealed class TeacherService : ITeacherService
         foreach (var t in paged.Items)
         {
             var specializations = await _teacherSubjectRepository.GetByTeacherAsync(t.Id, ct);
-            items.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList()));
+            User? user = t.UserId.HasValue
+                ? await _userRepository.GetByIdAsync(t.UserId.Value, ct) :
+                null;
+            items.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList(),user));
         }
 
         return new PagedResult<TeacherResponse>
@@ -145,8 +151,10 @@ public sealed class TeacherService : ITeacherService
         await SyncSpecializationsAsync(id, subjects.Select(s => s.Id).ToList(), ct);
 
         await _teacherRepository.SaveChangesAsync(ct);
-
-        return ToResponse(teacher, subjects);
+        User? user = teacher.UserId.HasValue
+        ? await _userRepository.GetByIdAsync(teacher.UserId.Value, ct)
+        : null;
+        return ToResponse(teacher, subjects,user);
     }
 
     public async Task DeactivateAsync(Guid id, CancellationToken ct = default)
