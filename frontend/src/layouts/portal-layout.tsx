@@ -121,9 +121,9 @@ export function PortalLayout({ navItems, portalTitle, homePath }: PortalLayoutPr
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <Navbar navItems={navItems} homePath={homePath} />
-        <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+        <main className="flex flex-1 flex-col gap-4 p-4 md:p-6 min-w-0 overflow-x-hidden">
           <Outlet />
         </main>
       </SidebarInset>
