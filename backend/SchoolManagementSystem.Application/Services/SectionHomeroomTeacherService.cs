@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 namespace SchoolManagementSystem.Application.Services
 {
-    public sealed class SectionHomeroomTeacherService
+    public sealed class SectionHomeroomTeacherService:ISectionHomeroomTeacherService
     {
         private readonly ISectionHomeroomTeacherRepository _homeroomRepo;
         private readonly ISectionRepository _sectionRepo;

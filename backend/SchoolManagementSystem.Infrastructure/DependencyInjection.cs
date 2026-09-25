@@ -47,7 +47,7 @@ public static class DependencyInjection
         services.AddScoped<ICourseWorkSubmissionRepository, CourseworkSubmissionRepository>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
-       
+        services.AddScoped<ISectionHomeroomTeacherRepository, SectionHomeroomTeacherRepository>();
 
         services.AddHostedService<AdminSeeder>();
 

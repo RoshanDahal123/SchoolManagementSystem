@@ -24,7 +24,7 @@ namespace SchoolManagementSystem.Application
             services.AddScoped<IAnnouncementService, AnnouncementService>();
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<ICourseworkService, CourseworkService>();
-            
+            services.AddScoped<ISectionHomeroomTeacherService, SectionHomeroomTeacherService>();
             return services;
         }
     }
