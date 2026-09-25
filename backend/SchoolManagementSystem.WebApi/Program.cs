@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
+using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure;
 using SchoolManagementSystem.WebApi.Authorization;
 using System.Text;
@@ -64,11 +65,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+//Authorization Handler
 builder.Services.AddScoped<IAuthorizationHandler, HomeroomTeacherAuthorizationHandler>();
+//Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("HomeroomTeacherOnly", policy =>
-        policy.Requirements.Add(new HomeroomTeacherRequirement()));
+    options.AddPolicy("HomeroomTeacherOnly", policy => {
+        policy.RequireAuthenticatedUser();
+
+        policy.RequireRole(
+        UserRole.Teacher.ToString(),
+        UserRole.Admin.ToString());
+
+          policy.Requirements.Add(
+        new HomeroomTeacherRequirement());
+    });
 });
 
 
