@@ -12,10 +12,18 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
         private readonly AppDbContext _context;
         public SectionHomeroomTeacherRepository(AppDbContext context) => _context = context;
         public Task<SectionHomeroomTeacher?> GetBySectionAndYearAsync(
-        Guid sectionId, Guid academicYearId, CancellationToken ct = default) =>
-        _context.SectionHomeroomTeachers
-            .Include(t => t.Teacher)
-            .SingleOrDefaultAsync(t => t.SectionId == sectionId && t.AcademicYearId == academicYearId, ct);
+            Guid sectionId,
+            Guid academicYearId,
+            CancellationToken ct = default) =>
+            _context.SectionHomeroomTeachers
+        .Include(x => x.Teacher)
+        .Include(x => x.Section)
+            .ThenInclude(x => x.GradeLevel)
+        .Include(x => x.AcademicYear)
+        .SingleOrDefaultAsync(
+            x => x.SectionId == sectionId &&
+                 x.AcademicYearId == academicYearId,
+            ct);
 
         public Task<bool> IsHomeroomTeacherAsync(
         Guid sectionId, Guid academicYearId, Guid teacherId, CancellationToken ct = default) =>
