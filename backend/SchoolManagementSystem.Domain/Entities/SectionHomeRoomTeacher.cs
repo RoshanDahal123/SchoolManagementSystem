@@ -16,9 +16,9 @@ namespace SchoolManagementSystem.Domain.Entities
         public AcademicYear AcademicYear { get; private set; } = null!;
         public Teacher Teacher { get; private set; } = null!;
 
-        private SectionHomeRoomTeacher() { }
+        private SectionHomeroomTeacher() { }
 
-        public static SectionHomeRoomTeacher Create(Guid sectionId, Guid academicYearId, Guid teacherId)
+        public static SectionHomeroomTeacher Create(Guid sectionId, Guid academicYearId, Guid teacherId)
         {
             if (sectionId == Guid.Empty)
                 throw new DomainException("Section is required.");
@@ -29,7 +29,7 @@ namespace SchoolManagementSystem.Domain.Entities
             if (teacherId == Guid.Empty)
                 throw new DomainException("Teacher is required.");
 
-            return new SectionHomeRoomTeacher
+            return new SectionHomeroomTeacher
             {
                 Id = Guid.NewGuid(),
                 SectionId = sectionId,
