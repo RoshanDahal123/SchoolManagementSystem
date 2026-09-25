@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
 using SchoolManagementSystem.Infrastructure;
+using SchoolManagementSystem.WebApi.Authorization;
 using System.Text;
 
 
@@ -62,6 +64,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+builder.Services.AddScoped<IAuthorizationHandler, HomeroomTeacherAuthorizationHandler>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("HomeroomTeacherOnly", policy =>
+        policy.Requirements.Add(new HomeroomTeacherRequirement()));
+});
+
+
 var app = builder.Build();
 
 
