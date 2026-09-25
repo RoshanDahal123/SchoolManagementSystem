@@ -12,6 +12,8 @@ import type {
   UpdateGradeLevelRequest,
   UpdateSectionRequest,
   UpdateSubjectRequest,
+  AssignHomeroomTeacherRequest,
+  SectionHomeroomTeacherResponse
 } from "./@types"
 
 export const academicApi = baseApi.injectEndpoints({
@@ -165,6 +167,36 @@ export const academicApi = baseApi.injectEndpoints({
         { type: "ClassSubject", id: `${gradeLevelId}-${yearId}` },
       ],
     }),
+
+    //Section Homeroom tacher
+
+     getHomeroomTeacher: builder.query<SectionHomeroomTeacherResponse | null, { sectionId: string; yearId: string }>({
+      query: ({ sectionId, yearId }) => ({
+        url: `/sections/${sectionId}/academic-years/${yearId}/homeroom-teacher`,
+        method: "GET",
+      }),
+      providesTags: (_r, _e, { sectionId, yearId }) => [{ type: "HomeroomTeacher", id: `${sectionId}-${yearId}` }],
+    }),
+   
+   assignHomeroomTeacher: builder.mutation<
+      SectionHomeroomTeacherResponse,
+      { sectionId: string; yearId: string; data: AssignHomeroomTeacherRequest }
+    >({
+      query: ({ sectionId, yearId, data }) => ({
+        url: `/sections/${sectionId}/academic-years/${yearId}/homeroom-teacher`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: (_r, _e, { sectionId, yearId }) => [{ type: "HomeroomTeacher", id: `${sectionId}-${yearId}` }],
+    }),
+ removeHomeroomTeacher: builder.mutation<void, { sectionId: string; yearId: string }>({
+      query: ({ sectionId, yearId }) => ({
+        url: `/sections/${sectionId}/academic-years/${yearId}/homeroom-teacher`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_r, _e, { sectionId, yearId }) => [{ type: "HomeroomTeacher", id: `${sectionId}-${yearId}` }],
+    }),
+   
   }),
   overrideExisting: false,
 })

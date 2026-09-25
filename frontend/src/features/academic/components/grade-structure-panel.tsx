@@ -7,22 +7,33 @@ import { useState } from "react"
 import { toast } from "sonner"
 import type { GradeLevelResponse, SectionResponse } from "../@types"
 import {
+  useAssignHomeroomTeacherMutation,
     useCreateGradeLevelMutation, useCreateSectionMutation, useDeleteGradeLevelMutation,
-    useDeleteSectionMutation, useGetGradeLevelsQuery, useUpdateGradeLevelMutation, useUpdateSectionMutation,
+    useDeleteSectionMutation, useGetGradeLevelsQuery, useRemoveHomeroomTeacherMutation, useUpdateGradeLevelMutation, useUpdateSectionMutation,
 } from "../academic-api"
 import { GradeLevelCard } from "./grade-level-card"
 import { GradeLevelDialog, type GradeLevelFormData } from "./grade-level-dialog"
 import { SectionDialog, type SectionFormData } from "./section-dialog"
+import { useGetAllTeachersQuery } from "@/features/teachers/teacher-api"
+
+import { useGetAcademicYearsQuery } from "@/features/academic-years/academic-year-api"
 
 
 export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
   const { data: grades = [], isLoading } = useGetGradeLevelsQuery()
   const [createGrade, { isLoading: isCreatingGrade }] = useCreateGradeLevelMutation()
   const [updateGrade, { isLoading: isUpdatingGrade }] = useUpdateGradeLevelMutation()
+const { data: teachersData } = useGetAllTeachersQuery();
+const { data: years = [] } = useGetAcademicYearsQuery(); // Assuming you have a query to fetch academic years
+const activeYearId = years.find((y) => y.isActive)?.id ?? "";
+  const activeTeachers = (teachersData ?? []).filter((t) => t.isActive)
+
   const [deleteGrade] = useDeleteGradeLevelMutation()
   const [createSection, { isLoading: isCreatingSection }] = useCreateSectionMutation()
   const [updateSection, { isLoading: isUpdatingSection }] = useUpdateSectionMutation()
   const [deleteSection] = useDeleteSectionMutation()
+ const [removeHomeroomTeacher] = useRemoveHomeroomTeacherMutation()
+ const [assignHomeroomTeacher,{isLoading: isAssigningHomeroomTeacher}] = useAssignHomeroomTeacherMutation()
 
   const [gradeDialogOpen, setGradeDialogOpen] = useState(false)
   const [editGrade, setEditGrade] = useState<GradeLevelResponse | null>(null)
@@ -32,6 +43,9 @@ export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
   const [sectionGrade, setSectionGrade] = useState<GradeLevelResponse | null>(null)
   const [editSection, setEditSection] = useState<SectionResponse | null>(null)
   const [deleteSectionTarget, setDeleteSectionTarget] = useState<{ grade: GradeLevelResponse; section: SectionResponse } | null>(null)
+ 
+
+   
 
   const handleSubmitGrade = async (data: GradeLevelFormData) => {
     try {
@@ -42,14 +56,36 @@ export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
     } catch (e: any) { toast.error(e?.data?.detail ?? "Failed to save grade level") }
   }
 
-  const handleSubmitSection = async (data: SectionFormData) => {
+  const handleSubmitSection = async (data: SectionFormData, originalTeacherId: string) => {
     if (!sectionGrade) return
     try {
-      if (editSection) await updateSection({ gradeLevelId: sectionGrade.id, sectionId: editSection.id, data }).unwrap()
-      else await createSection({ gradeLevelId: sectionGrade.id, data }).unwrap()
+      const section = editSection
+        ? await updateSection({
+            gradeLevelId: sectionGrade.id,
+            sectionId: editSection.id,
+            data: { name: data.name, capacity: data.capacity },
+          }).unwrap()
+        : await createSection({
+            gradeLevelId: sectionGrade.id,
+            data: { name: data.name, capacity: data.capacity },
+          }).unwrap()
+
+      const newTeacherId = data.teacherId ?? ""
+      if (activeYearId && newTeacherId !== originalTeacherId) {
+        if (newTeacherId) {
+          await assignHomeroomTeacher({
+            sectionId: section.id, yearId: activeYearId, data: { teacherId: newTeacherId },
+          }).unwrap()
+        } else {
+          await removeHomeroomTeacher({ sectionId: section.id, yearId: activeYearId }).unwrap()
+        }
+      }
+
       toast.success(editSection ? "Section updated" : "Section added")
       setSectionDialogOpen(false)
-    } catch (e: any) { toast.error(e?.data?.detail ?? "Failed to save section") }
+    } catch (e: any) {
+      toast.error(e?.data?.detail ?? "Failed to save section")
+    }
   }
 
   const handleDeleteGrade = async () => {
@@ -74,6 +110,13 @@ export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <div className="pt-4 space-y-4">
+      {isAdmin && !activeYearId && (
+        <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+          No active academic year is set — set one in the Academic Years tab before assigning homeroom teachers.
+        </p>
+      )}
+
+
       {isAdmin && (
         <div className="flex justify-end">
           <Button onClick={() => { setEditGrade(null); setGradeDialogOpen(true) }}>
@@ -92,11 +135,13 @@ export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
               key={grade.id}
               grade={grade}
               isAdmin={isAdmin}
+              academicYearId={activeYearId}
               onEditGrade={(g) => { setEditGrade(g); setGradeDialogOpen(true) }}
               onDeleteGrade={setDeleteGradeTarget}
               onAddSection={(g) => { setSectionGrade(g); setEditSection(null); setSectionDialogOpen(true) }}
               onEditSection={(g, s) => { setSectionGrade(g); setEditSection(s); setSectionDialogOpen(true) }}
               onDeleteSection={(g, s) => setDeleteSectionTarget({ grade: g, section: s })}
+            
             />
           ))}
         </div>
@@ -105,9 +150,16 @@ export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
       <GradeLevelDialog open={gradeDialogOpen} onOpenChange={setGradeDialogOpen} editing={editGrade}
         nextSortOrder={grades.length} isSaving={isCreatingGrade || isUpdatingGrade} onSubmit={handleSubmitGrade} />
 
-      <SectionDialog open={sectionDialogOpen} onOpenChange={setSectionDialogOpen} grade={sectionGrade}
-        editing={editSection} isSaving={isCreatingSection || isUpdatingSection} onSubmit={handleSubmitSection} />
-
+     <SectionDialog
+        open={sectionDialogOpen}
+        onOpenChange={setSectionDialogOpen}
+        grade={sectionGrade}
+        editing={editSection}
+        academicYearId={activeYearId}
+        teachers={activeTeachers}
+        isSaving={isCreatingSection || isUpdatingSection}
+        onSubmit={handleSubmitSection}
+      />
       <ConfirmDialog open={!!deleteGradeTarget} onOpenChange={(o) => !o && setDeleteGradeTarget(null)}
         title={`Delete ${deleteGradeTarget?.name}?`} description="This can't be undone. All sections must be removed first."
         confirmLabel="Delete" onConfirm={handleDeleteGrade} />
@@ -115,6 +167,8 @@ export function GradeStructurePanel({ isAdmin }: { isAdmin: boolean }) {
       <ConfirmDialog open={!!deleteSectionTarget} onOpenChange={(o) => !o && setDeleteSectionTarget(null)}
         title={`Delete section "${deleteSectionTarget?.section.name}"?`} description="This can't be undone."
         confirmLabel="Delete" onConfirm={handleDeleteSection} />
+
+      
     </div>
   )
 }

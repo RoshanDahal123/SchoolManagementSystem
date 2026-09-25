@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader } from "@/components/atoms/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/atoms/collapsible"
 import { ChevronRightIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
 import type { GradeLevelResponse, SectionResponse } from "../@types"
+import { SectionHomeroomTeacher } from "./section-homeroom-teacher"
 
 interface Props {
   grade: GradeLevelResponse
   isAdmin: boolean
+  academicYearId: string
   onEditGrade: (grade: GradeLevelResponse) => void
   onDeleteGrade: (grade: GradeLevelResponse) => void
   onAddSection: (grade: GradeLevelResponse) => void
@@ -15,9 +17,9 @@ interface Props {
   onDeleteSection: (grade: GradeLevelResponse, section: SectionResponse) => void
 }
 
+
 export function GradeLevelCard({
-  grade, isAdmin, onEditGrade, onDeleteGrade, onAddSection, onEditSection, onDeleteSection,
-}: Props) {
+  grade, isAdmin, academicYearId, onEditGrade, onDeleteGrade, onAddSection, onEditSection, onDeleteSection}: Props) {
   return (
     <Collapsible>
       <Card className="overflow-hidden py-0">
@@ -57,6 +59,12 @@ export function GradeLevelCard({
                   <div key={s.id} className="group flex items-center gap-1.5 rounded-md border bg-muted/40 px-3 py-1 text-sm">
                     <span>{s.name}</span>
                     {s.capacity > 0 && <span className="text-xs text-muted-foreground">/{s.capacity}</span>}
+
+                    <SectionHomeroomTeacher
+                      sectionId={s.id}
+                      academicYearId={academicYearId}
+                    />
+
                     {isAdmin && (
                       <span className="ml-1 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                         <button onClick={() => onEditSection(grade, s)} className="text-muted-foreground hover:text-foreground">

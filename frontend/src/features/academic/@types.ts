@@ -51,5 +51,20 @@ export interface ClassSubjectResponse {
   assignedTeacherName?: string | null
 }
 
+// ─── Section Homeroom Teacher ──────────────────────────────────────────────────
+export interface SectionHomeroomTeacherResponse {
+  id: string
+  sectionId: string
+  sectionName: string
+  gradeLevelId: string
+  gradeLevelName: string
+  academicYearId: string
+  academicYearName: string
+  teacherId: string
+  teacherName: string
+  assignedAtUtc: string
+}
+
+export interface AssignHomeroomTeacherRequest { teacherId: string }
 export interface AssignSubjectRequest { subjectId: string }
 export interface AssignTeacherRequest { teacherId: string }
