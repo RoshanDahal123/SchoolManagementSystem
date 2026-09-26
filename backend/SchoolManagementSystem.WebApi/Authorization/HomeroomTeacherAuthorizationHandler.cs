@@ -3,11 +3,6 @@ using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Enums;
 using System.Security.Claims;
 
-=using Microsoft.AspNetCore.Authorization;
-using SchoolManagementSystem.Application.Interfaces;
-using SchoolManagementSystem.Domain.Enums;
-using System.Security.Claims;
-
 namespace SchoolManagementSystem.WebApi.Authorization;
 
 public sealed class HomeroomTeacherAuthorizationHandler
