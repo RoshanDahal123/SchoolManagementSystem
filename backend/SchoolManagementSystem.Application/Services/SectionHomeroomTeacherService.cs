@@ -39,15 +39,16 @@ namespace SchoolManagementSystem.Application.Services
         }
 
 
-      public async Task<SectionHomeroomTeacherResponse> AssignAsync(
+        public async Task<SectionHomeroomTeacherResponse> AssignAsync(
        Guid sectionId,
        Guid academicYearId,
        AssignHomeroomTeacherRequest request,
        CancellationToken ct = default)
         {
-            //validate section
+            // Validate section
             _ = await _sectionRepo.GetByIdAsync(sectionId, ct)
-                ?? throw new CannotUnloadAppDomainException("Section not found");
+                ?? throw new DomainException("Section not found.");
+
             // Validate academic year
             _ = await _yearRepo.GetByIdAsync(academicYearId, ct)
                 ?? throw new DomainException("Academic year not found.");
@@ -59,34 +60,71 @@ namespace SchoolManagementSystem.Application.Services
             if (!teacher.IsActive)
             {
                 throw new DomainException(
-                    $"{teacher.FirstName} {teacher.LastName} is deactivated and cannot be assigned as a homeroom teacher.");
+                    $"{teacher.FirstName} {teacher.LastName} is deactivated " +
+                    "and cannot be assigned as a homeroom teacher.");
             }
 
-            // Check whether the section already has a homeroom teacher
+            // Get current homeroom assignment for this section/year
             var existing = await _homeroomRepo
-                .GetBySectionAndYearAsync(sectionId, academicYearId, ct);
+                .GetBySectionAndYearAsync(
+                    sectionId,
+                    academicYearId,
+                    ct);
 
-            if(existing is not null)
+            // Check whether this teacher is already assigned
+            // to a DIFFERENT section in the same academic year.
+            var existingTeacherAssignments =
+                await _homeroomRepo.GetByTeacherAndYearAsync(
+                    request.TeacherId,
+                    academicYearId,
+                    ct);
+
+            if (existingTeacherAssignments.Any(x => x.SectionId != sectionId))
+            {
+                throw new DomainException(
+                    "This teacher is already assigned as a homeroom teacher " +
+                    "for another section in this academic year.");
+            }
+
+            // Existing assignment → reassign
+            if (existing is not null)
             {
                 existing.Reassign(request.TeacherId);
+
                 await _homeroomRepo.SaveChangesAsync(ct);
-                return ToResponse(existing);
+
+                // Re-query so Teacher navigation contains the new teacher.
+                var saved = await _homeroomRepo
+                    .GetBySectionAndYearAsync(
+                        sectionId,
+                        academicYearId,
+                        ct)
+                    ?? throw new DomainException(
+                        "Homeroom assignment not found after save.");
+
+                return ToResponse(saved);
             }
-            //create a new assignment
+
+            // No existing assignment → create
             var assignment = SectionHomeroomTeacher.Create(
-                sectionId, academicYearId, request.TeacherId);
+                sectionId,
+                academicYearId,
+                request.TeacherId);
+
             await _homeroomRepo.AddAsync(assignment, ct);
+
             await _homeroomRepo.SaveChangesAsync(ct);
 
-            // Newly created entity does not have navigation properties loaded.
-            var saved = await _homeroomRepo
-                .GetBySectionAndYearAsync(sectionId, academicYearId, ct)
+            var created = await _homeroomRepo
+                .GetBySectionAndYearAsync(
+                    sectionId,
+                    academicYearId,
+                    ct)
                 ?? throw new DomainException(
                     "Homeroom assignment not found after save.");
 
-            return ToResponse(saved);
+            return ToResponse(created);
         }
-
 
         public async Task RemoveAsync(
         Guid sectionId,
