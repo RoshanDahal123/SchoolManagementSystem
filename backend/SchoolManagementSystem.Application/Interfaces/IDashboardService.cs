@@ -7,6 +7,7 @@ namespace SchoolManagementSystem.Application.Interfaces
     public interface IDashboardService
     {
         Task<DashboardSummaryResponse> GetSummaryAsync(CancellationToken ct = default);
+        Task<TeacherDashboardSummaryResponse> GetTeacherSummaryAsync(Guid userId, CancellationToken ct = default);
     }
 
 
