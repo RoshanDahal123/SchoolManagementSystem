@@ -221,4 +221,8 @@ export const {
   useRemoveClassSubjectMutation,
   useAssignTeacherMutation,
   useRemoveTeacherMutation,
+  useGetHomeroomTeacherQuery,
+  useAssignHomeroomTeacherMutation,
+  useRemoveHomeroomTeacherMutation,
+  
 } = academicApi
