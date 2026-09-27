@@ -80,6 +80,16 @@ builder.Services.AddAuthorization(options =>
           policy.Requirements.Add(
         new HomeroomTeacherRequirement());
     });
+
+    options.AddPolicy("StudentAttendanceAccess", policy =>            // ← added
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(
+            UserRole.Admin.ToString(),
+            UserRole.Teacher.ToString(),
+            UserRole.Student.ToString());
+        policy.Requirements.Add(new StudentAttendanceAccessRequirement());
+    });
 });
 
 

@@ -74,7 +74,10 @@ namespace SchoolManagementSystem.WebApi.Controllers
         public async Task<ActionResult<List<StudentAttendanceRecordResponse>>> GetStudentAttendance(
         Guid studentId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to, CancellationToken ct)
         {
-            if (!await CanAccessStudentDataAsync(studentId, ct))
+            var authResult = await _authorizationService.AuthorizeAsync(
+               User, new StudentAttendanceResource(studentId), "StudentAttendanceAccess");
+
+            if (!authResult.Succeeded)
                 return Forbid();
 
             return Ok(await _attendanceService.GetStudentAttendanceAsync(studentId, from, to, ct));
@@ -85,9 +88,11 @@ namespace SchoolManagementSystem.WebApi.Controllers
         public async Task<ActionResult<AttendanceSummaryResponse>> GetStudentSummary(
             Guid studentId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to, CancellationToken ct)
         {
-            if (!await CanAccessStudentDataAsync(studentId, ct))
-                return Forbid();
+            var authResult = await _authorizationService.AuthorizeAsync(
+                User, new StudentAttendanceResource(studentId), "StudentAttendanceAccess");
 
+            if (!authResult.Succeeded)
+                return Forbid();
             return Ok(await _attendanceService.GetStudentSummaryAsync(studentId, from, to, ct));
         }
 
