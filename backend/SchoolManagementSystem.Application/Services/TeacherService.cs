@@ -24,7 +24,8 @@ public sealed class TeacherService : ITeacherService
     private readonly IAccountSetupTokenRepository _setupTokenRepository;
     private readonly IClassSubjectTeacherRepository _classSubjectTeacherRepository;
     private readonly IEmailService _emailService;
-
+    private readonly ISectionHomeroomTeacherRepository _homeroomRepository;
+    private readonly IAcademicYearRepository _academicYearRepository;
 
     private readonly AppUrlOptions _appUrls;
 
@@ -37,6 +38,8 @@ public sealed class TeacherService : ITeacherService
         IAccountSetupTokenRepository setupTokenRepository,
         IEmailService emailService,
         IClassSubjectTeacherRepository classSubjectTeacherRepository,
+        ISectionHomeroomTeacherRepository homeroomRepository,
+        IAcademicYearRepository academicYearRepository,
         IOptions<AppUrlOptions> appUrlOptions)
     {
         _teacherRepository = teacherRepository;
@@ -46,6 +49,8 @@ public sealed class TeacherService : ITeacherService
         _passwordHasher = passwordHasher;
         _setupTokenRepository = setupTokenRepository;
         _classSubjectTeacherRepository = classSubjectTeacherRepository;
+        _homeroomRepository = homeroomRepository;
+        _academicYearRepository = academicYearRepository;
         _emailService = emailService;
         _appUrls = appUrlOptions.Value;
 
@@ -268,6 +273,17 @@ public sealed class TeacherService : ITeacherService
 
         await _emailService.SendAsync(emailMessage, ct);
     }
+
+    public async Task<List<TeacherHomeroomSectionResponse>> GetHomeroomSectionsAsync(Guid teacherId, CancellationToken ct = default)
+    {
+        var academicYear = await _academicYearRepository.GetActiveAsync(ct);
+        if (academicYear is null) return [];
+
+        var assignments = await _homeroomRepository.GetByTeacherAndYearAsync(teacherId, academicYear.Id, ct);
+        return assignments.Select(a => new TeacherHomeroomSectionResponse(
+            a.SectionId, a.Section.Name, a.Section.GradeLevelId, a.Section.GradeLevel.Name, academicYear.Id)).ToList();
+    }
+
 
     // ─── Private helpers ────────────────────────────────────────────────
 

@@ -12,7 +12,9 @@ public class SectionRepository : ISectionRepository
     public SectionRepository(AppDbContext context) => _context = context;
 
     public Task<Section?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        _context.Sections.FirstOrDefaultAsync(s => s.Id == id, ct);
+        _context.Sections
+            .Include(s => s.GradeLevel)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
 
     public Task<List<Section>> GetByGradeLevelAsync(Guid gradeLevelId, CancellationToken ct = default) =>
         _context.Sections

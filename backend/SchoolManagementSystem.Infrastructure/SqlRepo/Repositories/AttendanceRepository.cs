@@ -38,7 +38,14 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
 
             return query.OrderByDescending(a => a.Date).ToListAsync(ct);
         }
-
+        public Task<List<Attendance>> GetBySectionAndDateRangeAsync(
+         Guid sectionId, Guid academicYearId, DateOnly from, DateOnly to, CancellationToken ct = default) =>
+          _context.Attendances
+        .AsNoTracking()
+        .Where(a => a.StudentEnrollment.SectionId == sectionId
+                 && a.StudentEnrollment.AcademicYearId == academicYearId
+                 && a.Date >= from && a.Date <= to)
+        .ToListAsync(ct);
 
         public Task AddAsync(Attendance attendance, CancellationToken ct= default)
         {

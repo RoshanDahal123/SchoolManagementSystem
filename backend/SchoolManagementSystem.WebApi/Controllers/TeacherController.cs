@@ -55,6 +55,10 @@ public class TeachersController : ControllerBase
         return Ok(await _teacherService.GetAssignmentAsync(id, ct));
     }
 
+    [HttpGet("{id:guid}/homeroom-sections")]
+    [Authorize(Roles = "Admin,Teacher")]
+    public async Task<ActionResult<List<TeacherHomeroomSectionResponse>>> GetHomeroomSections(Guid id, CancellationToken ct)
+   => Ok(await _teacherService.GetHomeroomSectionsAsync(id, ct));
 
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin")]
@@ -95,4 +99,6 @@ public class TeachersController : ControllerBase
         await _teacherService.ResendInviteAsync(id, ct);
         return NoContent();
     }
+   
+
 }

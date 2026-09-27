@@ -25,6 +25,8 @@ import StudentCourseworkPage from "@/pages/student/coursework";
 import StudentProgressReportPage from "@/pages/student/prgress-report";
 import TeacherCourseworkPage from "@/pages/teacher/coursework";
 import TeacherCourseworkDetailsPage from "@/pages/teacher/coursework-details";
+import TeacherAttendancePage from "@/pages/teacher/attendance";
+import StudentAttendancePage from "@/pages/student/attendance";
 
 export function AppRoutes() {
   return (
@@ -52,6 +54,7 @@ export function AppRoutes() {
               <Route path="assignments" element={<AssignmentsPage />} />
               <Route path="attendance" element={<AttendancePage />} />
               <Route path="announcements" element={<AnnouncementsPage />} />
+
             </Route>
           </Route>
 
@@ -63,6 +66,7 @@ export function AppRoutes() {
               />
               <Route path="dashboard" element={<TeacherDashboardPage />} />
               <Route path="coursework" element={<TeacherCourseworkPage />} />
+              <Route path="attendance" element={<TeacherAttendancePage />} />   
               <Route
                 path="coursework/:id"
                 element={<TeacherCourseworkDetailsPage />}
@@ -78,6 +82,7 @@ export function AppRoutes() {
               />
               <Route path="dashboard" element={<StudentDashboardPage />} />
               <Route path="coursework" element={<StudentCourseworkPage />} />
+              <Route path="attendance" element={<StudentAttendancePage />} />
               <Route
                 path="progress-report"
                 element={<StudentProgressReportPage />}

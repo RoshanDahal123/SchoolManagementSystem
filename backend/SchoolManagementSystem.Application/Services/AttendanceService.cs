@@ -13,11 +13,12 @@ namespace SchoolManagementSystem.Application.Services
     {
         private readonly IAttendanceRepository _attendanceRepo;
         private readonly IStudentEnrollmentRepository _enrollmentRepo;
-
-        public AttendanceService(IAttendanceRepository attendanceRepo, IStudentEnrollmentRepository enrollmentRepo)
+        private readonly ISectionRepository _sectionRepo;
+        public AttendanceService(IAttendanceRepository attendanceRepo, IStudentEnrollmentRepository enrollmentRepo, ISectionRepository sectionRepo)
         {
             _attendanceRepo = attendanceRepo;
             _enrollmentRepo = enrollmentRepo;
+            _sectionRepo = sectionRepo;
         }
 
         public async Task<List<RosterAttendanceResponse>> MarkAttendanceAsync(Guid sectionId, Guid academicYearId, MarkAttendanceRequest request, Guid markedByUserId, CancellationToken ct = default)
@@ -109,6 +110,48 @@ namespace SchoolManagementSystem.Application.Services
                total == 0 ? 0 : Math.Round(present * 100.0 / total, 1));
             //if there are no attendace records, return 0; otherwise 
             //calculte the percentage of the records marked present;
+        }
+
+        public async Task<SectionAttendanceRegisterResponse> GetSectionRegisterAsync(
+            Guid sectionId, Guid academicYearId, DateOnly from, DateOnly to, CancellationToken ct = default)
+        {
+            var section = await _sectionRepo.GetByIdAsync(sectionId, ct)
+                ?? throw new DomainException("Section not found.");
+
+            var roster = await _enrollmentRepo.GetBySectionAndYearAsync(sectionId, academicYearId, ct);
+            var records = await _attendanceRepo.GetBySectionAndDateRangeAsync(sectionId, academicYearId, from, to, ct);
+
+            var byEnrollment = records.GroupBy(r => r.StudentEnrollmentId)
+                .ToDictionary(g => g.Key, g => g.ToDictionary(r => r.Date, r => r.Status));
+
+            var dates = new List<DateOnly>();
+            for (var d = from; d <= to; d = d.AddDays(1)) dates.Add(d);
+
+            var students = roster
+                .Where(e => e.Status == EnrollmentStatus.Active)
+                .OrderBy(e => e.Student.LastName).ThenBy(e => e.Student.FirstName)
+                .Select(e =>
+                {
+                    byEnrollment.TryGetValue(e.Id, out var statusByDate);
+                    statusByDate ??= new Dictionary<DateOnly, AttendanceStatus>();
+
+                    var statusByDateStr = statusByDate.ToDictionary(
+                        kv => kv.Key.ToString("yyyy-MM-dd"), kv => kv.Value.ToString());
+
+                    int Count(AttendanceStatus s) => statusByDate.Count(kv => kv.Value == s);
+                    var total = statusByDate.Count;
+                    var present = Count(AttendanceStatus.Present);
+
+                    return new StudentRegisterRowResponse(
+                        e.Id, e.StudentId, $"{e.Student.FirstName} {e.Student.LastName}", e.Student.EnrollmentNumber,
+                        statusByDateStr,
+                        present, Count(AttendanceStatus.Late), Count(AttendanceStatus.Absent), Count(AttendanceStatus.Excused),
+                        total, total == 0 ? 0 : Math.Round(present * 100.0 / total, 1));
+                })
+                .ToList();
+
+            return new SectionAttendanceRegisterResponse(
+                sectionId, section.Name, section.GradeLevelId, section.GradeLevel.Name, from, to, dates, students);
         }
     }
 }

@@ -41,3 +41,29 @@ export interface AttendanceSummary {
   excusedCount: number
   attendancePercentage: number
 }
+
+
+export interface StudentRegisterRow {
+  enrollmentId: string
+  studentId: string
+  studentName: string
+  enrollmentNumber: string
+  statusByDate: Record<string, AttendanceStatus>
+  presentCount: number
+  lateCount: number
+  absentCount: number
+  excusedCount: number
+  totalMarkedDays: number
+  attendancePercentage: number
+}
+
+export interface SectionAttendanceRegister {
+  sectionId: string
+  sectionName: string
+  gradeLevelId: string
+  gradeLevelName: string
+  from: string
+  to: string
+  dates: string[]
+  students: StudentRegisterRow[]
+}

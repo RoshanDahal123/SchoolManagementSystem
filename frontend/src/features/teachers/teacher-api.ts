@@ -4,6 +4,7 @@ import type {
   InviteTeacherRequest,
   PaginatedTeachers,
   TeacherAssignmentResponse,
+  TeacherHomeroomSection,
   TeacherResponse,
   UpdateTeacherRequest,
 } from "./@types";
@@ -127,6 +128,10 @@ export const teachersApi = baseApi.injectEndpoints({
         },
       ],
     }),
+    getTeacherHomeroomSections: builder.query<TeacherHomeroomSection[], string>({
+  query: (id) => ({ url: `/teachers/${id}/homeroom-sections`, method: "GET" }),
+  providesTags: (_r, _e, id) => [{ type: "Teacher", id: `${id}-HOMEROOM` }],
+}),
   }),
 
   overrideExisting: false,
@@ -142,5 +147,6 @@ export const {
   useReactivateTeacherMutation,
   useInviteTeacherMutation,
   useResendTeacherInviteMutation,
-  useGetTeacherAssignmentsQuery
+  useGetTeacherAssignmentsQuery,
+  useGetTeacherHomeroomSectionsQuery
 } = teachersApi;

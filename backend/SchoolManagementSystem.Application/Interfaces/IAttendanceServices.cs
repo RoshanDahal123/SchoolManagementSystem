@@ -13,7 +13,9 @@ namespace SchoolManagementSystem.Application.Interfaces
         Task<List<StudentAttendanceRecordResponse>> GetStudentAttendanceAsync(Guid studentId, DateOnly? from, DateOnly? to, CancellationToken ct = default);
 
         Task<AttendanceSummaryResponse> GetStudentSummaryAsync(Guid studentId, DateOnly? from, DateOnly? to, CancellationToken ct = default);
-       
+
+        Task<SectionAttendanceRegisterResponse> GetSectionRegisterAsync(
+    Guid sectionId, Guid academicYearId, DateOnly from, DateOnly to, CancellationToken ct = default);
     }
 
 }   

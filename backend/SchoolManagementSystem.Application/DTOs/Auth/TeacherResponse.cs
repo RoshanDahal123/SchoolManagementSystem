@@ -18,7 +18,8 @@ public record TeacherResponse(
 
 public record TeacherSubjectSummary(Guid SubjectId, string SubjectName, string SubjectCode);
 
-
+public record TeacherHomeroomSectionResponse(
+    Guid SectionId, string SectionName, Guid GradeLevelId, string GradeLevelName, Guid AcademicYearId);
 public record TeacherAssignmentResponse
 (
     Guid ClassSubjectId,
@@ -31,5 +32,6 @@ public record TeacherAssignmentResponse
     string AcademicYearName,
     DateTime AssignedAtUtc
 );
+
 
 

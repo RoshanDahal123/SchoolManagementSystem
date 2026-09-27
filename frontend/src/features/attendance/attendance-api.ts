@@ -4,6 +4,7 @@ import type {
     AttendanceSummary,
     MarkAttendanceRequest,
     RosterAttendanceEntry,
+    SectionAttendanceRegister,
     StudentAttendanceRecord
 } from "./@types";
 
@@ -59,6 +60,19 @@ endpoints:(builder)=>({
             }
         ]
     }),
+    getSectionAttendanceRegister: builder.query<
+  SectionAttendanceRegister,
+  { sectionId: string; academicYearId: string; from: string; to: string }
+>({
+  query: ({ sectionId, academicYearId, from, to }) => ({
+    url: `/sections/${sectionId}/academic-years/${academicYearId}/attendance/register`,
+    method: "GET",
+    params: { from, to },
+  }),
+  providesTags: (_r, _e, { sectionId, academicYearId, from, to }) => [
+    { type: "Attendance", id: `register-${sectionId}-${academicYearId}-${from}-${to}` },
+  ],
+}),
    
     }),
     overrideExisting:false
@@ -69,5 +83,6 @@ export const {
 useGetRosterAttendanceQuery,
 useMarkAttendanceMutation,
 useGetStudentAttendanceQuery,
-useGetStudentAttendanceSummaryQuery
+useGetStudentAttendanceSummaryQuery,
+useGetSectionAttendanceRegisterQuery
 }= attendanceApi

@@ -47,10 +47,13 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
 export const TEACHER_NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", path: PATHS.teacherDashboard, icon: LayoutDashboardIcon },
   { title: "Coursework", path: PATHS.teacherCoursework, icon: ClipboardListIcon },
+  { title: "Attendance", path: PATHS.teacherAttendance, icon: CalendarCheckIcon },
 ]
 
 export const STUDENT_NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", path: PATHS.studentDashboard, icon: LayoutDashboardIcon },
   { title: "Coursework", path: PATHS.studentCoursework, icon: ClipboardListIcon },
-  { title: "Progress Report", path: PATHS.studentProgressReport, icon: ChartNoAxesColumnIncreasingIcon },
+  { title: "Progress Report", path: PATHS.studentProgressReport, icon: ChartNoAxesColumnIncreasingIcon},
+  { title: "Attendance", path: PATHS.studentAttendance, icon: CalendarCheckIcon },
 ]
+

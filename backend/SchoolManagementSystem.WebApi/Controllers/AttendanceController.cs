@@ -96,16 +96,17 @@ namespace SchoolManagementSystem.WebApi.Controllers
             return Ok(await _attendanceService.GetStudentSummaryAsync(studentId, from, to, ct));
         }
 
-        private async Task<bool> CanAccessStudentDataAsync(Guid studentId, CancellationToken ct)
+        [HttpGet("/api/sections/{sectionId:guid}/academic-years/{yearId:guid}/attendance/register")]
+        public async Task<ActionResult<SectionAttendanceRegisterResponse>> GetRegister(
+           Guid sectionId, Guid yearId, [FromQuery] DateOnly from, [FromQuery] DateOnly to, CancellationToken ct)
         {
-            var role = User.FindFirstValue(ClaimTypes.Role);
-            //teacher and admin can access any student data
-            if (role != UserRole.Student.ToString())
-                return true;
+            var resource = new SectionAttendanceResource(sectionId, yearId);
+            var authResult = await _authorizationService.AuthorizeAsync(User, resource, "HomeroomTeacherOnly");
+            if (!authResult.Succeeded) return Forbid();
 
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var student = await _studentRepository.GetByUserIdAsync(userId, ct);
-            return student is not null && student.Id == studentId;
+            return Ok(await _attendanceService.GetSectionRegisterAsync(sectionId, yearId, from, to, ct));
         }
+
+       
     }
 }

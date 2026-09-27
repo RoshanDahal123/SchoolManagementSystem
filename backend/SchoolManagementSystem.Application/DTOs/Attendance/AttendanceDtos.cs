@@ -38,4 +38,25 @@ public record AttendanceSummaryResponse(
     double AttendancePercentage
     );
 
+public record SectionAttendanceRegisterResponse(
+    Guid SectionId,
+    string SectionName,
+    Guid GradeLevelId,
+    string GradeLevelName,
+    DateOnly From,
+    DateOnly To,
+    List<DateOnly> Dates,
+    List<StudentRegisterRowResponse> Students);
 
+public record StudentRegisterRowResponse(
+    Guid EnrollmentId,
+    Guid StudentId,
+    string StudentName,
+    string EnrollmentNumber,
+    Dictionary<string, string> StatusByDate, // "yyyy-MM-dd" -> status; missing key = not recorded
+    int PresentCount,
+    int LateCount,
+    int AbsentCount,
+    int ExcusedCount,
+    int TotalMarkedDays,
+    double AttendancePercentage);

@@ -63,3 +63,10 @@ export interface TeacherAssignmentResponse{
   academicYearName: string
   assignedAtUtc: string
 }
+export interface TeacherHomeroomSection {
+  sectionId: string
+  sectionName: string
+  gradeLevelId: string
+  gradeLevelName: string
+  academicYearId: string
+}

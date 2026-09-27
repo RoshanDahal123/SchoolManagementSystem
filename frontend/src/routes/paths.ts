@@ -19,7 +19,8 @@ export const PATHS = {
   adminAssignments: "/admin/assignments",
   adminAttendance: "/admin/attendance",
   adminAnnouncements:"/admin/announcements",
-
+  teacherAttendance: "/teacher/attendance",
+  studentAttendance: "/student/attendance",
   teacher: "/teacher",
   teacherDashboard: "/teacher/dashboard",
    teacherCoursework: "/teacher/coursework",
