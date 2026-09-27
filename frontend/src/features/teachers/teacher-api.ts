@@ -129,9 +129,14 @@ export const teachersApi = baseApi.injectEndpoints({
       ],
     }),
     getTeacherHomeroomSections: builder.query<TeacherHomeroomSection[], string>({
-  query: (id) => ({ url: `/teachers/${id}/homeroom-sections`, method: "GET" }),
-  providesTags: (_r, _e, id) => [{ type: "Teacher", id: `${id}-HOMEROOM` }],
-}),
+      query: (id) => ({ url: `/teachers/${id}/homeroom-sections`, method: "GET" }),
+      providesTags: (_r, _e, id) => [{ type: "Teacher", id: `${id}-HOMEROOM` }],
+    }),
+
+    getTeacherTeachingSections: builder.query<TeacherHomeroomSection[], string>({
+      query: (id) => ({ url: `/teachers/${id}/teaching-sections`, method: "GET" }),
+      providesTags: (_r, _e, id) => [{ type: "Teacher", id: `${id}-TEACHING` }],
+    }),
   }),
 
   overrideExisting: false,
@@ -148,5 +153,6 @@ export const {
   useInviteTeacherMutation,
   useResendTeacherInviteMutation,
   useGetTeacherAssignmentsQuery,
-  useGetTeacherHomeroomSectionsQuery
+  useGetTeacherHomeroomSectionsQuery,
+  useGetTeacherTeachingSectionsQuery,
 } = teachersApi;

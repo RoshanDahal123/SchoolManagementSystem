@@ -50,19 +50,13 @@ namespace SchoolManagementSystem.WebApi.Controllers
 
 
         [HttpGet("/api/sections/{sectionId:guid}/academic-years/{yearId:guid}/attendance")]
-       
-
         public async Task<ActionResult<List<RosterAttendanceResponse>>> 
             GetRoster(Guid sectionId,Guid yearId, [FromQuery]DateOnly date, CancellationToken ct)
         {
-            var resource = new SectionAttendanceResource(
-            sectionId,
-            yearId);
+            var resource = new SectionAttendanceResource(sectionId, yearId);
 
             var authResult = await _authorizationService.AuthorizeAsync(
-                User,
-                resource,
-                "HomeroomTeacherOnly");
+                User, resource, "SectionAttendanceViewAccess");
 
             if (!authResult.Succeeded)
                 return Forbid();
@@ -101,7 +95,7 @@ namespace SchoolManagementSystem.WebApi.Controllers
            Guid sectionId, Guid yearId, [FromQuery] DateOnly from, [FromQuery] DateOnly to, CancellationToken ct)
         {
             var resource = new SectionAttendanceResource(sectionId, yearId);
-            var authResult = await _authorizationService.AuthorizeAsync(User, resource, "HomeroomTeacherOnly");
+            var authResult = await _authorizationService.AuthorizeAsync(User, resource, "SectionAttendanceViewAccess");
             if (!authResult.Succeeded) return Forbid();
 
             return Ok(await _attendanceService.GetSectionRegisterAsync(sectionId, yearId, from, to, ct));

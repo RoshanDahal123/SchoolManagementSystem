@@ -60,6 +60,11 @@ public class TeachersController : ControllerBase
     public async Task<ActionResult<List<TeacherHomeroomSectionResponse>>> GetHomeroomSections(Guid id, CancellationToken ct)
    => Ok(await _teacherService.GetHomeroomSectionsAsync(id, ct));
 
+    [HttpGet("{id:guid}/teaching-sections")]
+    [Authorize(Roles = "Admin,Teacher")]
+    public async Task<ActionResult<List<TeacherHomeroomSectionResponse>>> GetTeachingSections(Guid id, CancellationToken ct)
+        => Ok(await _teacherService.GetTeachingGradeSectionsAsync(id, ct));
+
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TeacherResponse>> Update(

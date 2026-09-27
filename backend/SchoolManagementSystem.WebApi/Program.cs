@@ -65,23 +65,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-//Authorization Handler
+//Authorization Handlers
 builder.Services.AddScoped<IAuthorizationHandler, HomeroomTeacherAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, SectionAttendanceReadAuthorizationHandler>();
 //Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
+    // Write access: homeroom teacher or admin only.
     options.AddPolicy("HomeroomTeacherOnly", policy => {
         policy.RequireAuthenticatedUser();
-
         policy.RequireRole(
-        UserRole.Teacher.ToString(),
-        UserRole.Admin.ToString());
-
-          policy.Requirements.Add(
-        new HomeroomTeacherRequirement());
+            UserRole.Teacher.ToString(),
+            UserRole.Admin.ToString());
+        policy.Requirements.Add(new HomeroomTeacherRequirement());
     });
 
-    options.AddPolicy("StudentAttendanceAccess", policy =>            // ← added
+    // Read access: homeroom teacher, any subject teacher of that grade level, or admin.
+    options.AddPolicy("SectionAttendanceViewAccess", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(
+            UserRole.Teacher.ToString(),
+            UserRole.Admin.ToString());
+        policy.Requirements.Add(new SectionAttendanceReadRequirement());
+    });
+
+    options.AddPolicy("StudentAttendanceAccess", policy =>
     {
         policy.RequireAuthenticatedUser();
         policy.RequireRole(

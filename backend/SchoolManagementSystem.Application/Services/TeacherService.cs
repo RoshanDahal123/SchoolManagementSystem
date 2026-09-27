@@ -26,6 +26,7 @@ public sealed class TeacherService : ITeacherService
     private readonly IEmailService _emailService;
     private readonly ISectionHomeroomTeacherRepository _homeroomRepository;
     private readonly IAcademicYearRepository _academicYearRepository;
+    private readonly ISectionRepository _sectionRepository;
 
     private readonly AppUrlOptions _appUrls;
 
@@ -40,6 +41,7 @@ public sealed class TeacherService : ITeacherService
         IClassSubjectTeacherRepository classSubjectTeacherRepository,
         ISectionHomeroomTeacherRepository homeroomRepository,
         IAcademicYearRepository academicYearRepository,
+        ISectionRepository sectionRepository,
         IOptions<AppUrlOptions> appUrlOptions)
     {
         _teacherRepository = teacherRepository;
@@ -51,9 +53,9 @@ public sealed class TeacherService : ITeacherService
         _classSubjectTeacherRepository = classSubjectTeacherRepository;
         _homeroomRepository = homeroomRepository;
         _academicYearRepository = academicYearRepository;
+        _sectionRepository = sectionRepository;
         _emailService = emailService;
         _appUrls = appUrlOptions.Value;
-
     }
 
     public async Task<TeacherResponse> CreateAsync(CreateTeacherRequest request, CancellationToken ct = default)
@@ -282,6 +284,41 @@ public sealed class TeacherService : ITeacherService
         var assignments = await _homeroomRepository.GetByTeacherAndYearAsync(teacherId, academicYear.Id, ct);
         return assignments.Select(a => new TeacherHomeroomSectionResponse(
             a.SectionId, a.Section.Name, a.Section.GradeLevelId, a.Section.GradeLevel.Name, academicYear.Id)).ToList();
+    }
+
+    public async Task<List<TeacherHomeroomSectionResponse>> GetTeachingGradeSectionsAsync(Guid teacherId, CancellationToken ct = default)
+    {
+        var academicYear = await _academicYearRepository.GetActiveAsync(ct);
+        if (academicYear is null) return [];
+
+        // Get all grade levels the teacher teaches subjects in for the active year.
+        var subjectAssignments = await _classSubjectTeacherRepository.GetByTeacherAsync(teacherId, ct);
+        var teachingGradeLevelIds = subjectAssignments
+            .Where(a => a.ClassSubject.AcademicYearId == academicYear.Id)
+            .Select(a => a.ClassSubject.GradeLevelId)
+            .Distinct()
+            .ToHashSet();
+
+        if (teachingGradeLevelIds.Count == 0) return [];
+
+        // Get the homeroom section IDs so we can exclude them (they already appear in the homeroom panel).
+        var homeroomAssignments = await _homeroomRepository.GetByTeacherAndYearAsync(teacherId, academicYear.Id, ct);
+        var homeroomSectionIds = homeroomAssignments.Select(a => a.SectionId).ToHashSet();
+
+        // Collect all sections under those grade levels, excluding homeroom sections.
+        var result = new List<TeacherHomeroomSectionResponse>();
+        foreach (var gradeLevelId in teachingGradeLevelIds)
+        {
+            var sections = await _sectionRepository.GetByGradeLevelAsync(gradeLevelId, ct);
+            foreach (var section in sections)
+            {
+                if (homeroomSectionIds.Contains(section.Id)) continue;
+                result.Add(new TeacherHomeroomSectionResponse(
+                    section.Id, section.Name, gradeLevelId, section.GradeLevel?.Name ?? "", academicYear.Id));
+            }
+        }
+
+        return result.OrderBy(s => s.GradeLevelName).ThenBy(s => s.SectionName).ToList();
     }
 
 

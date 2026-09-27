@@ -19,6 +19,7 @@ public class SectionRepository : ISectionRepository
     public Task<List<Section>> GetByGradeLevelAsync(Guid gradeLevelId, CancellationToken ct = default) =>
         _context.Sections
             .AsNoTracking()
+            .Include(s => s.GradeLevel)
             .Where(s => s.GradeLevelId == gradeLevelId)
             .OrderBy(s => s.Name)
             .ToListAsync(ct);
