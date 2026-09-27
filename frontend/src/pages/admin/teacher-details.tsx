@@ -167,179 +167,221 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
     )
   }
 
+  // ── Derived display values ───────────────────────────────────────────────────
+  const initials = `${teacher.firstName.charAt(0)}${teacher.lastName.charAt(0)}`.toUpperCase()
+  const visibleSpecializations = teacher.specializations.slice(0, 3)
+  const extraSpecializationCount = teacher.specializations.length - 3
+
   // ── Main render ──────────────────────────────────────────────────────────────
   return (
     <>
       <div className="space-y-6">
-        {/* Top bar */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate(PATHS.adminTeachers)}>
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
-            Back to Teachers
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
-              Edit
-            </Button>
-            {teacher.isActive ? (
-              <Button
-                variant="outline"
-                className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/40"
-                onClick={() => setDeactivateDialogOpen(true)}
-              >
-                Deactivate
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="text-green-600 hover:bg-green-50 hover:text-green-700 border-green-300"
-                onClick={() => setReactivateDialogOpen(true)}
-              >
-                Reactivate
-              </Button>
-            )}
-          </div>
-        </div>
+        {/* 1. Back button row */}
+        <Button variant="ghost" className="w-fit" onClick={() => navigate(PATHS.adminTeachers)}>
+          <ArrowLeftIcon className="mr-2 h-4 w-4" />
+          Back to Teachers
+        </Button>
 
-        {/* Page heading + status badge */}
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {teacher.firstName} {teacher.lastName}
-            </h1>
-            <p className="text-muted-foreground">Teacher Details</p>
-          </div>
-          {teacher.isActive ? (
-            <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="destructive">Inactive</Badge>
-          )}
-        </div>
+        {/* 2. Hero card */}
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background px-6 py-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+              {/* Left: avatar + identity */}
+              <div className="flex items-center gap-5">
+                {/* Avatar circle */}
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-primary/20 text-2xl font-bold text-primary ring-4 ring-background">
+                  {initials}
+                </div>
 
-        {/* Detail cards */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-                <p className="text-base">
-                  {teacher.firstName} {teacher.lastName}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Phone Number</p>
-                <p className="text-base">
-                  {teacher.phoneNumber ?? <span className="text-muted-foreground">—</span>}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                {/* Name / ID / badges */}
+                <div className="space-y-2">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    {teacher.firstName} {teacher.lastName}
+                  </h1>
+                  <p className="font-mono text-sm text-muted-foreground">{teacher.employeeId}</p>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Professional Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Employee ID</p>
-                <p className="text-base font-mono">{teacher.employeeId}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Subject Specializations</p>
-                {teacher.specializations.length > 0 ? (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {teacher.specializations.map((s) => (
-                      <Badge key={s.subjectId} variant="outline">
+                  {/* Status badge */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {teacher.isActive ? (
+                      <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                        Active
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">Inactive</Badge>
+                    )}
+
+                    {/* Subject specialization preview badges */}
+                    {visibleSpecializations.map((s) => (
+                      <Badge key={s.subjectId} variant="secondary">
                         {s.subjectName}
                       </Badge>
                     ))}
+                    {extraSpecializationCount > 0 && (
+                      <Badge variant="outline">+{extraSpecializationCount} more</Badge>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-base">
-                    <span className="text-muted-foreground">—</span>
-                  </p>
-                )}
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Joined Since</p>
-                <p className="text-base">
-                  {format(new Date(teacher.createdAtUtc), "MMMM dd, yyyy")}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Status</p>
+
+              {/* Right: action buttons */}
+              <div className="flex shrink-0 gap-2">
+                <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
+                  Edit
+                </Button>
                 {teacher.isActive ? (
-                  <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">
-                    Active
-                  </Badge>
+                  <Button
+                    variant="outline"
+                    className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setDeactivateDialogOpen(true)}
+                  >
+                    Deactivate
+                  </Button>
                 ) : (
-                  <Badge variant="destructive">Inactive</Badge>
+                  <Button
+                    variant="outline"
+                    className="border-green-300 text-green-600 hover:bg-green-50 hover:text-green-700"
+                    onClick={() => setReactivateDialogOpen(true)}
+                  >
+                    Reactivate
+                  </Button>
                 )}
               </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* 3. Three-column info grid */}
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Card 1: Contact & Info */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Contact &amp; Info
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex items-center justify-between py-2.5 border-b last:border-0">
+                <span className="text-sm text-muted-foreground">Phone</span>
+                <span className="text-sm font-medium">
+                  {teacher.phoneNumber ?? <span className="text-muted-foreground">—</span>}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-2.5 border-b last:border-0">
+                <span className="text-sm text-muted-foreground">Joined</span>
+                <span className="text-sm font-medium">
+                  {format(new Date(teacher.createdAtUtc), "MMM dd, yyyy")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-2.5 border-b last:border-0">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <span className="text-sm font-medium">
+                  {teacher.isActive ? (
+                    <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                      Active
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive">Inactive</Badge>
+                  )}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card 2: Portal Access */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Portal Access
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex items-center justify-between py-2.5 border-b last:border-0">
+                <span className="text-sm text-muted-foreground">Linked</span>
+                <span className="text-sm font-medium">
+                  {teacher.hasPortalAccount ? (
+                    <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                      Yes
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline">No</Badge>
+                  )}
+                </span>
+              </div>
+              {teacher.hasPortalAccount && teacher.email && (
+                <div className="flex items-center justify-between py-2.5 border-b last:border-0">
+                  <span className="text-sm text-muted-foreground">Email</span>
+                  <span className="flex items-center gap-1 text-sm font-medium">
+                    <MailIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                    {teacher.email}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between py-2.5 border-b last:border-0">
+                <span className="text-sm text-muted-foreground">Portal Status</span>
+                <span className="text-sm font-medium">
+                  {teacher.hasPortalAccount ? (
+                    teacher.isPortalActive ? (
+                      <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                        Active
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">Inactive</Badge>
+                    )
+                  ) : (
+                    <span className="text-muted-foreground text-sm">—</span>
+                  )}
+                </span>
+              </div>
+              {!teacher.hasPortalAccount && (
+                <p className="pt-1 text-xs text-muted-foreground">
+                  Use the invite button from the teachers list to send a portal activation email.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Card 3: Subject Specializations */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Subject Specializations
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {teacher.specializations.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {teacher.specializations.map((s) => (
+                    <Badge key={s.subjectId} variant="outline">
+                      {s.subjectName}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="py-2 text-sm text-muted-foreground">No specializations recorded.</p>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Portal access card */}
-        <Card className="bg-muted/50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div className="rounded-lg bg-background p-2">
-                <MailIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">Portal Access</h3>
-                {teacher.hasPortalAccount ? (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    This teacher has a portal account
-                    {teacher.email ? ` (${teacher.email})` : ""}.
-                    Portal status:{" "}
-                    <span
-                      className={
-                        teacher.isPortalActive
-                          ? "text-green-600 font-medium"
-                          : "text-red-600 font-medium"
-                      }
-                    >
-                      {teacher.isPortalActive ? "Active" : "Inactive"}
-                    </span>
-                  </p>
-                ) : (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Use the invite button from the teachers list to send this teacher a portal
-                    activation email.
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+        {/* 4. Full-width Teaching Assignments card */}
         <Card>
           <CardHeader>
             <CardTitle>Teaching Assignments</CardTitle>
           </CardHeader>
-
           <CardContent>
-            {isAssignmentsLoading ?(
+            {isAssignmentsLoading ? (
               <p className="text-sm text-muted-foreground">Loading…</p>
-            ):assignments.length===0?(
-             <p className="text-sm text-muted-foreground">
-              Not currently assigned to teach any class. Assign this teacher form
-              Academic → Curriculum screen
-             </p>
-            ):(
-               <div className="space-y-4">
-                {
-                  Object.entries(assignmentsByYear).map(([yearName,rows])=>(
-                    <div key={yearName}>
-                       <p className="text-sm font-medium text-muted-foreground mb-2">{yearName}</p>
-                       <ul className="space-y-1.5">
+            ) : assignments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Not currently assigned to teach any class. Assign this teacher from the Academic →
+                Curriculum screen.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {Object.entries(assignmentsByYear).map(([yearName, rows]) => (
+                  <div key={yearName}>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{yearName}</p>
+                    <ul className="space-y-1.5">
                       {rows.map((a) => (
                         <li key={a.classSubjectId} className="text-sm flex items-center gap-2">
                           <Badge variant="outline">{a.gradeLevelName}</Badge>
@@ -348,10 +390,9 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                         </li>
                       ))}
                     </ul>
-                    </div>
-                  ))
-                }
-               </div>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>

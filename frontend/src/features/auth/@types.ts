@@ -22,8 +22,10 @@ export interface LoginRequest {
 export interface MeResponse {
   email: string;
   role: UserRole;
-  teacherId:string|null;
-  studentId:string|null;
+  teacherId: string | null;
+  studentId: string | null;
+  firstName: string;
+  lastName: string;
 }
 export interface ActivateAccountRequest {
   token: string

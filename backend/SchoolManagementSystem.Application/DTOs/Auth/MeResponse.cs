@@ -5,12 +5,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SchoolManagementSystem.Application.DTOs.Auth
 {
-    public record MeResponse
-  (
-  string Email,
-  string Role,
-  Guid? TeacherId,
-  Guid? StudentId
-
-  );
+    public record MeResponse(
+        string Email,
+        string Role,
+        Guid? TeacherId,
+        Guid? StudentId,
+        string FirstName,
+        string LastName
+    );
 }

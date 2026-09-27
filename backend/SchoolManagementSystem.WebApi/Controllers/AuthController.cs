@@ -21,15 +21,15 @@ public sealed class AuthController : ControllerBase
     private readonly ILogger<AuthController> _logger;
     private readonly ITeacherRepository _teacherRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly IUserRepository _userRepository;
 
-    public AuthController(IAuthService authService,ITeacherRepository teacherRepository,IStudentRepository studentRepository, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, ITeacherRepository teacherRepository, IStudentRepository studentRepository, IUserRepository userRepository, ILogger<AuthController> logger)
     {
         _authService = authService;
         _logger = logger;
         _teacherRepository = teacherRepository;
-       _studentRepository = studentRepository;
-
-
+        _studentRepository = studentRepository;
+        _userRepository = userRepository;
     }
 
     [HttpPost("login")]
@@ -104,8 +104,9 @@ public sealed class AuthController : ControllerBase
             studentId = student?.Id;
         }
 
+        var user = await _userRepository.GetByIdAsync(userId, ct);
 
-        return Ok(new { email, role,teacherId,studentId });
+        return Ok(new MeResponse(email, role, teacherId, studentId, user?.FirstName ?? "", user?.LastName ?? ""));
     }
 
   

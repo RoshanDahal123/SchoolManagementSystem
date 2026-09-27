@@ -29,8 +29,10 @@ export function AuthBootstrap({
         setCredentials({
           email: data.email,
           role: data.role,
-          teacherId:data.teacherId,
-          studentId:data.studentId
+          teacherId: data.teacherId,
+          studentId: data.studentId,
+          firstName: data.firstName,
+          lastName: data.lastName,
         })
       );
     }

@@ -4,8 +4,10 @@ import type { UserRole } from "./@types";
 export interface Credentials {
   email: string;
   role: UserRole;
-   teacherId: string | null;
+  teacherId: string | null;
   studentId: string | null;
+  firstName: string | null;
+  lastName: string | null;
 }
 
 interface AuthState {
@@ -13,6 +15,8 @@ interface AuthState {
   role: UserRole | null;
   teacherId: string | null;
   studentId: string | null;
+  firstName: string | null;
+  lastName: string | null;
   isAuthenticated: boolean;
 }
 
@@ -21,6 +25,8 @@ const initialState: AuthState = {
   role: null,
   teacherId: null,
   studentId: null,
+  firstName: null,
+  lastName: null,
   isAuthenticated: false,
 };
 
@@ -34,13 +40,17 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.teacherId = action.payload.teacherId;
       state.studentId = action.payload.studentId;
+      state.firstName = action.payload.firstName;
+      state.lastName = action.payload.lastName;
     },
     clearCredentials: (state) => {
       state.email = null;
       state.role = null;
       state.isAuthenticated = false;
-       state.teacherId=null;
-        state.studentId= null;
+      state.teacherId = null;
+      state.studentId = null;
+      state.firstName = null;
+      state.lastName = null;
     },
   },
 });

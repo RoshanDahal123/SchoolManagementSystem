@@ -243,202 +243,175 @@ const handlePromote = async (data: import("@/features/enrollment/@types").Promot
   return (
     <>
       <div className="space-y-6">
-        {/* Top bar */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate(PATHS.adminStudents)}>
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
-            Back to Students
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
-              Edit
-            </Button>
-            {student.isActive ? (
-              <Button
-                variant="outline"
-                className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/40"
-                onClick={() => setDeactivateDialogOpen(true)}
-              >
-                Deactivate
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="text-green-600 hover:bg-green-50 hover:text-green-700 border-green-300"
-                onClick={() => setReactivateDialogOpen(true)}
-              >
-                Reactivate
-              </Button>
-            )}
-          </div>
-        </div>
+        {/* Back button */}
+        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => navigate(PATHS.adminStudents)}>
+          <ArrowLeftIcon className="mr-2 h-4 w-4" />
+          Back to Students
+        </Button>
 
-        {/* Page heading + status badge */}
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {student.firstName} {student.lastName}
-            </h1>
-            <p className="text-muted-foreground">Student Details</p>
-          </div>
-          {student.isActive ? (
-            <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="destructive">Inactive</Badge>
-          )}
-        </div>
-
-        {/* Detail cards */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-                <p className="text-base">
-                  {student.firstName} {student.lastName}
-                </p>
+        {/* Hero Card */}
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex size-20 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+                  {student.firstName[0]}{student.lastName[0]}
+                </div>
+                <div className="space-y-1">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    {student.firstName} {student.lastName}
+                  </h1>
+                  <p className="font-mono text-sm text-muted-foreground">{student.enrollmentNumber}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {student.isActive ? (
+                      <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400">Active</Badge>
+                    ) : (
+                      <Badge variant="destructive">Inactive</Badge>
+                    )}
+                    <Badge variant="secondary">{student.gender}</Badge>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
-                <p className="text-base">
-                  {format(new Date(student.dateOfBirth), "MMMM dd, yyyy")}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Gender</p>
-                <Badge variant="outline">{student.gender}</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Academic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Enrollment Number</p>
-                <p className="text-base font-mono">{student.enrollmentNumber}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Enrolled Since</p>
-                <p className="text-base">
-                  {format(new Date(student.createdAtUtc), "MMMM dd, yyyy")}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Status</p>
+              <div className="flex shrink-0 gap-2">
+                <Button variant="outline" size="sm" onClick={() => setEditDialogOpen(true)}>Edit</Button>
                 {student.isActive ? (
-                  <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">
-                    Active
-                  </Badge>
+                  <Button variant="outline" size="sm" className="border-destructive/40 text-destructive hover:bg-destructive/10" onClick={() => setDeactivateDialogOpen(true)}>Deactivate</Button>
                 ) : (
-                  <Badge variant="destructive">Inactive</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Portal access card */}
-        <Card className="bg-muted/50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div className="rounded-lg bg-background p-2">
-                <MailIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">Portal Access</h3>
-                {student.hasPortalAccount ? (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    This student has a portal account
-                    {student.email ? ` (${student.email})` : ""}.
-                    Portal status:{" "}
-                    <span className={student.isPortalActive ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                      {student.isPortalActive ? "Active" : "Inactive"}
-                    </span>
-                  </p>
-                ) : (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Use the invite button from the students list to send this student a portal
-                    activation email.
-                  </p>
+                  <Button variant="outline" size="sm" className="border-green-300 text-green-600 hover:bg-green-50" onClick={() => setReactivateDialogOpen(true)}>Reactivate</Button>
                 )}
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
-      </div>
 
-{/* Academic Enrollment card */}
-<Card>
- <CardHeader className="flex flex-row items-center justify-between">
-  <CardTitle>Academic Enrollment</CardTitle>
-  {currentEnrollment ? (
-    <div className="flex items-center gap-2">
-      <Select
-        value={currentEnrollment.status}
-        onValueChange={(value) => handleStatusChange(value as "Active" | "Completed" | "Withdrawn")}
-      >
-        <SelectTrigger className="h-8 w-[130px]">
-          <span className="text-sm">{currentEnrollment.status}</span>
-        </SelectTrigger>
-        <SelectContent side="bottom" align="start" sideOffset={6} alignItemWithTrigger={false}>
-          <SelectItem value="Active">Active</SelectItem>
-          <SelectItem value="Completed">Completed</SelectItem>
-          <SelectItem value="Withdrawn">Withdrawn</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button variant="outline" size="sm" onClick={() => setTransferDialogOpen(true)}>Transfer</Button>
-      <Button size="sm" onClick={() => setPromoteDialogOpen(true)}>Promote</Button>
-    </div>
-  ) : (
-    <Button size="sm" onClick={() => setEnrollDialogOpen(true)}>Enroll</Button>
-  )}
-</CardHeader>
+        {/* Info Grid */}
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Personal Info */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-0 px-4 pb-4">
+              <div className="flex items-center justify-between py-2.5 border-b">
+                <span className="text-sm text-muted-foreground">Date of Birth</span>
+                <span className="text-sm font-medium">{format(new Date(student.dateOfBirth), "MMM dd, yyyy")}</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5 border-b">
+                <span className="text-sm text-muted-foreground">Gender</span>
+                <Badge variant="outline">{student.gender}</Badge>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-sm text-muted-foreground">Registered</span>
+                <span className="text-sm font-medium">{format(new Date(student.createdAtUtc), "MMM dd, yyyy")}</span>
+              </div>
+            </CardContent>
+          </Card>
 
+          {/* Portal Access */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Portal Access</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-0 px-4 pb-4">
+              <div className="flex items-center justify-between py-2.5 border-b">
+                <span className="text-sm text-muted-foreground">Account</span>
+                {student.hasPortalAccount ? (
+                  <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400">Linked</Badge>
+                ) : (
+                  <Badge variant="secondary">Not linked</Badge>
+                )}
+              </div>
+              {student.email && (
+                <div className="flex items-center justify-between py-2.5 border-b">
+                  <span className="text-sm text-muted-foreground">Email</span>
+                  <span className="max-w-36 truncate text-sm font-medium" title={student.email}>{student.email}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-sm text-muted-foreground">Portal Status</span>
+                {student.hasPortalAccount ? (
+                  student.isPortalActive ? (
+                    <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400">Active</Badge>
+                  ) : (
+                    <Badge variant="destructive">Inactive</Badge>
+                  )
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-  <CardContent className="space-y-4">
-    {currentEnrollment ? (
-      <div className="flex items-center gap-3">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Currently enrolled</p>
-          <p className="text-base">
-            {currentEnrollment.gradeLevelName} · {currentEnrollment.sectionName}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {currentEnrollment.academicYearName} · since{" "}
-            {format(new Date(currentEnrollment.enrolledOn), "MMM dd, yyyy")}
-          </p>
+          {/* Current Enrollment */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Current Enrollment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-0 px-4 pb-3">
+              {currentEnrollment ? (
+                <>
+                  <div className="flex items-center justify-between py-2.5 border-b">
+                    <span className="text-sm text-muted-foreground">Class</span>
+                    <span className="text-sm font-medium">{currentEnrollment.gradeLevelName}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2.5 border-b">
+                    <span className="text-sm text-muted-foreground">Section</span>
+                    <span className="text-sm font-medium">{currentEnrollment.sectionName}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2.5 border-b">
+                    <span className="text-sm text-muted-foreground">Year</span>
+                    <span className="text-sm font-medium">{currentEnrollment.academicYearName}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2.5 border-b">
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    <Select value={currentEnrollment.status} onValueChange={(v) => handleStatusChange(v as "Active" | "Completed" | "Withdrawn")}>
+                      <SelectTrigger className="h-7 w-28 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent side="bottom" align="end" sideOffset={4} alignItemWithTrigger={false}>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                        <SelectItem value="Withdrawn">Withdrawn</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pt-3">
+                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setTransferDialogOpen(true)}>Transfer</Button>
+                    <Button size="sm" className="h-7 text-xs" onClick={() => setPromoteDialogOpen(true)}>Promote</Button>
+                  </div>
+                </>
+              ) : (
+                <div className="py-4 text-center">
+                  <p className="mb-3 text-sm text-muted-foreground">Not enrolled in any section.</p>
+                  <Button size="sm" onClick={() => setEnrollDialogOpen(true)}>Enroll Student</Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-        <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">Active</Badge>
-      </div>
-    ) : (
-      <p className="text-sm text-muted-foreground">
-        This student isn't enrolled in a section yet.
-      </p>
-    )}
 
-    {pastEnrollments.length > 0 && (
-      <div className="pt-2 border-t">
-        <p className="text-sm font-medium text-muted-foreground mb-2">History</p>
-        <ul className="space-y-1.5">
-          {pastEnrollments.map((e) => (
-            <li key={e.id} className="text-sm flex items-center justify-between">
-              <span>{e.gradeLevelName} · {e.sectionName} ({e.academicYearName})</span>
-              <Badge variant="outline">{e.status}</Badge>
-            </li>
-          ))}
-        </ul>
+        {/* Enrollment History */}
+        {pastEnrollments.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Enrollment History</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="space-y-0">
+                {pastEnrollments.map((e) => (
+                  <div key={e.id} className="flex items-center justify-between py-2.5 border-b last:border-0">
+                    <div>
+                      <p className="text-sm font-medium">{e.gradeLevelName} · {e.sectionName}</p>
+                      <p className="text-xs text-muted-foreground">{e.academicYearName} · since {format(new Date(e.enrolledOn), "MMM dd, yyyy")}</p>
+                    </div>
+                    <Badge variant="outline">{e.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
-    )}
-  </CardContent>
-</Card>
 
       {/* ── Edit Dialog ─────────────────────────────────────────────────────────── */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -568,48 +541,48 @@ const handlePromote = async (data: import("@/features/enrollment/@types").Promot
       </AlertDialog>
 
       <EnrollStudentDialog
-  open={enrollDialogOpen}
-  onOpenChange={setEnrollDialogOpen}
-  studentName={`${student.firstName} ${student.lastName}`}
-  isSaving={isEnrolling}
-  onEnroll={handleEnroll}
-/>
+        open={enrollDialogOpen}
+        onOpenChange={setEnrollDialogOpen}
+        studentName={`${student.firstName} ${student.lastName}`}
+        isSaving={isEnrolling}
+        onEnroll={handleEnroll}
+      />
 
-<TransferStudentDialog
-  open={transferDialogOpen}
-  onOpenChange={setTransferDialogOpen}
-  studentName={`${student.firstName} ${student.lastName}`}
-  currentEnrollment={currentEnrollment}
-  isSaving={isTransferring}
-  onTransfer={handleTransfer}
-/>
+      <TransferStudentDialog
+        open={transferDialogOpen}
+        onOpenChange={setTransferDialogOpen}
+        studentName={`${student.firstName} ${student.lastName}`}
+        currentEnrollment={currentEnrollment}
+        isSaving={isTransferring}
+        onTransfer={handleTransfer}
+      />
 
-<PromoteStudentDialog
-  open={promoteDialogOpen}
-  onOpenChange={setPromoteDialogOpen}
-  studentName={`${student.firstName} ${student.lastName}`}
-  currentEnrollment={currentEnrollment}
-  isSaving={isPromoting}
-  onPromote={handlePromote}
-/>
+      <PromoteStudentDialog
+        open={promoteDialogOpen}
+        onOpenChange={setPromoteDialogOpen}
+        studentName={`${student.firstName} ${student.lastName}`}
+        currentEnrollment={currentEnrollment}
+        isSaving={isPromoting}
+        onPromote={handlePromote}
+      />
 
-<AlertDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Withdraw enrollment</AlertDialogTitle>
-      <AlertDialogDescription>
-        This marks {student.firstName} {student.lastName}'s current enrollment as withdrawn.
-        This doesn't deactivate their account — use "Deactivate" above for that.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancel</AlertDialogCancel>
-      <AlertDialogAction variant="destructive" disabled={isChangingStatus} onClick={handleWithdraw}>
-        {isChangingStatus ? "Withdrawing…" : "Withdraw"}
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
+      <AlertDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Withdraw enrollment</AlertDialogTitle>
+            <AlertDialogDescription>
+              This marks {student.firstName} {student.lastName}'s current enrollment as withdrawn.
+              This doesn't deactivate their account — use "Deactivate" above for that.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" disabled={isChangingStatus} onClick={handleWithdraw}>
+              {isChangingStatus ? "Withdrawing…" : "Withdraw"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

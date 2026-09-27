@@ -1,69 +1,107 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import { Progress } from "@/components/atoms/progress"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { AnnouncementFeedCard } from "@/features/announcements/components/announcement-feed-card"
 import { useGetStudentAttendanceSummaryQuery } from "@/features/attendance/attendance-api"
 import { UpcomingCourseworkCard } from "@/features/coursework/components/upcoming-coursework-card"
 import { useAuth } from "@/hooks/use-auth"
+import { BookOpenIcon, CalendarCheckIcon, CircleCheckIcon, ClockIcon } from "lucide-react"
 
 export default function StudentDashboardPage() {
-  const { email, studentId } = useAuth()
+  const { firstName, lastName, email, studentId } = useAuth()
   const { data: summary, isLoading } = useGetStudentAttendanceSummaryQuery(
     { studentId: studentId ?? "" },
     { skip: !studentId }
   )
 
+  const displayName = firstName ? `${firstName}${lastName ? " " + lastName : ""}` : email ?? "Student"
+
+  const statCards = [
+    {
+      label: "Present",
+      value: summary?.presentCount ?? 0,
+      icon: CircleCheckIcon,
+      color: "text-green-600",
+      bg: "bg-green-50 dark:bg-green-950",
+    },
+    {
+      label: "Absent",
+      value: summary?.absentCount ?? 0,
+      icon: CalendarCheckIcon,
+      color: "text-red-600",
+      bg: "bg-red-50 dark:bg-red-950",
+    },
+    {
+      label: "Late",
+      value: summary?.lateCount ?? 0,
+      icon: ClockIcon,
+      color: "text-amber-600",
+      bg: "bg-amber-50 dark:bg-amber-950",
+    },
+    {
+      label: "Excused",
+      value: summary?.excusedCount ?? 0,
+      icon: BookOpenIcon,
+      color: "text-blue-600",
+      bg: "bg-blue-50 dark:bg-blue-950",
+    },
+  ]
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Welcome back</h1>
-        <p className="text-muted-foreground">{email}</p>
+      {/* Welcome Hero */}
+      <div className="rounded-xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent p-6">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Welcome back, {firstName ?? "Student"} 👋
+        </h1>
+        <p className="mt-1 text-muted-foreground">{email}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Attendance Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading && <Skeleton className="h-16 w-full" />}
-
-            {summary && (
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-semibold">
-                    {summary.attendancePercentage.toFixed(1)}%
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    of {summary.totalMarkedDays} marked days
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 gap-2 text-center text-sm">
-                  <div>
-                    <p className="font-medium text-green-600">{summary.presentCount}</p>
-                    <p className="text-xs text-muted-foreground">Present</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-red-600">{summary.absentCount}</p>
-                    <p className="text-xs text-muted-foreground">Absent</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-amber-600">{summary.lateCount}</p>
-                    <p className="text-xs text-muted-foreground">Late</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-blue-600">{summary.excusedCount}</p>
-                    <p className="text-xs text-muted-foreground">Excused</p>
-                  </div>
-                </div>
+      {/* Attendance overview */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Attendance Overview</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : summary ? (
+            <>
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-bold tabular-nums">
+                  {summary.attendancePercentage.toFixed(1)}%
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  attendance rate · {summary.totalMarkedDays} days recorded
+                </span>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <Progress
+                value={summary.attendancePercentage}
+                className="h-2"
+              />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {statCards.map((stat) => (
+                  <div key={stat.label} className={`rounded-lg p-3 ${stat.bg}`}>
+                    <div className={`flex items-center gap-2 ${stat.color}`}>
+                      <stat.icon className="size-4" />
+                      <span className="text-xs font-medium">{stat.label}</span>
+                    </div>
+                    <p className={`mt-1 text-2xl font-bold tabular-nums ${stat.color}`}>{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">No attendance records yet.</p>
+          )}
+        </CardContent>
+      </Card>
 
+      {/* Two-column: upcoming work + announcements */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <UpcomingCourseworkCard />
         <AnnouncementFeedCard />
       </div>
-
-      <UpcomingCourseworkCard />
     </div>
   )
 }
