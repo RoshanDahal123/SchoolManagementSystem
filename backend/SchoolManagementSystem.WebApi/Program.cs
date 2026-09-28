@@ -6,6 +6,7 @@ using SchoolManagementSystem.Application;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure;
 using SchoolManagementSystem.WebApi.Authorization;
+using SchoolManagementSystem.WebApi.Middleware;
 using System.Text;
 
 
@@ -114,6 +115,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
