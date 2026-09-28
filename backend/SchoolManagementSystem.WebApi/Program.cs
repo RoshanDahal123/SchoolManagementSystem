@@ -5,17 +5,14 @@ using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure;
+using SchoolManagementSystem.Infrastructure.Hubs;
 using SchoolManagementSystem.WebApi.Authorization;
 using SchoolManagementSystem.WebApi.Middleware;
 using System.Text;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.Configure<FormOptions>(options =>
 {
@@ -23,15 +20,17 @@ builder.Services.Configure<FormOptions>(options =>
     options.ValueLengthLimit = int.MaxValue;
 });
 
+builder.Services.AddSignalR();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
+
 // CORS: specific origin required — AllowAnyOrigin() is incompatible with AllowCredentials()
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // match your actual frontend dev URL
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -58,21 +57,34 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnMessageReceived = context =>
             {
-                if (context.Request.Cookies.TryGetValue("accessToken", out var token))
+                // Existing: read JWT from HttpOnly cookie
+                if (context.Request.Cookies.TryGetValue("accessToken", out var cookieToken))
                 {
-                    context.Token = token;
+                    context.Token = cookieToken;
                 }
+
+                // SignalR WebSocket connections cannot send cookies on the upgrade request
+                // in some browsers, so the client also sends the token as ?access_token=
+                // This only applies to requests targeting the /hubs path.
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken.ToString();
+                }
+
                 return Task.CompletedTask;
             }
         };
     });
-//Authorization Handlers
+
+// Authorization Handlers
 builder.Services.AddScoped<IAuthorizationHandler, HomeroomTeacherAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, SectionAttendanceReadAuthorizationHandler>();
-//Authorization Policies
+
+// Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    // Write access: homeroom teacher or admin only.
     options.AddPolicy("HomeroomTeacherOnly", policy => {
         policy.RequireAuthenticatedUser();
         policy.RequireRole(
@@ -81,7 +93,6 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new HomeroomTeacherRequirement());
     });
 
-    // Read access: homeroom teacher, any subject teacher of that grade level, or admin.
     options.AddPolicy("SectionAttendanceViewAccess", policy =>
     {
         policy.RequireAuthenticatedUser();
@@ -102,23 +113,20 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-
 var app = builder.Build();
 
-
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-app.UseCors("AllowFrontend");
 
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

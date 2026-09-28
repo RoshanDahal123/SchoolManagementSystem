@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README_ARCHITECTURE.md",
+                "file": "README_CODE_REVIEW.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README_ARCHITECTURE"
+              "title": "README_CODE_REVIEW"
             }
           }
         ]
@@ -185,8 +185,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "341315765b6c7c10",
+  "active": "3e6679a10f56e491",
   "lastOpenFiles": [
+    "README_ARCHITECTURE.md",
     "README_COURSEWORK_WORKFLOW.md",
     "README_DATABASE.md",
     "frontend/node_modules",
@@ -196,7 +197,6 @@
     "README_CODE_REVIEW.md",
     "frontend",
     "README_FRONTEND.md",
-    "README_ARCHITECTURE.md",
     "Welcome.md",
     "Untitled"
   ]

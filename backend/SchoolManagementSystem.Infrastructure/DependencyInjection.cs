@@ -4,9 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Infrastructure.Services.Auth;
 using SchoolManagementSystem.Infrastructure.Services.Email;
+using SchoolManagementSystem.Infrastructure.Services.Notification;
+using SchoolManagementSystem.Infrastructure.Services.Storage;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
-using SchoolManagementSystem.Infrastructure.Services.Storage;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories.Seeders;
 
 namespace SchoolManagementSystem.Infrastructure;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.Configure<FileStorageSettings>(configuration.GetSection("FileStorageSettings"));
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IEmailService, MailKitEmailService>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
