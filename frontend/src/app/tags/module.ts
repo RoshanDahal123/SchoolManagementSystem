@@ -8,6 +8,7 @@ import { STUDENT_TAGS } from "../../features/students/tags";
 import { TEACHER_TAGS } from "../../features/teachers/tags";
 import { CORE_TAGS } from "./core";
 import { COURSEWORK_TAGS } from "../../features/coursework/tags";
+import { NOTIFICATION_TAGS } from "../../features/notifications/tags";
 
 
 export const TAG_TYPES = [
@@ -24,6 +25,7 @@ export const TAG_TYPES = [
   ...ATTENDANCE_TAGS,
   ...ANNOUNCEMENT_TAGS,
   ...COURSEWORK_TAGS,
+  ...NOTIFICATION_TAGS,
 ] as const;
 
 export type TagTypes = (typeof TAG_TYPES)[number];

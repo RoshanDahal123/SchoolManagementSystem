@@ -4,7 +4,9 @@ import {
 import { Separator } from "@/components/atoms/separator"
 import { SidebarTrigger } from "@/components/atoms/sidebar"
 import { ModeToggle } from "@/components/molecules/mode-toggle"
+
 import type { NavItem } from "@/config/nav-item"
+import { NotificationBell } from "@/features/notifications/components/notification-bell"
 import { Link, useLocation } from "react-router"
 
 interface NavbarProps {
@@ -34,6 +36,7 @@ export function Navbar({ navItems, homePath }: NavbarProps) {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="ml-auto flex items-center gap-2">
+        <NotificationBell />
         <ModeToggle />
       </div>
     </header>
