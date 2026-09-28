@@ -24,6 +24,7 @@ public sealed class CourseworkService : ICourseworkService
     private readonly ITeacherRepository _teacherRepo;
     private readonly IStudentRepository _studentRepo;
     private readonly IFileStorageService _fileStorage;
+    private readonly INotificationService _notificationService;
 
     public CourseworkService(
         ICourseWorkRepository courseworkRepo,
@@ -33,7 +34,8 @@ public sealed class CourseworkService : ICourseworkService
         IStudentEnrollmentRepository enrollmentRepo,
         ITeacherRepository teacherRepo,
         IStudentRepository studentRepo,
-        IFileStorageService fileStorage)
+        IFileStorageService fileStorage,
+        INotificationService notificationService)
     {
         _courseworkRepo = courseworkRepo;
         _submissionRepo = submissionRepo;
@@ -43,6 +45,7 @@ public sealed class CourseworkService : ICourseworkService
         _teacherRepo = teacherRepo;
         _studentRepo = studentRepo;
         _fileStorage = fileStorage;
+        _notificationService = notificationService;
     }
 
     // ─── Teacher: authoring ──────────────────────────────────────────────────
@@ -96,6 +99,27 @@ public sealed class CourseworkService : ICourseworkService
             foreach (var stored in written)
                 _fileStorage.Delete(stored.StoredPath);
             throw;
+        }
+
+        // Notify every enrolled student in this grade that new coursework has been posted
+        var classSubjectDetails = await _classSubjectRepo.GetByIdAsync(request.ClassSubjectId, ct);
+        if (classSubjectDetails is not null)
+        {
+            var roster = await GetRosterAsync(
+                classSubjectDetails.GradeLevelId, classSubjectDetails.AcademicYearId, ct);
+
+            foreach (var enrollment in roster)
+            {
+                if (enrollment.Student.UserId is not null)
+                {
+                    await _notificationService.SendToUserAsync(
+                        enrollment.Student.UserId.Value,
+                        "New Coursework Posted",
+                        $"{coursework.Title} has been assigned.",
+                        $"/coursework/{coursework.Id}",
+                        ct);
+                }
+            }
         }
 
         return await BuildSingleResponseAsync(coursework.Id, ct);
@@ -308,6 +332,17 @@ public sealed class CourseworkService : ICourseworkService
         var student = await _studentRepo.GetByIdAsync(submission.StudentId, ct)
             ?? throw new DomainException("Student not found.");
 
+        // Notify the student that their work has been marked
+        if (student.UserId is not null)
+        {
+            await _notificationService.SendToUserAsync(
+                student.UserId.Value,
+                "Assignment Graded",
+                $"Your submission for \"{coursework.Title}\" has been graded. You scored {request.Marks}/{coursework.MaxMarks}.",
+                $"/coursework/{coursework.Id}",
+                ct);
+        }
+
         return ToSubmissionResponse(submission, coursework, student);
     }
 
@@ -387,8 +422,8 @@ public sealed class CourseworkService : ICourseworkService
         var supersededPaths = new List<string>();
         if (existing is not null)
         {
-            submission.Resubmit(note, isLate);
-            supersededPaths = submission.ClearAttachments().Select(a => a.StoredPath).ToList();
+            // Collect disk paths before we wipe the DB rows
+            supersededPaths = existing.Attachments.Select(a => a.StoredPath).ToList();
         }
 
         var written = new List<StoredFile>();
@@ -405,9 +440,22 @@ public sealed class CourseworkService : ICourseworkService
             submission.EnsureHasContent();
 
             if (existing is null)
+            {
+                // First submission — normal EF tracked insert
                 await _submissionRepo.AddAsync(submission, ct);
-
-            await _submissionRepo.SaveChangesAsync(ct);
+                await _submissionRepo.SaveChangesAsync(ct);
+            }
+            else
+            {
+                // Resubmit — bypass EF change tracker entirely via direct SQL operations
+                await _submissionRepo.ResubmitAsync(
+                    existing.Id,
+                    note,
+                    isLate,
+                    DateTimeOffset.UtcNow,
+                    submission.Attachments,
+                    ct);
+            }
         }
         catch
         {
@@ -418,6 +466,19 @@ public sealed class CourseworkService : ICourseworkService
 
         foreach (var path in supersededPaths)
             _fileStorage.Delete(path);
+
+        // Notify the teacher who owns this coursework that a student has submitted
+        var teacher = await _teacherRepo.GetByIdAsync(coursework.TeacherId, ct);
+        if (teacher?.UserId is not null)
+        {
+            var action = existing is not null ? "resubmitted" : "submitted";
+            await _notificationService.SendToUserAsync(
+                teacher.UserId.Value,
+                "New Submission",
+                $"{student.FirstName} {student.LastName} has {action} \"{coursework.Title}\".",
+                $"/coursework/{coursework.Id}",
+                ct);
+        }
 
         return ToSubmissionResponse(submission, coursework, student);
     }

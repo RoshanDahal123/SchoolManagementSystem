@@ -27,6 +27,16 @@ namespace SchoolManagementSystem.Infrastructure.Services.Notification
         public async Task SendToUserAsync(Guid userId, string title, string message, string? actionUrl = null, CancellationToken ct = default)
         {
             var notification = NotificationEntity.Create(userId, title, message, actionUrl);
+
+            // Clear the change tracker before saving the notification.
+            // When called from CourseworkService (e.g. after a resubmit), the same scoped
+            // DbContext instance may still have previously-tracked entities (e.g. deleted
+            // SubmissionAttachments that were already committed) in its change tracker.
+            // A second SaveChangesAsync would try to re-execute those stale DELETE statements,
+            // causing a DbUpdateConcurrencyException → 500. Clearing the tracker first ensures
+            // only the new Notification row is written.
+            _db.ChangeTracker.Clear();
+
             _db.Notifications.Add(notification);
             await _db.SaveChangesAsync(ct);
 

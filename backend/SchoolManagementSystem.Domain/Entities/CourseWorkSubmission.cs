@@ -61,13 +61,14 @@ namespace SchoolManagementSystem.Domain.Entities
         public void Resubmit(string? note, bool isLate)
         {
             ValidateNote(note);
-            Note= string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+            Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
             IsLate = isLate;
             Status = SubmissionStatus.Submitted;
             Marks = null;
             Feedback = null;
             GradedByTeacherId = null;
             GradedAtUtc = null;
+            SubmittedAtUtc = DateTimeOffset.UtcNow; // always a real change — ensures EF marks entity Modified
             UpdatedAtUtc = DateTimeOffset.UtcNow;
         }
 

@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace SchoolManagementSystem.Application.Services;
 
-public sealed class AnnouncementService(IAnnouncementRepository  _announcementRepo):IAnnouncementService
+public sealed class AnnouncementService(
+    IAnnouncementRepository _announcementRepo,
+    INotificationService _notificationService) : IAnnouncementService
 {
     public async Task<List<AnnouncementResponse>> GetAllAsync(CancellationToken ct= default)
     {
@@ -30,10 +32,33 @@ public sealed class AnnouncementService(IAnnouncementRepository  _announcementRe
     {
         var targetRole = ParseTargetRole(request.TargetRole);
         var announcement = Announcement.Create(request.Title, request.Body, targetRole, createdByUserId);
-         _announcementRepo.Add(announcement);
+        _announcementRepo.Add(announcement);
         await _announcementRepo.SaveChangesAsync(ct);
-        return ToResponse(announcement);
 
+        // Notify relevant users in real time based on who the announcement targets
+        var notifyRole = targetRole switch
+        {
+            AnnouncementTargetRole.Students => "Student",
+            AnnouncementTargetRole.Teachers => "Teacher",
+            _                               => null        // All — send to both below
+        };
+
+        if (notifyRole is not null)
+        {
+            await _notificationService.SendToRoleAsync(
+                notifyRole,
+                "New Announcement",
+                announcement.Title,
+                ct: ct);
+        }
+        else
+        {
+            // AnnouncementTargetRole.All — push to both roles
+            await _notificationService.SendToRoleAsync("Student", "New Announcement", announcement.Title, ct: ct);
+            await _notificationService.SendToRoleAsync("Teacher", "New Announcement", announcement.Title, ct: ct);
+        }
+
+        return ToResponse(announcement);
     }
     public async Task<AnnouncementResponse> UpdateAsync(Guid id, UpdateAnnouncementRequest request, CancellationToken ct= default)
     {
