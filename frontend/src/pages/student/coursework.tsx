@@ -1,10 +1,7 @@
 import { StudentCourseworkList } from "@/features/coursework/components/student-coursework-list"
-import { useAuth } from "@/hooks/use-auth"
 import { BookOpenIcon } from "lucide-react"
 
 export default function StudentCourseworkPage() {
-  const { firstName } = useAuth()
-
   return (
     <div className="space-y-6">
       {/* Page header */}

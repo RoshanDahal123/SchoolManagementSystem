@@ -16,7 +16,6 @@ import { useGetTeacherAssignmentsQuery } from "@/features/teachers/teacher-api"
 import { formatDate, formatDateTime } from "@/helpers/date"
 import { useAuth } from "@/hooks/use-auth"
 import { getErrorMessage } from "@/lib/error-message"
-import { cn } from "@/lib/utils"
 import { PATHS } from "@/routes/paths"
 import {
   BookOpenCheckIcon,

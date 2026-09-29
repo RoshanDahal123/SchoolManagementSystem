@@ -11,6 +11,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
 import { Input } from "@/components/atoms/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select"
+import type { Column } from "@/components/organisms/data-table"
 import { EntityListLayout } from "@/components/organisms/entity-list-layout"
 import type { StudentResponse } from "@/features/students/@types"
 import {
@@ -102,7 +103,7 @@ export default function StudentsPage() {
   }
 
   // ── Columns ─────────────────────────────────────────────────────────────────
-  const columns = [
+  const columns: Column<StudentResponse>[] = [
     {
       accessorKey: "enrollmentNumber" as keyof StudentResponse,
       header: "Enrollment #",
@@ -199,7 +200,7 @@ export default function StudentsPage() {
         heading="Students"
         description="Manage student records and enrollments"
         cardTitle="Directory"
-        columns={columns}
+        columns={columns as unknown as Column<Record<string, unknown>>[]}
         data={students as unknown as Record<string, unknown>[]}
         isLoading={isLoading}
         totalCount={isLoading ? undefined : isError ? 0 : totalCount}

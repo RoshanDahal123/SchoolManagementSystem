@@ -2,7 +2,7 @@ import { ANNOUNCEMENT_TAGS } from "@/features/announcements/tags";
 import { ATTENDANCE_TAGS } from "@/features/attendance/tags";
 import { STUDENT_ENROLLMENT_TAGS } from "@/features/enrollment/tags";
 import { ACADEMIC_YEAR_TAGS } from "../../features/academic-years/tags";
-import { CLASS_SUBJECT_TAGS, GRADE_LEVEL_TAGS, SECTION_TAGS, SUBJECT_TAGS } from "../../features/academic/tags";
+import { CLASS_SUBJECT_TAGS, GRADE_LEVEL_TAGS, HOMEROOM_TEACHER_TAGS, SECTION_TAGS, SUBJECT_TAGS } from "../../features/academic/tags";
 import { DASHBOARD_TAGS } from "../../features/dashboard/tags";
 import { STUDENT_TAGS } from "../../features/students/tags";
 import { TEACHER_TAGS } from "../../features/teachers/tags";
@@ -26,6 +26,7 @@ export const TAG_TYPES = [
   ...ANNOUNCEMENT_TAGS,
   ...COURSEWORK_TAGS,
   ...NOTIFICATION_TAGS,
+  ...HOMEROOM_TEACHER_TAGS,
 ] as const;
 
 export type TagTypes = (typeof TAG_TYPES)[number];

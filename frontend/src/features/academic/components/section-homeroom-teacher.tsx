@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/atoms/skeleton"
-import { UserRoundIcon, UserRoundPlusIcon, XIcon } from "lucide-react"
+import { UserRoundIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useGetHomeroomTeacherQuery, useRemoveHomeroomTeacherMutation } from "../academic-api"
 
@@ -13,7 +13,7 @@ export function SectionHomeroomTeacher({ sectionId, academicYearId}: Props) {
     { sectionId, yearId: academicYearId },
     { skip: !academicYearId }
   )
-  const [removeHomeroomTeacher, { isLoading: isRemoving }] = useRemoveHomeroomTeacherMutation()
+  const [removeHomeroomTeacher] = useRemoveHomeroomTeacherMutation()
 
   if (!academicYearId) return null
   if (isLoading) return <Skeleton className="h-5 w-20 rounded-full" />

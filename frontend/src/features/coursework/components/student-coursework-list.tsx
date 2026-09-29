@@ -152,7 +152,7 @@ export function StudentCourseworkList() {
       <div className="grid gap-3">
         {visible.map((item) => {
           const deadline = describeDeadline(item.coursework.dueAtUtc)
-          const submission = item.mySubmissin
+          const submission = item.mySubmission
 
           return (
             <Card key={item.coursework.id}>

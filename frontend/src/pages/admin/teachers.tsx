@@ -10,6 +10,7 @@ import {
 } from "@/components/atoms/dialog"
 import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
 import { Input } from "@/components/atoms/input"
+import type { Column } from "@/components/organisms/data-table"
 import { EntityListLayout } from "@/components/organisms/entity-list-layout"
 import { useGetSubjectsQuery } from "@/features/academic/academic-api"
 import type { TeacherResponse } from "@/features/teachers/@types"
@@ -104,7 +105,7 @@ export default function TeachersPage() {
   }
 
   // ── Columns ─────────────────────────────────────────────────────────────────
-  const columns = [
+  const columns: Column<TeacherResponse>[] = [
     {
       accessorKey: "employeeId" as keyof TeacherResponse,
       header: "Employee ID",
@@ -219,7 +220,7 @@ export default function TeachersPage() {
         heading="Teachers"
         description="Manage teaching staff and assignments"
         cardTitle="Staff Directory"
-        columns={columns}
+        columns={columns as unknown as Column<Record<string, unknown>>[]}
         data={teachers as unknown as Record<string, unknown>[]}
         isLoading={isLoading}
         totalCount={isLoading ? undefined : isError ? 0 : totalCount}

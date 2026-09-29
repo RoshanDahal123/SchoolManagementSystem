@@ -33,7 +33,7 @@ const activeYearId = years.find((y) => y.isActive)?.id ?? "";
   const [updateSection, { isLoading: isUpdatingSection }] = useUpdateSectionMutation()
   const [deleteSection] = useDeleteSectionMutation()
  const [removeHomeroomTeacher] = useRemoveHomeroomTeacherMutation()
- const [assignHomeroomTeacher,{isLoading: isAssigningHomeroomTeacher}] = useAssignHomeroomTeacherMutation()
+ const [assignHomeroomTeacher] = useAssignHomeroomTeacherMutation()
 
   const [gradeDialogOpen, setGradeDialogOpen] = useState(false)
   const [editGrade, setEditGrade] = useState<GradeLevelResponse | null>(null)

@@ -119,7 +119,7 @@ export default function AnnouncementsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {announcements.map((a:any) => (
+          {announcements.map((a: AnnouncementResponse) => (
             <Card key={a.id}>
               <CardContent className="flex items-start justify-between gap-4 py-4">
                 <div className="space-y-1.5">

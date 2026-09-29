@@ -37,7 +37,7 @@ import { createStudentSchema, type CreateStudentFormData } from "@/lib/validatio
 import { PATHS } from "@/routes/paths"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { ArrowLeftIcon, MailIcon } from "lucide-react"
+import { ArrowLeftIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router"

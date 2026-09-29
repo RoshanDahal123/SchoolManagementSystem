@@ -74,7 +74,7 @@ export interface StudentCoursework{
     coursework:CourseworkResponse
     status:CourseworkStatus
     canSubmit:boolean
-    mySubmissin?: SubmissionResponse | null
+    mySubmission?: SubmissionResponse | null
 }
 export interface SubjectProgressSummary {
   subjectId: string

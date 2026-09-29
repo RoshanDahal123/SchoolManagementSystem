@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@/components/atoms/skeleton"
 import type { RecentActivityItem } from "@/features/dashboard/@types"
 import { formatDistanceToNow } from "date-fns"
-import { Bell, InboxIcon, Megaphone } from "lucide-react"
+import { InboxIcon, Megaphone } from "lucide-react"
 
 interface RecentActivitiesProps {
   items?: RecentActivityItem[]

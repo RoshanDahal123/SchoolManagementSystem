@@ -3,7 +3,6 @@ import {
   PencilIcon,
   PowerIcon,
   PowerOffIcon,
-  Trash2Icon,
 } from "lucide-react"
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button"

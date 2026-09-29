@@ -81,8 +81,10 @@ export function LoginForm() {
       setCredentials({
         email: data.email,
         role: data.role,
-        teacherId:data?.teacherId,
-        studentId:data?.studentId
+        teacherId: data?.teacherId,
+        studentId: data?.studentId,
+        firstName: data?.firstName ?? null,
+        lastName: data?.lastName ?? null,
       }),
     );
 

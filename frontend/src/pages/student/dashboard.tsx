@@ -8,13 +8,11 @@ import { useAuth } from "@/hooks/use-auth"
 import { BookOpenIcon, CalendarCheckIcon, CircleCheckIcon, ClockIcon } from "lucide-react"
 
 export default function StudentDashboardPage() {
-  const { firstName, lastName, email, studentId } = useAuth()
+  const { firstName, email, studentId } = useAuth()
   const { data: summary, isLoading } = useGetStudentAttendanceSummaryQuery(
     { studentId: studentId ?? "" },
     { skip: !studentId }
   )
-
-  const displayName = firstName ? `${firstName}${lastName ? " " + lastName : ""}` : email ?? "Student"
 
   const statCards = [
     {
