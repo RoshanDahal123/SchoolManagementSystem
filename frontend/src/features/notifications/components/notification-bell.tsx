@@ -13,14 +13,12 @@ import {
 } from "@/features/notifications/notification-api"
 import { BellIcon } from "lucide-react"
 import { useState } from "react"
-import { useNavigate } from "react-router"
 import { useAuth } from "@/hooks/use-auth"
 import NotificationItem from "./notification-item"
 import { useNotificationSignalR } from "../hooks/use-notification-signalr"
 
 export function NotificationBell() {
   const { isAuthenticated } = useAuth()
-  const navigate = useNavigate()
 
   const {
     data: serverNotifications = [],
@@ -66,10 +64,6 @@ export function NotificationBell() {
     setLiveNotifications((prev) =>
       prev.filter((n) => n.id !== notification.id),
     )
-
-    if (notification.actionUrl) {
-      navigate(notification.actionUrl)
-    }
   }
 
   const handleMarkAllRead = async () => {

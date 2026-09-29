@@ -4,7 +4,6 @@ export interface NotificationDto {
   id: string;
   title: string;
   message: string;
-  actionUrl: string | null;
   isRead: boolean;
   createdAtUtc: string;
 }
