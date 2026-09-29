@@ -17,6 +17,7 @@ public class StudentsController : ControllerBase
     public StudentsController(IStudentService studentService) => _studentService = studentService;
 
     [HttpPost]
+    [Authorize(Roles ="Admin")]
     public async Task<ActionResult<StudentResponse>> Create(CreateStudentRequest request, CancellationToken ct)
     {
         var result = await _studentService.CreateAsync(request, ct);
