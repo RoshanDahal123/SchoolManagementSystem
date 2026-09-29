@@ -9,6 +9,7 @@ namespace SchoolManagementSystem.Application.Interfaces
     public interface IAttendanceRepository
     {
         Task<Attendance?> GetByEnrollmentAndDateAsync(Guid enrollmentId, DateOnly date, CancellationToken ct = default);
+        Task<List<Attendance>>GetByEnrollmentIdsAndDateAsync(IReadOnlyCollection<Guid> enrollmentIds, DateOnly date, CancellationToken ct = default);
         Task<List<Attendance>> GetBySectionAndDateAsync(Guid sectionId, Guid academicYearId, DateOnly date, CancellationToken ct = default);
         Task<List<Attendance>> GetByStudentAsync(Guid studentId, DateOnly? from, DateOnly? to, CancellationToken ct = default);
         Task<List<Attendance>> GetBySectionAndDateRangeAsync(

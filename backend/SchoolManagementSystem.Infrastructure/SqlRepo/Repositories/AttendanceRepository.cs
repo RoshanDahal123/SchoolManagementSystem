@@ -15,9 +15,18 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
         public Task<Attendance?> GetByEnrollmentAndDateAsync(Guid enrollmentId, DateOnly date,CancellationToken ct= default)
         {
             return _context.Attendances.FirstOrDefaultAsync(a => a.StudentEnrollmentId == enrollmentId && a.Date == date, ct);
-
         }
-
+        public Task<List<Attendance>> GetByEnrollmentIdsAndDateAsync(
+          IReadOnlyCollection<Guid> enrollmentIds,
+          DateOnly date,
+          CancellationToken ct = default)
+        {
+            return _context.Attendances
+                .Where(a =>
+                    enrollmentIds.Contains(a.StudentEnrollmentId) &&
+                    a.Date == date)
+                .ToListAsync(ct);
+        }
         public Task<List<Attendance>> GetBySectionAndDateAsync(Guid sectionId, Guid academicYearId, DateOnly date, CancellationToken ct= default
             )
         {
@@ -42,7 +51,8 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
          Guid sectionId, Guid academicYearId, DateOnly from, DateOnly to, CancellationToken ct = default) =>
           _context.Attendances
         .AsNoTracking()
-        .Where(a => a.StudentEnrollment.SectionId == sectionId
+        .Where(a => a.StudentEnrollment.SectionId 
+        == sectionId
                  && a.StudentEnrollment.AcademicYearId == academicYearId
                  && a.Date >= from && a.Date <= to)
         .ToListAsync(ct);

@@ -29,20 +29,46 @@ namespace SchoolManagementSystem.Application.Services
             foreach (var entry in request.Entries)
             {
                 if (!rosterIds.Contains(entry.EnrollmentId))
-                    throw new CannotUnloadAppDomainException($"Enrollment {entry.EnrollmentId} does not belong to section {sectionId} for academic year {academicYearId}.");
+                    throw new DomainException($"Enrollment {entry.EnrollmentId} does not belong to section {sectionId} for academic year {academicYearId}.");
 
                 if (!Enum.TryParse<AttendanceStatus>(entry.Status, ignoreCase: true, out var status))
                     throw new DomainException($"Invalid attendance status: {entry.Status} for enrollment {entry.EnrollmentId}.");
 
-                var existing = await _attendanceRepo.GetByEnrollmentAndDateAsync(entry.EnrollmentId, request.Date, ct);
-                if (existing is not null
-                    )
+            }
+            var existing = await _attendanceRepo
+                .GetByEnrollmentIdsAndDateAsync(
+               rosterIds,
+                request.Date,
+            ct);
+
+            var existingByEnrollment =
+               existing.ToDictionary(x => x.StudentEnrollmentId);
+            // Do I already have an attendance record for this student?
+            foreach (var entry in request.Entries)
+            {
+                var status = Enum.Parse<AttendanceStatus>(
+                    entry.Status,
+                    true);
+
+                if (existingByEnrollment.TryGetValue(
+                        entry.EnrollmentId,
+                        out var attendance))//"Do I already have an attendance record for this student?"
                 {
-                    existing.UpdateStatus(status, markedByUserId, entry.Remarks);
+                    attendance.UpdateStatus(
+                        status,
+                        markedByUserId,
+                        entry.Remarks);
                 }
                 else
                 {
-                    await _attendanceRepo.AddAsync(Attendance.Create(entry.EnrollmentId, request.Date, status, markedByUserId, entry.Remarks), ct);
+                    await _attendanceRepo.AddAsync(
+                        Attendance.Create(
+                            entry.EnrollmentId,
+                            request.Date,
+                            status,
+                            markedByUserId,
+                            entry.Remarks),
+                        ct);
                 }
             }
             await _attendanceRepo.SaveChangesAsync(ct);
