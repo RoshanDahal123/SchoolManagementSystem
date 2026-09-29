@@ -80,6 +80,8 @@ public class CourseworkSubmissionRepository : ICourseWorkSubmissionRepository
         IEnumerable<SubmissionAttachment> newAttachments,
         CancellationToken ct = default)
     {
+        await using var transaction =
+          await _context.Database.BeginTransactionAsync(ct);
         // Step 1: delete old attachments
         await _context.SubmissionAttachments
             .Where(a => a.SubmissionId == submissionId)
@@ -100,10 +102,10 @@ public class CourseworkSubmissionRepository : ICourseWorkSubmissionRepository
                 .SetProperty(x => x.UpdatedAtUtc, submittedAtUtc),
             ct);
 
-        // Step 3: insert new attachments on a clean tracker
-        _context.ChangeTracker.Clear();
+   
         _context.SubmissionAttachments.AddRange(newAttachments);
         await _context.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
     }
 
     public Task SaveChangesAsync(CancellationToken ct = default) => _context.SaveChangesAsync(ct);

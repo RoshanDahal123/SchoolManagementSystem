@@ -424,6 +424,7 @@ public sealed class CourseworkService : ICourseworkService
         {
             // Collect disk paths before we wipe the DB rows
             supersededPaths = existing.Attachments.Select(a => a.StoredPath).ToList();
+            existing.ClearAttachments();
         }
 
         var written = new List<StoredFile>();
@@ -433,30 +434,26 @@ public sealed class CourseworkService : ICourseworkService
             {
                 var stored = await _fileStorage.SaveAsync(file, $"submissions/{courseworkId}/{student.Id}", ct);
                 written.Add(stored);
-                submission.AddAttachment(SubmissionAttachment.Create(
-                    submission.Id, stored.FileName, stored.StoredPath, stored.ContentType, stored.Length));
+                
+                existing!.AddAttachment(
+                  SubmissionAttachment.Create(
+                 existing.Id,
+                 stored.FileName,
+                 stored.StoredPath,
+                 stored.ContentType,
+                 stored.Length));
             }
-
-            submission.EnsureHasContent();
-
-            if (existing is null)
-            {
-                // First submission — normal EF tracked insert
-                await _submissionRepo.AddAsync(submission, ct);
-                await _submissionRepo.SaveChangesAsync(ct);
-            }
-            else
-            {
-                // Resubmit — bypass EF change tracker entirely via direct SQL operations
-                await _submissionRepo.ResubmitAsync(
-                    existing.Id,
-                    note,
-                    isLate,
-                    DateTimeOffset.UtcNow,
-                    submission.Attachments,
-                    ct);
-            }
+            existing!.EnsureHasContent();
+            await _submissionRepo.ResubmitAsync(
+             existing.Id,
+             note,
+             isLate,
+              DateTimeOffset.UtcNow,
+              existing.Attachments,
+              ct);
         }
+
+            
         catch
         {
             foreach (var stored in written)
@@ -464,8 +461,6 @@ public sealed class CourseworkService : ICourseworkService
             throw;
         }
 
-        foreach (var path in supersededPaths)
-            _fileStorage.Delete(path);
 
         // Notify the teacher who owns this coursework that a student has submitted
         var teacher = await _teacherRepo.GetByIdAsync(coursework.TeacherId, ct);
