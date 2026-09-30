@@ -21,7 +21,8 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Migrations
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     EnrollmentNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>( type: "bit",nullable: false,defaultValue: true)
                 },
                 constraints: table =>
                 {
