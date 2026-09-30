@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Exceptions;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
+using System.Linq.Expressions;
 
 namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
 
@@ -82,31 +84,55 @@ public class CourseworkSubmissionRepository : ICourseWorkSubmissionRepository
     {
         await using var transaction =
           await _context.Database.BeginTransactionAsync(ct);
-        // Step 1: delete old attachments
-        await _context.SubmissionAttachments
-            .Where(a => a.SubmissionId == submissionId)
-            .ExecuteDeleteAsync(ct);
+        try
+        {
 
-        // Step 2: update submission scalars
-        await _context.CourseworkSubmissions
-            .Where(s => s.Id == submissionId)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(x => x.Note, note)
-                .SetProperty(x => x.IsLate, isLate)
-                .SetProperty(x => x.Status, SubmissionStatus.Submitted)
-                .SetProperty(x => x.Marks, (decimal?)null)
-                .SetProperty(x => x.Feedback, (string?)null)
-                .SetProperty(x => x.GradedByTeacherId, (Guid?)null)
-                .SetProperty(x => x.GradedAtUtc, (DateTimeOffset?)null)
-                .SetProperty(x => x.SubmittedAtUtc, submittedAtUtc)
-                .SetProperty(x => x.UpdatedAtUtc, submittedAtUtc),
-            ct);
+            /* * IMPORTANT: * * SubmitAsync loads the existing submission with tracking enabled. 
+             * * That means the submission and its old attachments are already * being tracked by this DbContext.
+             * * * ExecuteDeleteAsync() and ExecuteUpdateAsync() bypass EF's * change tracker.
+             * Therefore we MUST clear the tracker before * performing the direct SQL operations. */
+            _context.ChangeTracker.Clear();
 
-   
-        _context.SubmissionAttachments.AddRange(newAttachments);
-        await _context.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
+            // Step 1: delete old attachments rows
+            await _context.SubmissionAttachments
+                .Where(a => a.SubmissionId == submissionId)
+                .ExecuteDeleteAsync(ct);
+
+            // Step 2: update the existing submission row 
+            var affectedRows = await _context.CourseworkSubmissions
+                .Where(s => s.Id == submissionId)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.Note, note)
+                    .SetProperty(x => x.IsLate, isLate)
+                    .SetProperty(x => x.Status, SubmissionStatus.Submitted)
+                    .SetProperty(x => x.Marks, (decimal?)null)
+                    .SetProperty(x => x.Feedback, (string?)null)
+                    .SetProperty(x => x.GradedByTeacherId, (Guid?)null)
+                    .SetProperty(x => x.GradedAtUtc, (DateTimeOffset?)null)
+                    .SetProperty(x => x.SubmittedAtUtc, submittedAtUtc)
+                    .SetProperty(x => x.UpdatedAtUtc, submittedAtUtc),
+                ct);
+            if (affectedRows != 1)
+            { throw new DomainException("The submission could not be updated because it no longer exists."); }
+
+            //insert the new attachments rows
+            var attachments = newAttachments.ToList();
+
+            if (attachments.Count > 0)
+            {
+                await _context.SubmissionAttachments.AddRangeAsync(attachments, ct);
+                await _context.SaveChangesAsync(ct);
+            }
+            //commit everything atomically
+            await transaction.CommitAsync(ct);
+        }
+
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+
     }
-
     public Task SaveChangesAsync(CancellationToken ct = default) => _context.SaveChangesAsync(ct);
 }

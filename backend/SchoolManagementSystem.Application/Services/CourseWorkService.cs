@@ -170,66 +170,66 @@ public sealed class CourseworkService : ICourseworkService
     Guid userId,
     bool isAdmin,
     CancellationToken ct = default)
-{
-    if (files.Count == 0)
-        throw new DomainException("No files were uploaded.");
-
-    var coursework = await _courseworkRepo.GetForWriteAsync(
-        courseworkId,
-        ct)
-        ?? throw new DomainException("CourseWork not found.");
-
-    await ResolveOwningTeacherIdAsync(
-        coursework.ClassSubjectId,
-        userId,
-        isAdmin,
-        ct);
-
-    var attachments = new List<CourseworkAttachment>();
-    var written = new List<StoredFile>();
-
-    try
     {
-        foreach (var file in files)
-        {
-            ct.ThrowIfCancellationRequested();
+        if (files.Count == 0)
+            throw new DomainException("No files were uploaded.");
 
-            var stored = await _fileStorage.SaveAsync(
-                file,
-                $"coursework/{coursework.Id}",
-                ct);
+        var coursework = await _courseworkRepo.GetForWriteAsync(
+            courseworkId,
+            ct)
+            ?? throw new DomainException("CourseWork not found.");
 
-            written.Add(stored);
-
-            attachments.Add(
-                CourseworkAttachment.Create(
-                    coursework.Id,
-                    stored.FileName,
-                    stored.StoredPath,
-                    stored.ContentType,
-                    stored.Length));
-        }
-
-        await _courseworkRepo.AddAttachmentsAsync(
-            attachments,
+        await ResolveOwningTeacherIdAsync(
+            coursework.ClassSubjectId,
+            userId,
+            isAdmin,
             ct);
 
-        await _courseworkRepo.SaveChangesAsync(ct);
-    }
-    catch
-    {
-        foreach (var stored in written)
+        var attachments = new List<CourseworkAttachment>();
+        var written = new List<StoredFile>();
+
+        try
         {
-            _fileStorage.Delete(stored.StoredPath);
+            foreach (var file in files)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var stored = await _fileStorage.SaveAsync(
+                    file,
+                    $"coursework/{coursework.Id}",
+                    ct);
+
+                written.Add(stored);
+
+                attachments.Add(
+                    CourseworkAttachment.Create(
+                        coursework.Id,
+                        stored.FileName,
+                        stored.StoredPath,
+                        stored.ContentType,
+                        stored.Length));
+            }
+
+            await _courseworkRepo.AddAttachmentsAsync(
+                attachments,
+                ct);
+
+            await _courseworkRepo.SaveChangesAsync(ct);
+        }
+        catch
+        {
+            foreach (var stored in written)
+            {
+                _fileStorage.Delete(stored.StoredPath);
+            }
+
+            throw;
         }
 
-        throw;
+        return attachments
+            .Select(ToAttachmentResponse)
+            .ToList();
     }
-
-    return attachments
-        .Select(ToAttachmentResponse)
-        .ToList();
-}
 
     public async Task RemoveAttachmentAsync(
         Guid courseworkId, Guid attachmentId, Guid userId, bool isAdmin, CancellationToken ct = default)
@@ -415,96 +415,202 @@ public sealed class CourseworkService : ICourseworkService
             .ToList();
     }
 
-    public async Task<SubmissionResponse> SubmitAsync(
-        Guid courseworkId,
-        string? note,
-        IReadOnlyList<FileUpload> files,
-        Guid userId,
-        CancellationToken ct = default)
+ 
+public async Task<SubmissionResponse> SubmitAsync(
+    Guid courseworkId,
+    string? note,
+    IReadOnlyList<FileUpload> files,
+    Guid userId,
+    CancellationToken ct = default)
     {
         var student = await _studentRepo.GetByUserIdAsync(userId, ct)
-            ?? throw new DomainException("No student record is linked to this account.");
+            ?? throw new DomainException(
+                "No student record is linked to this account.");
 
-        var coursework = await _courseworkRepo.GetByIdWithDetailsAsync(courseworkId, ct)
+        var coursework = await _courseworkRepo.GetByIdWithDetailsAsync(
+            courseworkId,
+            ct)
             ?? throw new DomainException("CourseWork not found.");
 
         if (!await IsStudentEnrolledForAsync(student.Id, coursework, ct))
-            throw new DomainException("This coursework was not set for your class.");
+            throw new DomainException(
+                "This coursework was not set for your class.");
 
         var now = DateTimeOffset.UtcNow;
         var isLate = coursework.IsPastDue(now);
 
         if (isLate && !coursework.AllowLateSubmission)
-            throw new DomainException("The deadline for this coursework has passed.");
+            throw new DomainException(
+                "The deadline for this coursework has passed.");
 
         var existing = await _submissionRepo.GetByCourseworkAndStudentAsync(
-            courseworkId, student.Id, tracked: true, ct);
+            courseworkId,
+            student.Id,
+            tracked: true,
+            ct);
 
-        if (existing is not null && existing.Status == SubmissionStatus.Graded)
-            throw new DomainException("This work has already been marked and can no longer be changed.");
-
-        var submission = existing ?? CourseworkSubmission.Create(courseworkId, student.Id, note, isLate);
-
-        // A re-submission replaces the previous files outright; the old ones are deleted from
-        // disk only after the database row has been saved, so a failure can't orphan the record.
-        var supersededPaths = new List<string>();
-        if (existing is not null)
+        if (existing is not null &&
+            existing.Status == SubmissionStatus.Graded)
         {
-            // Collect disk paths before we wipe the DB rows
-            supersededPaths = existing.Attachments.Select(a => a.StoredPath).ToList();
-            existing.ClearAttachments();
+            throw new DomainException(
+                "This work has already been marked and can no longer be changed.");
         }
 
+        // ============================================================
+        // FIRST SUBMISSION
+        // ============================================================
+
+        if (existing is null)
+        {
+            var submission = CourseworkSubmission.Create(
+                courseworkId,
+                student.Id,
+                note,
+                isLate);
+
+            var writtenFiles = new List<StoredFile>();
+
+            try
+            {
+                foreach (var file in files)
+                {
+                    var stored = await _fileStorage.SaveAsync(
+                        file,
+                        $"submissions/{courseworkId}/{student.Id}",
+                        ct);
+
+                    writtenFiles.Add(stored);
+
+                    submission.AddAttachment(
+                        SubmissionAttachment.Create(
+                            submission.Id,
+                            stored.FileName,
+                            stored.StoredPath,
+                            stored.ContentType,
+                            stored.Length));
+                }
+
+                submission.EnsureHasContent();
+
+                await _submissionRepo.AddAsync(
+                    submission,
+                    ct);
+
+                await _submissionRepo.SaveChangesAsync(
+                    ct);
+            }
+            catch
+            {
+                foreach (var stored in writtenFiles)
+                {
+                    _fileStorage.Delete(stored.StoredPath);
+                }
+
+                throw;
+            }
+
+            await NotifyTeacherOfSubmissionAsync(
+                coursework,
+                student,
+                false,
+                ct);
+
+            return ToSubmissionResponse(
+                submission,
+                coursework,
+                student);
+        }
+
+        // ============================================================
+        // RESUBMISSION
+        // ============================================================
+
+        var oldFilePaths = existing.Attachments
+            .Select(a => a.StoredPath)
+            .ToList();
+
+        var newAttachments = new List<SubmissionAttachment>();
         var written = new List<StoredFile>();
+
         try
         {
             foreach (var file in files)
             {
-                var stored = await _fileStorage.SaveAsync(file, $"submissions/{courseworkId}/{student.Id}", ct);
-                written.Add(stored);
-                
-                existing!.AddAttachment(
-                  SubmissionAttachment.Create(
-                 existing.Id,
-                 stored.FileName,
-                 stored.StoredPath,
-                 stored.ContentType,
-                 stored.Length));
-            }
-            existing!.EnsureHasContent();
-            await _submissionRepo.ResubmitAsync(
-             existing.Id,
-             note,
-             isLate,
-              DateTimeOffset.UtcNow,
-              existing.Attachments,
-              ct);
-        }
+                var stored = await _fileStorage.SaveAsync(
+                    file,
+                    $"submissions/{courseworkId}/{student.Id}",
+                    ct);
 
-            
+                written.Add(stored);
+
+                newAttachments.Add(
+                    SubmissionAttachment.Create(
+                        existing.Id,
+                        stored.FileName,
+                        stored.StoredPath,
+                        stored.ContentType,
+                        stored.Length));
+            }
+
+            if (newAttachments.Count == 0 &&
+                string.IsNullOrWhiteSpace(note))
+            {
+                throw new DomainException(
+                    "Attach at least one file, or write a note, before submitting.");
+            }
+
+            await _submissionRepo.ResubmitAsync(
+                existing.Id,
+                note,
+                isLate,
+                DateTimeOffset.UtcNow,
+                newAttachments,
+                ct);
+
+            // Database operation succeeded.
+            // Now it is safe to delete the old physical files.
+            foreach (var oldPath in oldFilePaths)
+            {
+                _fileStorage.Delete(oldPath);
+            }
+        }
         catch
         {
+            // Database operation failed.
+            // Remove only the files created during this attempt.
             foreach (var stored in written)
+            {
                 _fileStorage.Delete(stored.StoredPath);
+            }
+
             throw;
         }
 
+        await NotifyTeacherOfSubmissionAsync(
+            coursework,
+            student,
+            true,
+            ct);
 
-        // Notify the teacher who owns this coursework that a student has submitted
-        var teacher = await _teacherRepo.GetByIdAsync(coursework.TeacherId, ct);
-        if (teacher?.UserId is not null)
+        // Reload the submission after ExecuteUpdate/ExecuteDelete.
+        // The original tracked entity is intentionally no longer used.
+        var updatedSubmission = await _submissionRepo.GetByIdAsync(
+            existing.Id,
+            ct);
+
+        if (updatedSubmission is null)
         {
-            var action = existing is not null ? "resubmitted" : "submitted";
-            await _notificationService.SendToUserAsync(
-                teacher.UserId.Value,
-                "New Submission",
-                $"{student.FirstName} {student.LastName} has {action} \"{coursework.Title}\".",
-                $"/coursework/{coursework.Id}",
-                ct);
+            throw new DomainException(
+                "The submission was updated, but could not be loaded afterwards.");
         }
 
-        return ToSubmissionResponse(submission, coursework, student);
+        return ToSubmissionResponse(
+            updatedSubmission,
+            coursework,
+            student);
     }
+
+
 
     public async Task<ProgressReportResponse> GetProgressReportAsync(
         Guid studentId, Guid? academicYearId, CancellationToken ct = default)
@@ -636,6 +742,38 @@ public sealed class CourseworkService : ICourseworkService
         var stream = await _fileStorage.OpenReadAsync(attachment.StoredPath, ct);
         return new FileDownload(stream, attachment.ContentType, attachment.FileName);
     }
+
+
+
+    //----Private helpers -------------------------------------------------
+
+    //Notify the teacher that a student has submitted or resubmitted coursework. This is called after the submission has been saved to the database, so it is safe to assume
+    //that the teacher will be able to view it.
+    private async Task NotifyTeacherOfSubmissionAsync(
+    CourseWork coursework,
+    Student student,
+    bool isResubmission,
+    CancellationToken ct)
+    {
+        var teacher = await _teacherRepo.GetByIdAsync(
+            coursework.TeacherId,
+            ct);
+
+        if (teacher?.UserId is null)
+            return;
+
+        var action = isResubmission
+            ? "resubmitted"
+            : "submitted";
+
+        await _notificationService.SendToUserAsync(
+            teacher.UserId.Value,
+            "New Submission",
+            $"{student.FirstName} {student.LastName} has {action} \"{coursework.Title}\".",
+            $"/coursework/{coursework.Id}",
+            ct);
+    }
+
 
     // ─── Access control helpers ──────────────────────────────────────────────
 
