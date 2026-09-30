@@ -39,7 +39,7 @@ export const studentsApi = baseApi.injectEndpoints({
 
     createStudent: builder.mutation<StudentResponse, CreateStudentRequest>({
       query: (body) => ({ url: "/students", method: "POST", data: body }),
-      invalidatesTags: [{ type: "Student", id: "LIST" }],
+      invalidatesTags: [{ type: "Student", id: "LIST" },"Dashboard"],
     }),
 
     updateStudent: builder.mutation<StudentResponse, { id: string; data: UpdateStudentRequest }>({
@@ -51,6 +51,7 @@ export const studentsApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Student", id },
         { type: "Student", id: "LIST" },
+        "Dashboard"
       ],
     }),
 
@@ -61,7 +62,11 @@ export const studentsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, id) => [
         { type: "Student", id },
-        { type: "Student", id: "LIST" },
+        {
+        
+        type: "Student", id: "LIST" },
+        "Dashboard"
+        
       ],
     }),
 
@@ -73,6 +78,7 @@ export const studentsApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: "Student", id },
         { type: "Student", id: "LIST" },
+        "Dashboard"
       ],
     }),
 

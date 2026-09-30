@@ -73,6 +73,8 @@ function toCourseWorkFormData(input:CreateCourseworkInput ): FormData
       invalidatesTags: [
         { type: "Coursework", id: "TEACHING" },
         { type: "Coursework", id: "MINE" },
+        // Teacher dashboard has CourseworkCreated activity
+        "Dashboard"
       ],
     }),
     updateCoursework: builder.mutation<
@@ -84,6 +86,8 @@ function toCourseWorkFormData(input:CreateCourseworkInput ): FormData
         { type: "Coursework", id },
         { type: "Coursework", id: "TEACHING" },
         { type: "Coursework", id: "MINE" },
+          // Submission board contains coursework information
+        { type: "CourseworkSubmission", id },
       ],
     }),
 
@@ -93,6 +97,7 @@ function toCourseWorkFormData(input:CreateCourseworkInput ): FormData
         { type: "Coursework", id },
         { type: "Coursework", id: "TEACHING" },
         { type: "Coursework", id: "MINE" },
+        { type: "CourseworkSubmission", id },
       ],
     }),
  addCourseworkAttachments: builder.mutation<unknown, { courseworkId: string; files: File[] }>({
@@ -109,6 +114,10 @@ function toCourseWorkFormData(input:CreateCourseworkInput ): FormData
       invalidatesTags: (_r, _e, { courseworkId }) => [
         { type: "Coursework", id: courseworkId },
         { type: "Coursework", id: "TEACHING" },
+        { type: "CourseworkSubmission", id: courseworkId },
+
+    // Teacher submission board also contains coursework + attachments
+    { type: "CourseworkSubmission", id: courseworkId },
       ],
     }),
 
@@ -122,7 +131,11 @@ function toCourseWorkFormData(input:CreateCourseworkInput ): FormData
       }),
       invalidatesTags:(_r,_e,{courseworkId})=>[
         {type:"Coursework",id:courseworkId},
-        {type:"Coursework",id:"TEACHING"}
+        {type:"Coursework",id:"TEACHING"},
+        { type: "Coursework", id: "MINE" },
+
+    // Teacher submission board
+    { type: "CourseworkSubmission", id: courseworkId },
       ]
     }),
     getSubmissionBoard: builder.query<SubmissionBoardResponse, string>({
@@ -147,6 +160,7 @@ gradeSubmission: builder.mutation<SubmissionResponse, GradeSubmissionInput>({
         { type: "Coursework", id: courseworkId },
         { type: "Coursework", id: "TEACHING" },
         { type: "ProgressReport", id: "LIST" },
+        "Dashboard"
       ],
     }),
 

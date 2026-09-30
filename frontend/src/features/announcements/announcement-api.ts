@@ -20,7 +20,9 @@ export const announcementsApi = baseApi.injectEndpoints({
 
     createAnnouncement: builder.mutation<AnnouncementResponse, CreateAnnouncementRequest>({
       query: (body) => ({ url: "/announcements", method: "POST", data: body }),
-      invalidatesTags: [{ type: "Announcement", id: "LIST" }, "Dashboard"],
+      invalidatesTags: [{ type: "Announcement", id: "LIST" }, "Dashboard",
+         {type:"Announcement",id:"FEED"},
+      ],
     }),
 
     updateAnnouncement: builder.mutation<AnnouncementResponse, { id: string; data: UpdateAnnouncementRequest }>({
@@ -28,6 +30,7 @@ export const announcementsApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Announcement", id },
         { type: "Announcement", id: "LIST" },
+         {type:"Announcement",id:"FEED"},
         "Dashboard",
       ],
     }),
@@ -37,6 +40,7 @@ export const announcementsApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: "Announcement", id },
         { type: "Announcement", id: "LIST" },
+      {type:"Announcement",id:"FEED"},
         "Dashboard",
       ],
     }),

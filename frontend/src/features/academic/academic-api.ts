@@ -1,4 +1,4 @@
-import { baseApi } from "../../app/base-api"
+import { baseApi } from "../../app/base-api";
 import type {
   AssignSubjectRequest,
   AssignTeacherRequest,
@@ -13,57 +13,94 @@ import type {
   UpdateSectionRequest,
   UpdateSubjectRequest,
   AssignHomeroomTeacherRequest,
-  SectionHomeroomTeacherResponse
-} from "./@types"
+  SectionHomeroomTeacherResponse,
+} from "./@types";
 
 export const academicApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
     // ── Grade Levels ───────────────────────────────────────────────────────────
     getGradeLevels: builder.query<GradeLevelResponse[], void>({
       query: () => ({ url: "/grade-levels", method: "GET" }),
       providesTags: (result) =>
         result
-          ? [...result.map(({ id }) => ({ type: "GradeLevel" as const, id })), { type: "GradeLevel", id: "LIST" }]
+          ? [
+              ...result.map(({ id }) => ({ type: "GradeLevel" as const, id })),
+              { type: "GradeLevel", id: "LIST" },
+            ]
           : [{ type: "GradeLevel", id: "LIST" }],
     }),
 
     getGradeLevelById: builder.query<GradeLevelResponse, string>({
       query: (id) => ({ url: `/grade-levels/${id}`, method: "GET" }),
-      providesTags: (_r, _e, id) => [{ type: "GradeLevel", id }],
+      providesTags: (_r, _e, id) => [{ type: "GradeLevel", id }, "Dashboard"],
     }),
 
-    createGradeLevel: builder.mutation<GradeLevelResponse, CreateGradeLevelRequest>({
+    createGradeLevel: builder.mutation<
+      GradeLevelResponse,
+      CreateGradeLevelRequest
+    >({
       query: (body) => ({ url: "/grade-levels", method: "POST", data: body }),
-      invalidatesTags: [{ type: "GradeLevel", id: "LIST" }],
+      invalidatesTags: [{ type: "GradeLevel", id: "LIST" }, "Dashboard"],
     }),
 
-    updateGradeLevel: builder.mutation<GradeLevelResponse, { id: string; data: UpdateGradeLevelRequest }>({
-      query: ({ id, data }) => ({ url: `/grade-levels/${id}`, method: "PUT", data }),
-      invalidatesTags: (_r, _e, { id }) => [{ type: "GradeLevel", id }, { type: "GradeLevel", id: "LIST" }],
+    updateGradeLevel: builder.mutation<
+      GradeLevelResponse,
+      { id: string; data: UpdateGradeLevelRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `/grade-levels/${id}`,
+        method: "PUT",
+        data,
+      }),
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: "GradeLevel", id },
+        { type: "GradeLevel", id: "LIST" },
+        "Dashboard",
+      ],
     }),
 
     deleteGradeLevel: builder.mutation<void, string>({
       query: (id) => ({ url: `/grade-levels/${id}`, method: "DELETE" }),
-      invalidatesTags: (_r, _e, id) => [{ type: "GradeLevel", id }, { type: "GradeLevel", id: "LIST" }],
+      invalidatesTags: (_r, _e, id) => [
+        { type: "GradeLevel", id },
+        { type: "GradeLevel", id: "LIST" },
+        "Dashboard",
+      ],
     }),
 
     // ── Sections ───────────────────────────────────────────────────────────────
     getSections: builder.query<SectionResponse[], string>({
-      query: (gradeLevelId) => ({ url: `/grade-levels/${gradeLevelId}/sections`, method: "GET" }),
-      providesTags: (_r, _e, gradeLevelId) => [{ type: "Section", id: gradeLevelId }],
+      query: (gradeLevelId) => ({
+        url: `/grade-levels/${gradeLevelId}/sections`,
+        method: "GET",
+      }),
+      providesTags: (_r, _e, gradeLevelId) => [
+        { type: "Section", id: gradeLevelId },
+        "Dashboard",
+      ],
     }),
 
-    createSection: builder.mutation<SectionResponse, { gradeLevelId: string; data: CreateSectionRequest }>({
-      query: ({ gradeLevelId, data }) => ({ url: `/grade-levels/${gradeLevelId}/sections`, method: "POST", data }),
+    createSection: builder.mutation<
+      SectionResponse,
+      { gradeLevelId: string; data: CreateSectionRequest }
+    >({
+      query: ({ gradeLevelId, data }) => ({
+        url: `/grade-levels/${gradeLevelId}/sections`,
+        method: "POST",
+        data,
+      }),
       invalidatesTags: (_r, _e, { gradeLevelId }) => [
         { type: "Section", id: gradeLevelId },
         { type: "GradeLevel", id: gradeLevelId },
         { type: "GradeLevel", id: "LIST" },
+        "Dashboard",
       ],
     }),
 
-    updateSection: builder.mutation<SectionResponse, { gradeLevelId: string; sectionId: string; data: UpdateSectionRequest }>({
+    updateSection: builder.mutation<
+      SectionResponse,
+      { gradeLevelId: string; sectionId: string; data: UpdateSectionRequest }
+    >({
       query: ({ gradeLevelId, sectionId, data }) => ({
         url: `/grade-levels/${gradeLevelId}/sections/${sectionId}`,
         method: "PUT",
@@ -73,10 +110,14 @@ export const academicApi = baseApi.injectEndpoints({
         { type: "Section", id: gradeLevelId },
         { type: "GradeLevel", id: gradeLevelId },
         { type: "GradeLevel", id: "LIST" },
+        "Dashboard",
       ],
     }),
 
-    deleteSection: builder.mutation<void, { gradeLevelId: string; sectionId: string }>({
+    deleteSection: builder.mutation<
+      void,
+      { gradeLevelId: string; sectionId: string }
+    >({
       query: ({ gradeLevelId, sectionId }) => ({
         url: `/grade-levels/${gradeLevelId}/sections/${sectionId}`,
         method: "DELETE",
@@ -85,11 +126,15 @@ export const academicApi = baseApi.injectEndpoints({
         { type: "Section", id: gradeLevelId },
         { type: "GradeLevel", id: gradeLevelId },
         { type: "GradeLevel", id: "LIST" },
+        "Dashboard",
       ],
     }),
 
     // ── Subjects ───────────────────────────────────────────────────────────────
-    getSubjects: builder.query<SubjectResponse[], { includeInactive?: boolean } | void>({
+    getSubjects: builder.query<
+      SubjectResponse[],
+      { includeInactive?: boolean } | void
+    >({
       query: (args) => ({
         url: "/subjects",
         method: "GET",
@@ -97,32 +142,57 @@ export const academicApi = baseApi.injectEndpoints({
       }),
       providesTags: (result) =>
         result
-          ? [...result.map(({ id }) => ({ type: "Subject" as const, id })), { type: "Subject", id: "LIST" }]
+          ? [
+              ...result.map(({ id }) => ({ type: "Subject" as const, id })),
+              { type: "Subject", id: "LIST" },
+            ]
           : [{ type: "Subject", id: "LIST" }],
     }),
 
     createSubject: builder.mutation<SubjectResponse, CreateSubjectRequest>({
       query: (body) => ({ url: "/subjects", method: "POST", data: body }),
-      invalidatesTags: [{ type: "Subject", id: "LIST" }],
+      invalidatesTags: [{ type: "Subject", id: "LIST" }, "Dashboard"],
     }),
 
-    updateSubject: builder.mutation<SubjectResponse, { id: string; data: UpdateSubjectRequest }>({
-      query: ({ id, data }) => ({ url: `/subjects/${id}`, method: "PUT", data }),
-      invalidatesTags: (_r, _e, { id }) => [{ type: "Subject", id }, { type: "Subject", id: "LIST" }],
+    updateSubject: builder.mutation<
+      SubjectResponse,
+      { id: string; data: UpdateSubjectRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `/subjects/${id}`,
+        method: "PUT",
+        data,
+      }),
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: "Subject", id },
+        { type: "Subject", id: "LIST" },
+        "Dashboard",
+      ],
     }),
 
     deactivateSubject: builder.mutation<void, string>({
       query: (id) => ({ url: `/subjects/${id}/deactivate`, method: "POST" }),
-      invalidatesTags: (_r, _e, id) => [{ type: "Subject", id }, { type: "Subject", id: "LIST" }],
+      invalidatesTags: (_r, _e, id) => [
+        { type: "Subject", id },
+        { type: "Subject", id: "LIST" },
+        "Dashboard",
+      ],
     }),
 
     reactivateSubject: builder.mutation<void, string>({
       query: (id) => ({ url: `/subjects/${id}/reactivate`, method: "POST" }),
-      invalidatesTags: (_r, _e, id) => [{ type: "Subject", id }, { type: "Subject", id: "LIST" }],
+      invalidatesTags: (_r, _e, id) => [
+        { type: "Subject", id },
+        { type: "Subject", id: "LIST" },
+        "Dashboard",
+      ],
     }),
 
     // ── Class Subjects (curriculum) ────────────────────────────────────────────
-    getClassSubjects: builder.query<ClassSubjectResponse[], { gradeLevelId: string; yearId: string }>({
+    getClassSubjects: builder.query<
+      ClassSubjectResponse[],
+      { gradeLevelId: string; yearId: string }
+    >({
       query: ({ gradeLevelId, yearId }) => ({
         url: `/grade-levels/${gradeLevelId}/academic-years/${yearId}/subjects`,
         method: "GET",
@@ -132,7 +202,10 @@ export const academicApi = baseApi.injectEndpoints({
       ],
     }),
 
-    assignSubject: builder.mutation<ClassSubjectResponse, { gradeLevelId: string; yearId: string; data: AssignSubjectRequest }>({
+    assignSubject: builder.mutation<
+      ClassSubjectResponse,
+      { gradeLevelId: string; yearId: string; data: AssignSubjectRequest }
+    >({
       query: ({ gradeLevelId, yearId, data }) => ({
         url: `/grade-levels/${gradeLevelId}/academic-years/${yearId}/subjects`,
         method: "POST",
@@ -143,14 +216,28 @@ export const academicApi = baseApi.injectEndpoints({
       ],
     }),
 
-    removeClassSubject: builder.mutation<void, { classSubjectId: string; gradeLevelId: string; yearId: string }>({
-      query: ({ classSubjectId }) => ({ url: `/class-subjects/${classSubjectId}`, method: "DELETE" }),
+    removeClassSubject: builder.mutation<
+      void,
+      { classSubjectId: string; gradeLevelId: string; yearId: string }
+    >({
+      query: ({ classSubjectId }) => ({
+        url: `/class-subjects/${classSubjectId}`,
+        method: "DELETE",
+      }),
       invalidatesTags: (_r, _e, { gradeLevelId, yearId }) => [
         { type: "ClassSubject", id: `${gradeLevelId}-${yearId}` },
       ],
     }),
 
-    assignTeacher: builder.mutation<ClassSubjectResponse, { classSubjectId: string; gradeLevelId: string; yearId: string; data: AssignTeacherRequest }>({
+    assignTeacher: builder.mutation<
+      ClassSubjectResponse,
+      {
+        classSubjectId: string;
+        gradeLevelId: string;
+        yearId: string;
+        data: AssignTeacherRequest;
+      }
+    >({
       query: ({ classSubjectId, data }) => ({
         url: `/class-subjects/${classSubjectId}/teacher`,
         method: "POST",
@@ -161,8 +248,14 @@ export const academicApi = baseApi.injectEndpoints({
       ],
     }),
 
-    removeTeacher: builder.mutation<void, { classSubjectId: string; gradeLevelId: string; yearId: string }>({
-      query: ({ classSubjectId }) => ({ url: `/class-subjects/${classSubjectId}/teacher`, method: "DELETE" }),
+    removeTeacher: builder.mutation<
+      void,
+      { classSubjectId: string; gradeLevelId: string; yearId: string }
+    >({
+      query: ({ classSubjectId }) => ({
+        url: `/class-subjects/${classSubjectId}/teacher`,
+        method: "DELETE",
+      }),
       invalidatesTags: (_r, _e, { gradeLevelId, yearId }) => [
         { type: "ClassSubject", id: `${gradeLevelId}-${yearId}` },
       ],
@@ -170,15 +263,20 @@ export const academicApi = baseApi.injectEndpoints({
 
     //Section Homeroom tacher
 
-     getHomeroomTeacher: builder.query<SectionHomeroomTeacherResponse | null, { sectionId: string; yearId: string }>({
+    getHomeroomTeacher: builder.query<
+      SectionHomeroomTeacherResponse | null,
+      { sectionId: string; yearId: string }
+    >({
       query: ({ sectionId, yearId }) => ({
         url: `/sections/${sectionId}/academic-years/${yearId}/homeroom-teacher`,
         method: "GET",
       }),
-      providesTags: (_r, _e, { sectionId, yearId }) => [{ type: "HomeroomTeacher", id: `${sectionId}-${yearId}` }],
+      providesTags: (_r, _e, { sectionId, yearId }) => [
+        { type: "HomeroomTeacher", id: `${sectionId}-${yearId}` },
+      ],
     }),
-   
-   assignHomeroomTeacher: builder.mutation<
+
+    assignHomeroomTeacher: builder.mutation<
       SectionHomeroomTeacherResponse,
       { sectionId: string; yearId: string; data: AssignHomeroomTeacherRequest }
     >({
@@ -187,19 +285,25 @@ export const academicApi = baseApi.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: (_r, _e, { sectionId, yearId }) => [{ type: "HomeroomTeacher", id: `${sectionId}-${yearId}` }],
+      invalidatesTags: (_r, _e, { sectionId, yearId }) => [
+        { type: "HomeroomTeacher", id: `${sectionId}-${yearId}` },
+      ],
     }),
- removeHomeroomTeacher: builder.mutation<void, { sectionId: string; yearId: string }>({
+    removeHomeroomTeacher: builder.mutation<
+      void,
+      { sectionId: string; yearId: string }
+    >({
       query: ({ sectionId, yearId }) => ({
         url: `/sections/${sectionId}/academic-years/${yearId}/homeroom-teacher`,
         method: "DELETE",
       }),
-      invalidatesTags: (_r, _e, { sectionId, yearId }) => [{ type: "HomeroomTeacher", id: `${sectionId}-${yearId}` }],
+      invalidatesTags: (_r, _e, { sectionId, yearId }) => [
+        { type: "HomeroomTeacher", id: `${sectionId}-${yearId}` },
+      ],
     }),
-   
   }),
   overrideExisting: false,
-})
+});
 
 export const {
   useGetGradeLevelsQuery,
@@ -224,5 +328,4 @@ export const {
   useGetHomeroomTeacherQuery,
   useAssignHomeroomTeacherMutation,
   useRemoveHomeroomTeacherMutation,
-  
-} = academicApi
+} = academicApi;

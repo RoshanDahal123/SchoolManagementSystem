@@ -31,8 +31,11 @@ endpoints:(builder)=>({
         }),
         invalidatesTags:(_r,_e,{sectionId,academicYearId,data})=>[
             {
-                type:"Attendance",id:`${sectionId}-${academicYearId}-${data.date}`
-            }
+                  type: "Attendance",
+    id: `${sectionId}-${academicYearId}-${data.date}`,
+                
+            },
+            "Dashboard"
         ]
     }),
 
@@ -69,8 +72,8 @@ endpoints:(builder)=>({
     method: "GET",
     params: { from, to },
   }),
-  providesTags: (_r, _e, { sectionId, academicYearId, from, to }) => [
-    { type: "Attendance", id: `register-${sectionId}-${academicYearId}-${from}-${to}` },
+  providesTags: (_r, _e, { sectionId, academicYearId}) => [
+    { type: "Attendance", id: `REGISTER-${sectionId}-${academicYearId}` },
   ],
 }),
    

@@ -57,7 +57,7 @@ export const teachersApi = baseApi.injectEndpoints({
 
     createTeacher: builder.mutation<TeacherResponse, CreateTeacherRequest>({
       query: (body) => ({ url: "/teachers", method: "POST", data: body }),
-      invalidatesTags: [{ type: "Teacher", id: "LIST" }],
+      invalidatesTags: [{ type: "Teacher", id: "LIST" }, "Dashboard"],
     }),
 
     updateTeacher: builder.mutation<
@@ -72,6 +72,7 @@ export const teachersApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Teacher", id },
         { type: "Teacher", id: "LIST" },
+        "Dashboard",
       ],
     }),
 
@@ -83,6 +84,7 @@ export const teachersApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: "Teacher", id },
         { type: "Teacher", id: "LIST" },
+        "Dashboard",
       ],
     }),
 
@@ -94,6 +96,7 @@ export const teachersApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: "Teacher", id },
         { type: "Teacher", id: "LIST" },
+        "Dashboard",
       ],
     }),
 
@@ -128,15 +131,29 @@ export const teachersApi = baseApi.injectEndpoints({
         },
       ],
     }),
-    getTeacherHomeroomSections: builder.query<TeacherHomeroomSection[], string>({
-      query: (id) => ({ url: `/teachers/${id}/homeroom-sections`, method: "GET" }),
-      providesTags: (_r, _e, id) => [{ type: "Teacher", id: `${id}-HOMEROOM` }],
-    }),
+    getTeacherHomeroomSections: builder.query<TeacherHomeroomSection[], string>(
+      {
+        query: (id) => ({
+          url: `/teachers/${id}/homeroom-sections`,
+          method: "GET",
+        }),
+        providesTags: (_r, _e, id) => [
+          { type: "Teacher", id: `${id}-HOMEROOM` },
+        ],
+      },
+    ),
 
-    getTeacherTeachingSections: builder.query<TeacherHomeroomSection[], string>({
-      query: (id) => ({ url: `/teachers/${id}/teaching-sections`, method: "GET" }),
-      providesTags: (_r, _e, id) => [{ type: "Teacher", id: `${id}-TEACHING` }],
-    }),
+    getTeacherTeachingSections: builder.query<TeacherHomeroomSection[], string>(
+      {
+        query: (id) => ({
+          url: `/teachers/${id}/teaching-sections`,
+          method: "GET",
+        }),
+        providesTags: (_r, _e, id) => [
+          { type: "Teacher", id: `${id}-TEACHING` },
+        ],
+      },
+    ),
   }),
 
   overrideExisting: false,
