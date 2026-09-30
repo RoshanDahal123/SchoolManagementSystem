@@ -34,11 +34,37 @@ namespace SchoolManagementSystem.Infrastructure.Services.Storage
 
             Directory.CreateDirectory(Path.GetDirectoryName(absolutePath)!);
 
-            await using (var destination = new FileStream(
-                absolutePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true))
-            {
-                await file.Content.CopyToAsync(destination, ct);
-            }
+             long bytesWritten = 0;
+
+    try
+    {
+        await using var destination = new FileStream(
+            absolutePath,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: 81920,
+            useAsync: true);
+
+        await file.Content.CopyToAsync(destination, ct);
+
+        bytesWritten = destination.Length;
+    }
+    catch
+    {
+        try
+        {
+            if (File.Exists(absolutePath))
+                File.Delete(absolutePath);
+        }
+        catch
+        {
+            // Don't hide the original exception.
+        }
+
+        throw;
+    }
+
 
 
             // Always store forward slashes so a path written on Windows still resolves on Linux.
@@ -46,7 +72,7 @@ namespace SchoolManagementSystem.Infrastructure.Services.Storage
                 relativePath.Replace(Path.DirectorySeparatorChar, '/'),
                 Path.GetFileName(file.FileName),
                 file.ContentType,
-                file.Length);
+                bytesWritten);
         }
 
         public Task<Stream> OpenReadAsync(string storedPath, CancellationToken ct = default)

@@ -8,11 +8,17 @@ namespace SchoolManagementSystem.Application.Interfaces
     public interface ICourseWorkRepository
     {
         Task<CourseWork?> GetByIdAsync(Guid id, CancellationToken ct = default);
+        Task<CourseWork?> GetForWriteAsync(Guid id,CancellationToken ct = default);
+
+
         Task<CourseWork?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);
         Task<List<CourseWork>> GetByClassSubjectsAsync(IEnumerable<Guid> classSubjectIds, CancellationToken ct = default);
         Task<CourseworkAttachment?> GetAttachmentAsync(Guid attachmentId, CancellationToken ct = default);
 
         Task AddAsync(CourseWork courseWork, CancellationToken ct = default);
+
+       Task AddAttachmentsAsync( IEnumerable<CourseworkAttachment> attachments,CancellationToken ct = default);
+
 
         void Remove(CourseWork courseWork);
 

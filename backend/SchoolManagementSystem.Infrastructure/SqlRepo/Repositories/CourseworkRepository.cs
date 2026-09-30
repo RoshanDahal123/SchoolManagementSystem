@@ -15,6 +15,12 @@ public class CourseworkRepository : ICourseWorkRepository
             .Include(c => c.Attachments)
             .FirstOrDefaultAsync(c => c.Id == id, ct);
 
+    public Task<CourseWork?> GetForWriteAsync(
+    Guid id,
+    CancellationToken ct = default) =>
+    _context.Coursework.FirstOrDefaultAsync(c => c.Id == id, ct);
+
+
     public Task<CourseWork?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default) =>
         WithDetails(_context.Coursework.AsNoTracking())
             .FirstOrDefaultAsync(c => c.Id == id, ct);
@@ -39,6 +45,12 @@ public class CourseworkRepository : ICourseWorkRepository
 
     public Task AddAsync(CourseWork coursework, CancellationToken ct = default) =>
         _context.Coursework.AddAsync(coursework, ct).AsTask();
+
+        public Task AddAttachmentsAsync(
+    IEnumerable<CourseworkAttachment> attachments,
+    CancellationToken ct = default) =>
+    _context.CourseworkAttachments
+        .AddRangeAsync(attachments, ct);
 
     public void Remove(CourseWork coursework) => _context.Coursework.Remove(coursework);
 

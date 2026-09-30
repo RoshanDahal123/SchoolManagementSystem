@@ -165,43 +165,71 @@ public sealed class CourseworkService : ICourseworkService
     }
 
     public async Task<List<AttachmentResponse>> AddAttachmentsAsync(
-        Guid courseworkId,
-        IReadOnlyList<FileUpload> files,
-        Guid userId,
-        bool isAdmin,
-        CancellationToken ct = default)
+    Guid courseworkId,
+    IReadOnlyList<FileUpload> files,
+    Guid userId,
+    bool isAdmin,
+    CancellationToken ct = default)
+{
+    if (files.Count == 0)
+        throw new DomainException("No files were uploaded.");
+
+    var coursework = await _courseworkRepo.GetForWriteAsync(
+        courseworkId,
+        ct)
+        ?? throw new DomainException("CourseWork not found.");
+
+    await ResolveOwningTeacherIdAsync(
+        coursework.ClassSubjectId,
+        userId,
+        isAdmin,
+        ct);
+
+    var attachments = new List<CourseworkAttachment>();
+    var written = new List<StoredFile>();
+
+    try
     {
-        if (files.Count == 0)
-            throw new DomainException("No files were uploaded.");
-
-        var coursework = await LoadForWriteAsync(courseworkId, userId, isAdmin, ct);
-
-        var added = new List<CourseworkAttachment>();
-        var written = new List<StoredFile>();
-        try
+        foreach (var file in files)
         {
-            foreach (var file in files)
-            {
-                var stored = await _fileStorage.SaveAsync(file, $"coursework/{coursework.Id}", ct);
-                written.Add(stored);
+            ct.ThrowIfCancellationRequested();
 
-                var attachment = CourseworkAttachment.Create(
-                    coursework.Id, stored.FileName, stored.StoredPath, stored.ContentType, stored.Length);
-                coursework.AddAttachment(attachment);
-                added.Add(attachment);
-            }
+            var stored = await _fileStorage.SaveAsync(
+                file,
+                $"coursework/{coursework.Id}",
+                ct);
 
-            await _courseworkRepo.SaveChangesAsync(ct);
-        }
-        catch
-        {
-            foreach (var stored in written)
-                _fileStorage.Delete(stored.StoredPath);
-            throw;
+            written.Add(stored);
+
+            attachments.Add(
+                CourseworkAttachment.Create(
+                    coursework.Id,
+                    stored.FileName,
+                    stored.StoredPath,
+                    stored.ContentType,
+                    stored.Length));
         }
 
-        return added.Select(ToAttachmentResponse).ToList();
+        await _courseworkRepo.AddAttachmentsAsync(
+            attachments,
+            ct);
+
+        await _courseworkRepo.SaveChangesAsync(ct);
     }
+    catch
+    {
+        foreach (var stored in written)
+        {
+            _fileStorage.Delete(stored.StoredPath);
+        }
+
+        throw;
+    }
+
+    return attachments
+        .Select(ToAttachmentResponse)
+        .ToList();
+}
 
     public async Task RemoveAttachmentAsync(
         Guid courseworkId, Guid attachmentId, Guid userId, bool isAdmin, CancellationToken ct = default)
