@@ -18,6 +18,7 @@ namespace SchoolManagementSystem.WebApi.Controllers
         public SectionHomeroomTeachersController(ISectionHomeroomTeacherService service) => _service = service;
         //which teacher in enrolled as a home teacer for a section in the specific academic year
         [HttpGet("api/sections/{sectionId:guid}/academic-years/{yearId:guid}/homeroom-teacher")]
+        [Authorize(Roles = "Admin,Teacher,Student")]
         public async Task<ActionResult<SectionHomeroomTeacherResponse?>> Get(
         Guid sectionId, Guid yearId, CancellationToken ct)
         => Ok(await _service.GetForSectionAsync(sectionId, yearId, ct));

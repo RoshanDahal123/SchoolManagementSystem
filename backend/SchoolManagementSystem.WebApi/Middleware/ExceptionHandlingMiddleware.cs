@@ -3,23 +3,20 @@ using SchoolManagementSystem.Domain.Exceptions;
 
 namespace SchoolManagementSystem.WebApi.Middleware;
 
-/// <summary>
-/// Turns a DomainException into a 400 with a readable message instead of a bare 500.
-///
-/// Without this, a rule like "that file type isn't accepted" reaches the browser as an opaque
-/// server error and the upload dialog has nothing useful to show the teacher. Anything that
-/// isn't a DomainException is still logged and returned as a generic 500 — internal details
-/// must not leak to the client.
-/// </summary>
 public sealed class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+    private readonly IHostEnvironment _environment;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public ExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionHandlingMiddleware> logger,
+        IHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
+        _environment = environment;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -30,24 +27,43 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (DomainException ex)
         {
-            _logger.LogInformation(ex, "Domain rule rejected the request: {Message}", ex.Message);
-            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Request rejected", ex.Message);
+            _logger.LogInformation(
+                ex,
+                "Domain rule rejected request: {Message}",
+                ex.Message);
+
+            await WriteProblemAsync(
+                context,
+                StatusCodes.Status400BadRequest,
+                "Request rejected",
+                ex.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception while processing {Path}", context.Request.Path);
+            _logger.LogError(
+                ex,
+                "Unhandled exception while processing {Method} {Path}",
+                context.Request.Method,
+                context.Request.Path);
+
+            var detail = _environment.IsDevelopment()
+                ? ex.Message
+                : "An unexpected error occurred. Please try again.";
+
             await WriteProblemAsync(
                 context,
                 StatusCodes.Status500InternalServerError,
                 "Something went wrong",
-                "An unexpected error occurred. Please try again.");
+                detail);
         }
     }
 
-    private static async Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail)
+    private static async Task WriteProblemAsync(
+        HttpContext context,
+        int statusCode,
+        string title,
+        string detail)
     {
-        // If the response has already started streaming (a file download, say) there is no way
-        // to replace it with an error body — the best we can do is abandon it.
         if (context.Response.HasStarted)
             return;
 
@@ -64,4 +80,3 @@ public sealed class ExceptionHandlingMiddleware
         });
     }
 }
-

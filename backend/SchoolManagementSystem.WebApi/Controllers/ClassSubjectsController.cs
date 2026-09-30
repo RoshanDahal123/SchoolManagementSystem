@@ -19,6 +19,7 @@ public class ClassSubjectsController : ControllerBase
 
     // GET /api/grade-levels/{gradeLevelId}/academic-years/{yearId}/subjects
     [HttpGet("api/grade-levels/{gradeLevelId:guid}/academic-years/{yearId:guid}/subjects")]
+    [Authorize(Roles = "Admin,Teacher,Student")]
     public async Task<ActionResult<List<ClassSubjectResponse>>> GetSubjects(
         Guid gradeLevelId, Guid yearId, CancellationToken ct)
         => Ok(await _service.GetByGradeLevelAndYearAsync(gradeLevelId, yearId, ct));

@@ -26,6 +26,7 @@ public class AnnouncementsController : ControllerBase
         => Ok(await _announcementService.GetByIdAsync(id, ct));
 
     [HttpGet("feed")]
+    [Authorize(Roles = "Admin,Teacher,Student")]
     public async Task<ActionResult<List<AnnouncementResponse>>> GetFeed(CancellationToken ct)
     {
         var userRole = User.FindFirstValue(ClaimTypes.Role);

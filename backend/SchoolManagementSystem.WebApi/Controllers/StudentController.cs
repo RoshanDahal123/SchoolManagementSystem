@@ -25,6 +25,7 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Admin,Teacher,Student")]
     public async Task<ActionResult<StudentResponse>> GetById(Guid id, CancellationToken ct)
     {
         var result = await _studentService.GetByIdAsync(id, ct);
@@ -32,6 +33,7 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Teacher")]
     public async Task<ActionResult<PagedResult<StudentResponse>>> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,

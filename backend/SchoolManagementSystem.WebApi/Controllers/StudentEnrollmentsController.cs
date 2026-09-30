@@ -20,6 +20,7 @@ public class StudentEnrollmentsController : ControllerBase
         => Ok(await _service.EnrollStudentAsync(studentId, request, ct));
 
     [HttpGet("api/students/{studentId:guid}/enrollments")]
+    [Authorize(Roles = "Admin,Teacher,Student")]
     public async Task<ActionResult<List<StudentEnrollmentResponse>>> GetHistory(
         Guid studentId, CancellationToken ct)
         => Ok(await _service.GetHistoryForStudentAsync(studentId, ct));
@@ -43,6 +44,7 @@ public class StudentEnrollmentsController : ControllerBase
         => Ok(await _service.ChangeStatusAsync(id, request, ct));
 
     [HttpGet("api/sections/{sectionId:guid}/academic-years/{yearId:guid}/enrollments")]
+    [Authorize(Roles = "Admin,Teacher")]
     public async Task<ActionResult<List<StudentEnrollmentResponse>>> GetRoster(
         Guid sectionId, Guid yearId, CancellationToken ct)
         => Ok(await _service.GetRosterAsync(sectionId, yearId, ct));
