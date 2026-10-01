@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +14,18 @@ using SchoolManagementSystem.WebApi.Middleware;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Trust the X-Forwarded-Proto header from MonsterASP.NET's IIS reverse proxy.
+// Without this, ASP.NET Core thinks the request is HTTP even though the public
+// URL is HTTPS, which causes Secure cookies to be dropped by the browser.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Clear the default KnownNetworks/KnownProxies so all proxies are trusted
+    // (MonsterASP.NET's internal IPs are unknown to us).
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -125,6 +138,9 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Must be first — rewrites Request.Scheme to "https" so Secure cookies work correctly.
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {
