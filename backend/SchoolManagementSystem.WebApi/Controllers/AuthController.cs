@@ -122,11 +122,13 @@ public sealed class AuthController : ControllerBase
 
     private void SetAuthCookies(AuthResult result)
     {
+        // SameSite=None is required for cross-origin requests (Vercel → MonsterASP.NET).
+        // Secure=true is mandatory when SameSite=None — browsers reject it otherwise.
         Response.Cookies.Append(AccessTokenCookieName, result.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict, // localhost ports are same-site; see note above
+            SameSite = SameSiteMode.None,
             Expires = result.AccessTokenExpiresAtUtc,
             Path = "/"
         });
@@ -135,7 +137,7 @@ public sealed class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = result.RefreshTokenExpiresAtUtc,
             Path = "/api/auth"
         });
@@ -147,7 +149,7 @@ public sealed class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Path = "/"
         });
 
@@ -155,7 +157,7 @@ public sealed class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Path = "/api/auth"
         });
     }
