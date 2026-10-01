@@ -130,7 +130,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
+
+// Only redirect to HTTPS in development.
+// MonsterASP.NET terminates SSL at their reverse proxy — enabling this
+// inside the app causes redirect loops on their IIS-hosted environment.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();

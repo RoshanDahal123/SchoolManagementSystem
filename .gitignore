@@ -6,10 +6,13 @@ obj/
 *.suo
 *.csproj.user
 Storage/
+publish/
+deploy.zip
 
-# ASP.NET Core configuration
-appsettings.json
+# ASP.NET Core configuration — exclude files with secrets
 appsettings.Development.json
+appsettings.Production.json
+# appsettings.json is safe (no secrets) — intentionally NOT excluded
 
 # Node / frontend
 node_modules/
@@ -18,9 +21,11 @@ build/
 .next/
 out/
 
-# Environment variables
+# Environment variables — all env files with secrets
 .env
 .env.local
+.env.development
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local
