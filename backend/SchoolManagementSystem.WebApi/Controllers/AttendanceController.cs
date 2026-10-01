@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Attendance;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Attendance.DTOs;
+using SchoolManagementSystem.Application.Features.Attendance.Interfaces;
+using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
 using SchoolManagementSystem.WebApi.Authorization;

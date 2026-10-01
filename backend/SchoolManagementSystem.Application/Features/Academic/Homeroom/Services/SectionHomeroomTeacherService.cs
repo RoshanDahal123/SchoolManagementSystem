@@ -1,0 +1,168 @@
+using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.Homeroom.DTOs;
+using SchoolManagementSystem.Application.Features.Academic.Homeroom.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
+using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
+using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Text;
+namespace SchoolManagementSystem.Application.Features.Academic.Homeroom.Services
+{
+    public sealed class SectionHomeroomTeacherService:ISectionHomeroomTeacherService
+    {
+        private readonly ISectionHomeroomTeacherRepository _homeroomRepo;
+        private readonly ISectionRepository _sectionRepo;
+        private readonly IAcademicYearRepository _yearRepo;
+        private readonly ITeacherRepository _teacherRepo;
+        public SectionHomeroomTeacherService(
+        ISectionHomeroomTeacherRepository homeroomRepo,
+        ISectionRepository sectionRepo,
+        IAcademicYearRepository yearRepo,
+        ITeacherRepository teacherRepo)
+        {
+            _homeroomRepo = homeroomRepo;
+            _sectionRepo = sectionRepo;
+            _yearRepo = yearRepo;
+            _teacherRepo = teacherRepo;
+        }
+
+       public async Task<SectionHomeroomTeacherResponse?> GetForSectionAsync(
+       Guid sectionId,
+       Guid academicYearId,
+       CancellationToken ct = default)
+        {
+            var assignment = await _homeroomRepo
+                .GetBySectionAndYearAsync(sectionId, academicYearId, ct);
+
+            return assignment is null
+                ? null
+                : ToResponse(assignment);
+        }
+
+
+        public async Task<SectionHomeroomTeacherResponse> AssignAsync(
+       Guid sectionId,
+       Guid academicYearId,
+       AssignHomeroomTeacherRequest request,
+       CancellationToken ct = default)
+        {
+            // Validate section
+            _ = await _sectionRepo.GetByIdAsync(sectionId, ct)
+                ?? throw new DomainException("Section not found.");
+
+            // Validate academic year
+            _ = await _yearRepo.GetByIdAsync(academicYearId, ct)
+                ?? throw new DomainException("Academic year not found.");
+
+            // Validate teacher
+            var teacher = await _teacherRepo.GetByIdAsync(request.TeacherId, ct)
+                ?? throw new DomainException("Teacher not found.");
+
+            if (!teacher.IsActive)
+            {
+                throw new DomainException(
+                    $"{teacher.FirstName} {teacher.LastName} is deactivated " +
+                    "and cannot be assigned as a homeroom teacher.");
+            }
+
+            // Get current homeroom assignment for this section/year
+            var existing = await _homeroomRepo
+                .GetBySectionAndYearAsync(
+                    sectionId,
+                    academicYearId,
+                    ct);
+
+            // Check whether this teacher is already assigned
+            // to a DIFFERENT section in the same academic year.
+            var existingTeacherAssignments =
+                await _homeroomRepo.GetByTeacherAndYearAsync(
+                    request.TeacherId,
+                    academicYearId,
+                    ct);
+
+            if (existingTeacherAssignments.Any(x => x.SectionId != sectionId))
+            {
+                throw new DomainException(
+                    "This teacher is already assigned as a homeroom teacher " +
+                    "for another section in this academic year.");
+            }
+
+            // Existing assignment → reassign
+            if (existing is not null)
+            {
+                existing.Reassign(request.TeacherId);
+
+                await _homeroomRepo.SaveChangesAsync(ct);
+
+                // Re-query so Teacher navigation contains the new teacher.
+                var saved = await _homeroomRepo
+                    .GetBySectionAndYearAsync(
+                        sectionId,
+                        academicYearId,
+                        ct)
+                    ?? throw new DomainException(
+                        "Homeroom assignment not found after save.");
+
+                return ToResponse(saved);
+            }
+
+            // No existing assignment → create
+            var assignment = SectionHomeroomTeacher.Create(
+                sectionId,
+                academicYearId,
+                request.TeacherId);
+
+            await _homeroomRepo.AddAsync(assignment, ct);
+
+            await _homeroomRepo.SaveChangesAsync(ct);
+
+            var created = await _homeroomRepo
+                .GetBySectionAndYearAsync(
+                    sectionId,
+                    academicYearId,
+                    ct)
+                ?? throw new DomainException(
+                    "Homeroom assignment not found after save.");
+
+            return ToResponse(created);
+        }
+
+        public async Task RemoveAsync(
+        Guid sectionId,
+        Guid academicYearId,
+        CancellationToken ct = default)
+        {
+            var existing = await _homeroomRepo
+                .GetBySectionAndYearAsync(sectionId, academicYearId, ct)
+                ?? throw new DomainException(
+                    "No homeroom teacher is assigned for this section and year.");
+
+            _homeroomRepo.Remove(existing);
+
+            await _homeroomRepo.SaveChangesAsync(ct);
+        }
+
+
+        private static SectionHomeroomTeacherResponse ToResponse(
+            SectionHomeroomTeacher assignment)
+        {
+            return new SectionHomeroomTeacherResponse(
+            assignment.Id,
+            assignment.SectionId,
+            assignment.Section.Name,
+            assignment.Section.GradeLevelId,
+            assignment.Section.GradeLevel.Name,
+            assignment.AcademicYearId,
+            assignment.AcademicYear.Name,
+            assignment.TeacherId,
+             $"{assignment.Teacher.FirstName} {assignment.Teacher.LastName}",
+            assignment.AssignedAtUtc
+                );
+        }
+
+
+
+    }
+}

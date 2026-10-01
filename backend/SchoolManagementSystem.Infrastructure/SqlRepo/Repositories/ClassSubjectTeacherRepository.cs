@@ -1,6 +1,6 @@
 // Infrastructure/SqlRepo/Repositories/ClassSubjectTeacherRepository.cs
 using Microsoft.EntityFrameworkCore;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.ClassSubjects.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 

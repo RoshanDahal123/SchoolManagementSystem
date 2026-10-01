@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using SchoolManagementSystem.Application.DTOs.Storage;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Storage.DTOs;
+using SchoolManagementSystem.Application.Features.Storage.Interfaces;
 using SchoolManagementSystem.Domain.Exceptions;
 
 namespace SchoolManagementSystem.Infrastructure.Services.Storage

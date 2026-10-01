@@ -1,8 +1,8 @@
 // WebApi/Controllers/AcademicYearsController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.AcademicYear;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.AcademicYears.DTOs;
+using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfaces;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 

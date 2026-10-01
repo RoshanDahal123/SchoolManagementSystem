@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Notification;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Notifications.DTOs;
+using SchoolManagementSystem.Application.Features.Notifications.Interfaces;
 using System.Security.Claims;
 
 namespace SchoolManagementSystem.WebApi.Controllers;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Enrollment;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Enrollments.DTOs;
+using SchoolManagementSystem.Application.Features.Enrollments.Interfaces;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 

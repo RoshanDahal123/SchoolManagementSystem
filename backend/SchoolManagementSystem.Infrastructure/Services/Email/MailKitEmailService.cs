@@ -3,8 +3,8 @@ using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using SchoolManagementSystem.Application.DTOs.Email;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Email.DTOs;
+using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 
 namespace SchoolManagementSystem.Infrastructure.Services.Email;
 

@@ -1,5 +1,5 @@
 ﻿using BCrypt.Net;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 
 
 namespace SchoolManagementSystem.Infrastructure.Services.Auth;

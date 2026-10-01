@@ -3,8 +3,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolManagementSystem.Application.Common;
-using SchoolManagementSystem.Application.DTOs.Auth;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Teachers.DTOs;
+using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 

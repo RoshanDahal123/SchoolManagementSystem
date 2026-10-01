@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Dashboard.Interfaces;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 

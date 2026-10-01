@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using SchoolManagementSystem.Application.DTOs.CourseWork;
-using SchoolManagementSystem.Application.DTOs.Storage;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Coursework.DTOs;
+using SchoolManagementSystem.Application.Features.Coursework.Interfaces;
+using SchoolManagementSystem.Application.Features.Storage.DTOs;
+using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.WebApi.Models;
 using System.Security.Claims;

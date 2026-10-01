@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using SchoolManagementSystem.Application.DTOs.Notification;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Notifications.DTOs;
+using SchoolManagementSystem.Application.Features.Notifications.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Hubs;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;

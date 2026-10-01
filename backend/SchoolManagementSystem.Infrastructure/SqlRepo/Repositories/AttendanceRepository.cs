@@ -1,4 +1,4 @@
-﻿using SchoolManagementSystem.Application.Interfaces;
+﻿using SchoolManagementSystem.Application.Features.Attendance.Interfaces;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 using SchoolManagementSystem.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

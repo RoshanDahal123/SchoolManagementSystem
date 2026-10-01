@@ -1,8 +1,8 @@
 // WebApi/Controllers/SubjectsController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Academic;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.Subjects.DTOs;
+using SchoolManagementSystem.Application.Features.Academic.Subjects.Interfaces;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 

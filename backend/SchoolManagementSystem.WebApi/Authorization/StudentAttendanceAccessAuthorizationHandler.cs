@@ -1,5 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.ClassSubjects.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.Homeroom.Interfaces;
+using SchoolManagementSystem.Application.Features.Enrollments.Interfaces;
+using SchoolManagementSystem.Application.Features.Students.Interfaces;
+using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
 using SchoolManagementSystem.Domain.Enums;
 using System.Security.Claims;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Auth;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Auth.DTOs;
+using SchoolManagementSystem.Application.Features.Auth.Interfaces;
+using SchoolManagementSystem.Application.Features.Students.Interfaces;
+using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Domain.Exceptions;

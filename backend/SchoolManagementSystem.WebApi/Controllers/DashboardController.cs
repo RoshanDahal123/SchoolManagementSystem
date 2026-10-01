@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Dashboard;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Dashboard.DTOs;
+using SchoolManagementSystem.Application.Features.Dashboard.Interfaces;
 using System.Security.Claims;
 namespace SchoolManagementSystem.WebApi.Controllers
 {

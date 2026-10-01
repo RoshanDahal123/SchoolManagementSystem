@@ -1,4 +1,4 @@
-﻿using SchoolManagementSystem.Application.DTOs.Storage;
+﻿using SchoolManagementSystem.Application.Features.Storage.DTOs;
 namespace SchoolManagementSystem.WebApi.Models;
 
 public class CreateCourseWorkForms

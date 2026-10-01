@@ -1,4 +1,4 @@
-﻿using SchoolManagementSystem.Application.Interfaces;
+﻿using SchoolManagementSystem.Application.Features.Announcements.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;

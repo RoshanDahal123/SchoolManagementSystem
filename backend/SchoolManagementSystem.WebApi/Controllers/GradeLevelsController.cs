@@ -1,8 +1,10 @@
 // WebApi/Controllers/GradeLevelsController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolManagementSystem.Application.DTOs.Academic;
-using SchoolManagementSystem.Application.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.GradeLevels.DTOs;
+using SchoolManagementSystem.Application.Features.Academic.GradeLevels.Interfaces;
+using SchoolManagementSystem.Application.Features.Academic.Sections.DTOs;
+using SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
 
