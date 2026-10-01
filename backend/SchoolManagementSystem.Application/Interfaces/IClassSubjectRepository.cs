@@ -9,6 +9,7 @@ public interface IClassSubjectRepository
     Task<ClassSubject?> GetByIdWithTeacherAsync(Guid id, CancellationToken ct = default);
     Task<List<ClassSubject>> GetByGradeLevelAndYearAsync(Guid gradeLevelId, Guid academicYearId, CancellationToken ct = default);
     Task<bool> AssignmentExistsAsync(Guid gradeLevelId, Guid subjectId, Guid academicYearId, CancellationToken ct = default);
+    Task<List<Guid>> GetIdsByGradeLevelAndYearPairsAsync(IEnumerable<(Guid GradeLevelId, Guid AcademicYearId)> pairs,CancellationToken ct = default);
     Task AddAsync(ClassSubject classSubject, CancellationToken ct = default);
     void Remove(ClassSubject classSubject);
     Task SaveChangesAsync(CancellationToken ct = default);

@@ -850,28 +850,51 @@ public async Task<SubmissionResponse> SubmitAsync(
     /// has one active enrollment, but the loop keeps mid-year transfers working.
     /// </summary
     private async Task<List<CourseWork>> GetCourseworkForStudentAsync(
-        Guid studentId, Guid? academicYearId, CancellationToken ct)
+    Guid studentId,
+    Guid? academicYearId,
+    CancellationToken ct)
     {
-        var enrollments = (await _enrollmentRepo.GetByStudentAsync(studentId, ct))
+        var enrollments = (await _enrollmentRepo.GetByStudentAsync(
+                studentId,
+                ct))
             .Where(e => e.Status == EnrollmentStatus.Active)
-            .Where(e => academicYearId is null || e.AcademicYearId == academicYearId)
+            .Where(e =>
+                academicYearId is null ||
+                e.AcademicYearId == academicYearId)
             .ToList();
 
         if (enrollments.Count == 0)
-            return new List<CourseWork>();
+            return [];
 
-        var classSubjectIds = new List<Guid>();
-        foreach (var enrollment in enrollments)
-        {
-            var classSubjects = await _classSubjectRepo.GetByGradeLevelAndYearAsync(
-                enrollment.Section.GradeLevelId, enrollment.AcademicYearId, ct);
-            classSubjectIds.AddRange(classSubjects.Select(cs => cs.Id));
-        }
+        // Preserve the exact GradeLevel + AcademicYear relationship.
+        //
+        // Example:
+        //   (Grade 8, 2025)
+        //   (Grade 9, 2026)
+        //
+        // must NOT become:
+        //   Grade 8 + 2026
+        //   Grade 9 + 2025
+        var enrollmentScopes = enrollments
+            .Select(e => (
+                GradeLevelId: e.Section.GradeLevelId,
+                AcademicYearId: e.AcademicYearId))
+            .Distinct()
+            .ToList();
+
+        // One database query for all required curriculum scopes.
+        var classSubjectIds =
+            await _classSubjectRepo
+                .GetIdsByGradeLevelAndYearPairsAsync(
+                    enrollmentScopes,
+                    ct);
 
         if (classSubjectIds.Count == 0)
-            return new List<CourseWork>();
+            return [];
 
-        return await _courseworkRepo.GetByClassSubjectsAsync(classSubjectIds.Distinct(), ct);
+        return await _courseworkRepo.GetByClassSubjectsAsync(
+            classSubjectIds,
+            ct);
     }
 
     private async Task<List<StudentEnrollment>> GetRosterAsync(

@@ -333,21 +333,25 @@ public sealed class TeacherService : ITeacherService
         // Get the homeroom section IDs so we can exclude them (they already appear in the homeroom panel).
         var homeroomAssignments = await _homeroomRepository.GetByTeacherAndYearAsync(teacherId, academicYear.Id, ct);
         var homeroomSectionIds = homeroomAssignments.Select(a => a.SectionId).ToHashSet();
-
+        // ONE query for all sections belonging to the teacher's
+        // teaching grade levels.
+        var sections =
+            await _sectionRepository.GetByGradeLevelIdsAsync(
+                teachingGradeLevelIds,
+                ct);
         // Collect all sections under those grade levels, excluding homeroom sections.
-        var result = new List<TeacherHomeroomSectionResponse>();
-        foreach (var gradeLevelId in teachingGradeLevelIds)
-        {
-            var sections = await _sectionRepository.GetByGradeLevelAsync(gradeLevelId, ct);
-            foreach (var section in sections)
-            {
-                if (homeroomSectionIds.Contains(section.Id)) continue;
-                result.Add(new TeacherHomeroomSectionResponse(
-                    section.Id, section.Name, gradeLevelId, section.GradeLevel?.Name ?? "", academicYear.Id));
-            }
-        }
-
-        return result.OrderBy(s => s.GradeLevelName).ThenBy(s => s.SectionName).ToList();
+        return sections
+        .Where(s => !homeroomSectionIds.Contains(s.Id))
+        .Select(s =>
+            new TeacherHomeroomSectionResponse(
+                s.Id,
+                s.Name,
+                s.GradeLevelId,
+                s.GradeLevel?.Name ?? string.Empty,
+                academicYear.Id))
+        .OrderBy(s => s.GradeLevelName)
+        .ThenBy(s => s.SectionName)
+        .ToList();
     }
 
 

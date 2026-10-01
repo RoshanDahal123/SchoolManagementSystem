@@ -1,8 +1,10 @@
 // Infrastructure/SqlRepo/Repositories/ClassSubjectRepository.cs
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.X509.Store;
 using SchoolManagementSystem.Application.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
+using System.Linq.Expressions;
 
 namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
 
@@ -36,6 +38,74 @@ public class ClassSubjectRepository : IClassSubjectRepository
             .OrderBy(cs => cs.Subject.Name)
             .ToListAsync(ct);
 
+    public async Task<List<Guid>> GetIdsByGradeLevelAndYearPairsAsync(
+      IEnumerable<(Guid GradeLevelId, Guid AcademicYearId)> pairs,
+      CancellationToken ct = default)
+    {
+        var scopes = pairs
+            .Where(p =>
+                p.GradeLevelId != Guid.Empty &&
+                p.AcademicYearId != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        if (scopes.Count == 0)
+            return [];
+
+        var parameter =
+            Expression.Parameter(
+                typeof(ClassSubject),
+                "cs");
+
+        Expression? body = null;
+
+        foreach (var scope in scopes)
+        {
+            var gradeLevelProperty =
+                Expression.Property(
+                    parameter,
+                    nameof(ClassSubject.GradeLevelId));
+
+            var academicYearProperty =
+                Expression.Property(
+                    parameter,
+                    nameof(ClassSubject.AcademicYearId));
+
+            var gradeLevelEquals =
+                Expression.Equal(
+                    gradeLevelProperty,
+                    Expression.Constant(
+                        scope.GradeLevelId));
+
+            var academicYearEquals =
+                Expression.Equal(
+                    academicYearProperty,
+                    Expression.Constant(
+                        scope.AcademicYearId));
+
+            var pairCondition =
+                Expression.AndAlso(
+                    gradeLevelEquals,
+                    academicYearEquals);
+
+            body = body is null
+                ? pairCondition
+                : Expression.OrElse(
+                    body,
+                    pairCondition);
+        }
+
+        var predicate =
+            Expression.Lambda<Func<ClassSubject, bool>>(
+                body!,
+                parameter);
+
+        return await _context.ClassSubjects
+            .AsNoTracking()
+            .Where(predicate)
+            .Select(cs => cs.Id)
+            .ToListAsync(ct);
+    }
     public Task<bool> AssignmentExistsAsync(Guid gradeLevelId, Guid subjectId, Guid academicYearId, CancellationToken ct = default) =>
         _context.ClassSubjects.AnyAsync(
             cs => cs.GradeLevelId == gradeLevelId

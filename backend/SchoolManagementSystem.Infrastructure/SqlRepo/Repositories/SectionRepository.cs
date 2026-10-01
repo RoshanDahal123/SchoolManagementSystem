@@ -24,6 +24,24 @@ public class SectionRepository : ISectionRepository
             .OrderBy(s => s.Name)
             .ToListAsync(ct);
 
+
+    public Task<List<Section>> GetByGradeLevelIdsAsync(IEnumerable<Guid> gradeLevelIds, CancellationToken ct = default)
+    {
+        var ids = gradeLevelIds.Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+        if (ids.Count == 0)
+            return Task.FromResult(new List<Section>());
+
+        return _context.Sections.
+            AsNoTracking()
+            .Include(s => s.GradeLevel)
+            .Where(s => ids.Contains(s.GradeLevelId))
+            .OrderBy(s => s.GradeLevel.SortOrder)
+            .ThenBy(s => s.Name)
+            .ToListAsync(ct);
+    }
+            
     public Task<bool> NameExistsInGradeAsync(Guid gradeLevelId, string name, CancellationToken ct = default) =>
         _context.Sections.AnyAsync(s => s.GradeLevelId == gradeLevelId && s.Name == name, ct);
 
