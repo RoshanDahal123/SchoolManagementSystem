@@ -17,25 +17,38 @@ public class TeacherRepository : ITeacherRepository
         _context = context;
     }
 
-    public Task<Teacher?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        _context.Teachers.FirstOrDefaultAsync(t => t.Id == id, ct);
-
+    public Task<Teacher?> GetByIdAsync(
+    Guid id,
+    CancellationToken ct = default) =>
+    _context.Teachers
+        .Include(t => t.Specializations)
+            .ThenInclude(ts => ts.Subject)
+        .FirstOrDefaultAsync(t => t.Id == id, ct);
     public async Task<Teacher?> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
     {
         return await _context.Teachers
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.UserId == userId, ct);
     }
-    public Task<List<Teacher>> GetAllAsync(CancellationToken ct = default) =>
-        _context.Teachers.AsNoTracking().OrderBy(t => t.LastName).ToListAsync(ct);
-
+    public Task<List<Teacher>> GetAllAsync(
+      CancellationToken ct = default) =>
+      _context.Teachers
+          .AsNoTracking()
+          .Include(t => t.Specializations)
+              .ThenInclude(ts => ts.Subject)
+          .OrderBy(t => t.LastName)
+          .ToListAsync(ct);
     public Task<PagedResult<Teacher>> GetPagedAsync(
         int page,
         int pageSize,
         string? search,
         CancellationToken ct = default)
     {
-        var query = _context.Teachers.AsNoTracking().AsQueryable();
+        var query = _context.Teachers
+           .AsNoTracking()
+           .Include(t => t.Specializations)
+           .ThenInclude(ts => ts.Subject)
+    .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {

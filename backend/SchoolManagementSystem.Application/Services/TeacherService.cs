@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace SchoolManagementSystem.Application.Services;
 
@@ -91,25 +92,38 @@ public sealed class TeacherService : ITeacherService
             user= await _userRepository.GetByIdAsync(teacher.UserId.Value, ct);
         }
 
-        var specializations = await _teacherSubjectRepository.GetByTeacherAsync(id, ct);
-        return ToResponse(teacher, specializations.Select(s => s.Subject).ToList(),user);
+
+        return ToResponse(teacher,teacher.Specializations.Select(ts=>ts.Subject).ToList(),user);
     }
 
     public async Task<List<TeacherResponse>> GetAllAsync(CancellationToken ct = default)
     {
         var teachers = await _teacherRepository.GetAllAsync(ct);
-        var result = new List<TeacherResponse>(teachers.Count);
+        var userIds = teachers
+        .Where(t => t.UserId.HasValue)
+        .Select(t => t.UserId!.Value)
+        .Distinct()
+        .ToList();
 
-        foreach (var t in teachers)
+        var users = await _userRepository.GetByIdsAsync(userIds, ct);
+        var usersById = users.ToDictionary(u => u.Id);
+
+        return teachers
+        .Select(t =>
         {
-            var specializations = await _teacherSubjectRepository.GetByTeacherAsync(t.Id, ct);
-            User? user = t.UserId.HasValue
-                ? await _userRepository.GetByIdAsync(t.UserId.Value, ct)
-                : null;
-            result.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList(), user));
-        }
+            User? user = null;
 
-        return result;
+            if (t.UserId.HasValue)
+                usersById.TryGetValue(t.UserId.Value, out user);
+
+            return ToResponse(
+                t,
+                t.Specializations
+                    .Select(ts => ts.Subject)
+                    .ToList(),
+                user);
+        })
+        .ToList();
     }
 
     public async Task<PagedResult<TeacherResponse>> GetPagedAsync(
@@ -119,16 +133,31 @@ public sealed class TeacherService : ITeacherService
         CancellationToken ct = default)
     {
         var paged = await _teacherRepository.GetPagedAsync(page, pageSize, search, ct);
-        var items = new List<TeacherResponse>(paged.Items.Count);
 
-        foreach (var t in paged.Items)
-        {
-            var specializations = await _teacherSubjectRepository.GetByTeacherAsync(t.Id, ct);
-            User? user = t.UserId.HasValue
-                ? await _userRepository.GetByIdAsync(t.UserId.Value, ct) :
-                null;
-            items.Add(ToResponse(t, specializations.Select(s => s.Subject).ToList(),user));
-        }
+        var userIds = paged.Items
+        .Where(t => t.UserId.HasValue)
+        .Select(t => t.UserId!.Value)
+        .Distinct()
+        .ToList();
+
+        var users = await _userRepository.GetByIdsAsync(userIds, ct);
+        var usersById = users.ToDictionary(u => u.Id);
+
+
+        var items = paged.Items.Select(
+            t =>
+            {
+                User? user = null;
+                if (t.UserId.HasValue)
+                    usersById.TryGetValue(t.UserId.Value, out user);
+
+                return ToResponse(
+                    t,
+                    t.Specializations
+                        .Select(ts => ts.Subject)
+                        .ToList(),
+                    user);
+            }).ToList();
 
         return new PagedResult<TeacherResponse>
         {

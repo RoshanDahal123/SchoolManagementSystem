@@ -30,6 +30,22 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Repositories
             return _dbContext.Users.AnyAsync(u => u.Email == normalizedEmail, cancellationToken);
         }
 
+
+        public async Task<List<User>> GetByIdsAsync(IEnumerable<Guid> ids,CancellationToken ct = default)
+        {
+            var userIds = ids
+        .Where(id => id != Guid.Empty)
+        .Distinct()
+        .ToList();
+
+            if (userIds.Count == 0)
+                return [];
+            return await _dbContext.Users.AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .ToListAsync(ct);
+
+
+        }
         public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
 
