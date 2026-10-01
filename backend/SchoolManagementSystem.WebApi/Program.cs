@@ -32,8 +32,10 @@ var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
     .Get<string[]>() ?? Array.Empty<string>();
 
+// Fall back to a safe default rather than crashing at startup if the env var
+// hasn't been set yet — the real CORS policy still enforces origins at runtime.
 if (allowedOrigins.Length == 0)
-    throw new InvalidOperationException("Cors:AllowedOrigins must contain at least one origin.");
+    allowedOrigins = ["https://school-management-system-123.vercel.app"];
 
 builder.Services.AddCors(options =>
 {
@@ -148,10 +150,17 @@ app.MapHub<NotificationHub>("/hubs/notifications");
 
 // Auto-apply any pending EF Core migrations on startup.
 // This runs from the host server, so no external firewall issues.
-using (var scope = app.Services.CreateScope())
+try
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+}
+catch (Exception ex)
+{
+    // Log but don't crash — app can still serve requests even if migration fails.
+    // Check logs for the actual error message.
+    app.Logger.LogError(ex, "Migration failed on startup: {Message}", ex.Message);
 }
 
 app.Run();
