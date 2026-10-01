@@ -105,6 +105,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Authorization Handlers
 builder.Services.AddScoped<IAuthorizationHandler, HomeroomTeacherAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, SectionAttendanceReadAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, StudentAttendanceAccessAuthorizationHandler>();
 
 // Authorization Policies
 builder.Services.AddAuthorization(options =>
