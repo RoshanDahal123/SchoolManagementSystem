@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure;
 using SchoolManagementSystem.Infrastructure.Hubs;
+using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
 using SchoolManagementSystem.WebApi.Authorization;
 using SchoolManagementSystem.WebApi.Middleware;
 using System.Text;
@@ -135,5 +137,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
+
+// Auto-apply any pending EF Core migrations on startup.
+// This runs from the host server, so no external firewall issues.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();
