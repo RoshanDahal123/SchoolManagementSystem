@@ -3,7 +3,7 @@ using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Persistence;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Teachers;
 
 public class TeacherSubjectRepository : ITeacherSubjectRepository
 {

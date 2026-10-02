@@ -6,7 +6,7 @@ using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Persistence;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Identity;
 
 public class AccountSetupTokenRepository : IAccountSetupTokenRepository
 {

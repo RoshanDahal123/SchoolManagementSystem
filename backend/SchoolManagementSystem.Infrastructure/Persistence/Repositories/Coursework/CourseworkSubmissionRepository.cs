@@ -6,7 +6,7 @@ using SchoolManagementSystem.Domain.Exceptions;
 using SchoolManagementSystem.Infrastructure.Persistence;
 using System.Linq.Expressions;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Coursework;
 
 public class CourseworkSubmissionRepository : ICourseWorkSubmissionRepository
 {
@@ -68,9 +68,9 @@ public class CourseworkSubmissionRepository : ICourseWorkSubmissionRepository
         _context.CourseworkSubmissions.AddAsync(submission, ct).AsTask();
 
     /// <summary>
-    /// Resubmit path — three direct SQL operations, zero EF change tracker involvement:
+    /// Resubmit path - three direct SQL operations, zero EF change tracker involvement:
     /// 1. DELETE old attachment rows for this submission
-    /// 2. UPDATE submission scalar fields (Status stored as string via converter — EF10 handles it)
+    /// 2. UPDATE submission scalar fields (Status stored as string via converter - EF10 handles it)
     /// 3. INSERT new attachment rows on a cleared tracker
     /// This guarantees no DbUpdateConcurrencyException regardless of prior tracker state.
     /// </summary>

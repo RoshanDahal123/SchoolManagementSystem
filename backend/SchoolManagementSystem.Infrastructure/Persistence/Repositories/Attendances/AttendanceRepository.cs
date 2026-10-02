@@ -3,7 +3,7 @@ using SchoolManagementSystem.Infrastructure.Persistence;
 using SchoolManagementSystem.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Pqc.Crypto.Frodo;
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Attendances
 {
     public class AttendanceRepository : IAttendanceRepository
     {

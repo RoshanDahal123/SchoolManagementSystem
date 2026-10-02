@@ -3,7 +3,7 @@ using SchoolManagementSystem.Application.Features.Coursework.Interfaces;
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Persistence;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Coursework;
 
 public class CourseworkRepository : ICourseWorkRepository
 {

@@ -22,7 +22,15 @@ using SchoolManagementSystem.Infrastructure.Email;
 using SchoolManagementSystem.Infrastructure.Notifications;
 using SchoolManagementSystem.Infrastructure.Storage;
 using SchoolManagementSystem.Infrastructure.Persistence;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Identity;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Students;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Teachers;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Academic;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Enrollments;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Attendances;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Announcements;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Coursework;
+using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Dashboard;
 using SchoolManagementSystem.Infrastructure.Persistence.Seeders;
 
 namespace SchoolManagementSystem.Infrastructure;

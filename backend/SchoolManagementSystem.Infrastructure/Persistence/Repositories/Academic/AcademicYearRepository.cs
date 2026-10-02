@@ -4,7 +4,7 @@ using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfa
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Persistence;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Academic;
 
 public class AcademicYearRepository : IAcademicYearRepository
 {

@@ -4,7 +4,7 @@ using SchoolManagementSystem.Application.Features.Dashboard.Interfaces;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure.Persistence;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Dashboard;
 
 
 public class DashboardRepository(AppDbContext _context) : IDashboardRepository
@@ -118,7 +118,7 @@ Guid teacherId, Guid academicYearId, CancellationToken ct = default)
             .Select(c => new TeacherActivityItem(
                 "CourseworkCreated",
                 c.Title,
-                $"Posted for {c.ClassSubject.Subject.Name} · {c.ClassSubject.GradeLevel.Name}",
+                $"Posted for {c.ClassSubject.Subject.Name} ? {c.ClassSubject.GradeLevel.Name}",
                 c.CreatedAtUtc,
                 c.Id)
                 )
@@ -166,4 +166,3 @@ Guid teacherId, Guid academicYearId, CancellationToken ct = default)
             .ToList();
     }
 }
-

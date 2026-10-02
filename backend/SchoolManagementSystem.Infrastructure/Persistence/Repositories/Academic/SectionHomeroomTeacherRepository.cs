@@ -5,7 +5,7 @@ using SchoolManagementSystem.Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Text;
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Academic
 {
     public class SectionHomeroomTeacherRepository:ISectionHomeroomTeacherRepository
     {

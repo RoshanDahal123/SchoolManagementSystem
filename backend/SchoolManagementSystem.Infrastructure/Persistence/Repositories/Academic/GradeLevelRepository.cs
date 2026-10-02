@@ -5,7 +5,7 @@ using SchoolManagementSystem.Application.Features.Academic.GradeLevels.Interface
 using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Persistence;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Academic;
 
 public class GradeLevelRepository : IGradeLevelRepository
 {

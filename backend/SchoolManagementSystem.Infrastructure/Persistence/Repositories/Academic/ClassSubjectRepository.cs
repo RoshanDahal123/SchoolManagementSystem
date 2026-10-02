@@ -6,7 +6,7 @@ using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Infrastructure.Persistence;
 using System.Linq.Expressions;
 
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Academic;
 
 public class ClassSubjectRepository : IClassSubjectRepository
 {

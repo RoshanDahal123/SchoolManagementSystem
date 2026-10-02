@@ -6,7 +6,7 @@ using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories.Announcements
 {
     public  class AnnouncementRepository(AppDbContext _context ):IAnnouncementRepository
     {
