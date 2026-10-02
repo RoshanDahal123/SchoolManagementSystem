@@ -4,10 +4,8 @@ using SchoolManagementSystem.Application.Features.Auth.DTOs;
 using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
 using SchoolManagementSystem.Domain.Enums;
 using SchoolManagementSystem.Domain.Exceptions;
-using SchoolManagementSystem.Infrastructure.SqlRepo.Repositories;
 using System.Security.Claims;
 
 namespace SchoolManagementSystem.WebApi.Controllers;

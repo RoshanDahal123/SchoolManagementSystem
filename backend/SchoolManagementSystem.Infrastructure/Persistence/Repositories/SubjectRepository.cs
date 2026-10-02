@@ -1,0 +1,44 @@
+// Infrastructure/SqlRepo/Repositories/SubjectRepository.cs
+using Microsoft.EntityFrameworkCore;
+using SchoolManagementSystem.Application.Features.Academic.Subjects.Interfaces;
+using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Infrastructure.Persistence;
+
+namespace SchoolManagementSystem.Infrastructure.Persistence.Repositories;
+
+public class SubjectRepository : ISubjectRepository
+{
+    private readonly AppDbContext _context;
+    public SubjectRepository(AppDbContext context) => _context = context;
+
+    public Task<Subject?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        _context.Subjects.FirstOrDefaultAsync(s => s.Id == id, ct);
+
+    public Task<List<Subject>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default) =>
+    _context.Subjects.Where(s => ids.Contains(s.Id)).ToListAsync(ct);
+    public Task<List<Subject>> GetAllAsync(bool includeInactive=false,CancellationToken ct = default) 
+        {
+        var query = _context.Subjects.AsNoTracking().AsQueryable();
+        if (!includeInactive)
+        {
+            query = query.Where(s => s.IsActive);
+        }
+        return query.OrderBy(s => s.Name).ToListAsync(ct);
+
+        }
+
+    public Task<bool> CodeExistsAsync(string code, CancellationToken ct = default) =>
+        _context.Subjects.AnyAsync(s => s.Code == code.Trim().ToUpper(), ct);
+
+    public Task<bool> CodeExistsForOtherAsync(string code, Guid excludeId, CancellationToken ct = default) =>
+        _context.Subjects.AnyAsync(s => s.Code == code.Trim().ToUpper() &&s.IsActive&& s.Id != excludeId, ct);
+
+    public Task<Subject?> GetByCodeIncludingInactiveAsync(string code, CancellationToken ct = default) =>
+        _context.Subjects.FirstOrDefaultAsync(s => s.Code == code.Trim().ToUpper(), ct);
+    public Task AddAsync(Subject subject, CancellationToken ct = default) =>
+        _context.Subjects.AddAsync(subject, ct).AsTask();
+
+    public void Remove(Subject subject) => _context.Subjects.Remove(subject);
+
+    public Task SaveChangesAsync(CancellationToken ct = default) => _context.SaveChangesAsync(ct);
+}
