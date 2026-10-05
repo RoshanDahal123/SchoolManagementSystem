@@ -89,11 +89,11 @@ public sealed class TeacherService : ITeacherService
         User? user = null;
         if (teacher.UserId.HasValue)
         {
-            user= await _userRepository.GetByIdAsync(teacher.UserId.Value, ct);
+            user = await _userRepository.GetByIdAsync(teacher.UserId.Value, ct);
         }
 
 
-        return ToResponse(teacher,teacher.Specializations.Select(ts=>ts.Subject).ToList(),user);
+        return ToResponse(teacher, teacher.Specializations.Select(ts => ts.Subject).ToList(), user);
     }
 
     public async Task<List<TeacherResponse>> GetAllAsync(CancellationToken ct = default)
@@ -184,13 +184,13 @@ public sealed class TeacherService : ITeacherService
             request.EmployeeId,
             request.PhoneNumber);
 
-        await SyncSpecializationsAsync(id, subjects.Select(s => s.Id).ToList(), ct);
+        await SyncSpecializationsAsync(teacher, subjects.Select(s => s.Id).ToList(), ct);
 
         await _teacherRepository.SaveChangesAsync(ct);
         User? user = teacher.UserId.HasValue
         ? await _userRepository.GetByIdAsync(teacher.UserId.Value, ct)
         : null;
-        return ToResponse(teacher, subjects,user);
+        return ToResponse(teacher, subjects, user);
     }
 
     public async Task DeactivateAsync(Guid id, CancellationToken ct = default)
@@ -371,9 +371,12 @@ public sealed class TeacherService : ITeacherService
         return subjects;
     }
 
-    private async Task SyncSpecializationsAsync(Guid teacherId, List<Guid> requestedSubjectIds, CancellationToken ct)
+    private async Task SyncSpecializationsAsync(Teacher teacher, List<Guid> requestedSubjectIds, CancellationToken ct)
     {
-        var existing = await _teacherSubjectRepository.GetByTeacherAsync(teacherId, ct);
+        // Use the already-tracked Specializations collection loaded with the teacher entity.
+        // A second AsNoTracking query would return detached copies of the same rows,
+        // causing an EF Core tracking conflict when RemoveRange is called.
+        var existing = teacher.Specializations.ToList();
         var existingIds = existing.Select(ts => ts.SubjectId).ToHashSet();
         var requestedIds = requestedSubjectIds.ToHashSet();
 
@@ -384,7 +387,7 @@ public sealed class TeacherService : ITeacherService
         var toAddIds = requestedIds.Where(sid => !existingIds.Contains(sid)).ToList();
         if (toAddIds.Count > 0)
         {
-            var toAdd = toAddIds.Select(sid => TeacherSubject.Create(teacherId, sid)).ToList();
+            var toAdd = toAddIds.Select(sid => TeacherSubject.Create(teacher.Id, sid)).ToList();
             await _teacherSubjectRepository.AddRangeAsync(toAdd, ct);
         }
     }
