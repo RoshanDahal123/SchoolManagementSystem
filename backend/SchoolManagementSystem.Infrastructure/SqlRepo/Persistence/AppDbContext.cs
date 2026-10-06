@@ -19,7 +19,7 @@ namespace SchoolManagementSystem.Infrastructure.SqlRepo.Persistence
         public DbSet<ClassSubject> ClassSubjects => Set<ClassSubject>();
         public DbSet<ClassSubjectTeacher> ClassSubjectTeachers => Set<ClassSubjectTeacher>();
 
-            public DbSet<StudentEnrollment> StudentEnrollments => Set<StudentEnrollment>();
+         public DbSet<StudentEnrollment> StudentEnrollments => Set<StudentEnrollment>();
         public DbSet<TeacherSubject> TeacherSubjects => Set<TeacherSubject>();
 
         public DbSet<Attendance> Attendances => Set<Attendance>();
