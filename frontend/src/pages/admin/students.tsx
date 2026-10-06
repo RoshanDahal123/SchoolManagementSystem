@@ -1,5 +1,5 @@
-import { Badge } from "@/components/atoms/badge"
-import { Button } from "@/components/atoms/button"
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
 import {
   Dialog,
   DialogContent,
@@ -7,100 +7,113 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/atoms/dialog"
-import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
-import { Input } from "@/components/atoms/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select"
-import type { Column } from "@/components/organisms/data-table"
-import { EntityListLayout } from "@/components/organisms/entity-list-layout"
-import type { StudentResponse } from "@/features/students/@types"
+} from "@/components/atoms/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/atoms/field";
+import { Input } from "@/components/atoms/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select";
+import type { Column } from "@/components/organisms/data-table";
+import { EntityListLayout } from "@/components/organisms/entity-list-layout";
+import type { StudentResponse } from "@/features/students/@types";
 import {
   useCreateStudentMutation,
   useGetStudentsQuery,
   useInviteStudentMutation,
   useResendInviteMutation,
-} from "@/features/students/student-api"
-import { useAuth } from "@/hooks/use-auth"
-import { usePaginatedSearch } from "@/hooks/use-paginated-search"
-import { createStudentSchema, type CreateStudentFormData } from "@/lib/validation/student"
-import { PATHS } from "@/routes/paths"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
-import { EyeIcon, MailIcon, PlusIcon } from "lucide-react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router"
-import { toast } from "sonner"
+} from "@/features/students/student-api";
+import { useAuth } from "@/hooks/use-auth";
+import { usePaginatedSearch } from "@/hooks/use-paginated-search";
+import {
+  createStudentSchema,
+  type CreateStudentFormData,
+} from "@/lib/validation/student";
+import { PATHS } from "@/routes/paths";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { EyeIcon, MailIcon, PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 export default function StudentsPage() {
-  const navigate = useNavigate()
-  const { isAdmin } = useAuth()
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   // ── Search + pagination state (URL-synced) ──────────────────────────────────
-  const { page, searchQuery, searchInput, handleSearchChange, handlePageChange } =
-    usePaginatedSearch()
+  const {
+    page,
+    searchQuery,
+    searchInput,
+    handleSearchChange,
+    handlePageChange,
+  } = usePaginatedSearch();
 
   // ── API (server-side pagination + search) ───────────────────────────────────
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetStudentsQuery({ page, search: searchQuery || undefined })
+  const { data, isLoading, isError } = useGetStudentsQuery({
+    page,
+    search: searchQuery || undefined,
+  });
 
-  const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation()
-  const [inviteStudent, { isLoading: isInviting }] = useInviteStudentMutation()
-  const [resendInvite, { isLoading: isResending }] = useResendInviteMutation()
+  const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation();
+  const [inviteStudent, { isLoading: isInviting }] = useInviteStudentMutation();
+  const [resendInvite, { isLoading: isResending }] = useResendInviteMutation();
 
   // ── Dialog state ────────────────────────────────────────────────────────────
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
-  const [selectedStudent, setSelectedStudent] = useState<StudentResponse | null>(null)
-  const [inviteEmail, setInviteEmail] = useState("")
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] =
+    useState<StudentResponse | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
 
   // ── Create form ─────────────────────────────────────────────────────────────
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-    watch,
-  } = useForm<CreateStudentFormData>({
+  const form = useForm<CreateStudentFormData>({
     resolver: zodResolver(createStudentSchema),
-  })
+  });
 
   // ── Derived data ─────────────────────────────────────────────────────────────
-  const students = data?.items ?? []
-  const totalCount = data?.totalCount ?? 0
+  const students = data?.items ?? [];
+  const totalCount = data?.totalCount ?? 0;
 
   // ── Handlers ────────────────────────────────────────────────────────────────
   const onSubmitCreate = async (formData: CreateStudentFormData) => {
     try {
-      await createStudent(formData).unwrap()
-      toast.success("Student created successfully")
-      setCreateDialogOpen(false)
-      reset()
+      await createStudent(formData).unwrap();
+      toast.success("Student created successfully");
+      setCreateDialogOpen(false);
+      form.reset();
     } catch {
-      toast.error("Failed to create student")
+      toast.error("Failed to create student");
     }
-  }
+  };
 
   const handleInvite = async () => {
-    if (!selectedStudent || !inviteEmail) return
+    if (!selectedStudent || !inviteEmail) return;
     try {
-      await inviteStudent({ id: selectedStudent.id, email: inviteEmail }).unwrap()
-      toast.success(`Invitation sent to ${inviteEmail}`)
-      setInviteDialogOpen(false)
-      setInviteEmail("")
-      setSelectedStudent(null)
+      await inviteStudent({
+        id: selectedStudent.id,
+        email: inviteEmail,
+      }).unwrap();
+      toast.success(`Invitation sent to ${inviteEmail}`);
+      setInviteDialogOpen(false);
+      setInviteEmail("");
+      setSelectedStudent(null);
     } catch (error: any) {
       const message =
-        error?.data?.detail ?? error?.data?.title ?? error?.data?.message ?? "Failed to send invitation"
-      toast.error(message)
+        error?.data?.detail ??
+        error?.data?.title ??
+        error?.data?.message ??
+        "Failed to send invitation";
+      toast.error(message);
     }
-  }
+  };
 
   // ── Columns ─────────────────────────────────────────────────────────────────
   const columns: Column<StudentResponse>[] = [
@@ -119,9 +132,9 @@ export default function StudentsPage() {
       header: "Date of Birth",
       cell: ({ row }: { row: { original: StudentResponse } }) => {
         try {
-          return format(new Date(row.original.dateOfBirth), "MMM dd, yyyy")
+          return format(new Date(row.original.dateOfBirth), "MMM dd, yyyy");
         } catch {
-          return row.original.dateOfBirth
+          return row.original.dateOfBirth;
         }
       },
     },
@@ -136,8 +149,8 @@ export default function StudentsPage() {
       id: "actions",
       header: "Actions",
       cell: ({ row }: { row: { original: StudentResponse } }) => {
-        const student = row.original
-        const hasAccount = !!student.userId || student.hasPortalAccount
+        const student = row.original;
+        const hasAccount = !!student.userId || student.hasPortalAccount;
 
         return (
           <div className="flex items-center gap-2">
@@ -157,9 +170,9 @@ export default function StudentsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setSelectedStudent(student)
-                      setInviteEmail("")
-                      setInviteDialogOpen(true)
+                      setSelectedStudent(student);
+                      setInviteEmail("");
+                      setInviteDialogOpen(true);
                     }}
                     title="Invite to portal"
                   >
@@ -172,12 +185,14 @@ export default function StudentsPage() {
                     disabled={isResending}
                     onClick={async () => {
                       try {
-                        await resendInvite(student.id).unwrap()
-                        toast.success("Invitation resent successfully")
+                        await resendInvite(student.id).unwrap();
+                        toast.success("Invitation resent successfully");
                       } catch (error: any) {
                         toast.error(
-                          error?.data?.detail ?? error?.data?.title ?? "Failed to resend invitation",
-                        )
+                          error?.data?.detail ??
+                            error?.data?.title ??
+                            "Failed to resend invitation",
+                        );
                       }
                     }}
                     title="Resend invitation"
@@ -188,10 +203,10 @@ export default function StudentsPage() {
               </>
             )}
           </div>
-        )
+        );
       },
     },
-  ]
+  ];
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -242,48 +257,70 @@ export default function StudentsPage() {
       {/* ── Create Student Dialog ── */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleSubmit(onSubmitCreate)}>
+          <form onSubmit={form.handleSubmit(onSubmitCreate)}>
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
-              <DialogDescription>Enter the student's information below.</DialogDescription>
+              <DialogDescription>
+                Enter the student's information below.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <Field>
                 <FieldLabel>First Name</FieldLabel>
-                <Input {...register("firstName")} placeholder="John" />
-                {errors.firstName && <FieldError>{errors.firstName.message}</FieldError>}
+                <Input {...form.register("firstName")} placeholder="John" />
+                {form.formState.errors.firstName && (
+                  <FieldError>
+                    {form.formState.errors.firstName.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Last Name</FieldLabel>
-                <Input {...register("lastName")} placeholder="Doe" />
-                {errors.lastName && <FieldError>{errors.lastName.message}</FieldError>}
+                <Input {...form.register("lastName")} placeholder="Doe" />
+                {form.formState.errors.lastName && (
+                  <FieldError>
+                    {form.formState.errors.lastName.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Enrollment Number</FieldLabel>
-                <Input {...register("enrollmentNumber")} placeholder="STU2026001" />
-                {errors.enrollmentNumber && (
-                  <FieldError>{errors.enrollmentNumber.message}</FieldError>
+                <Input
+                  {...form.register("enrollmentNumber")}
+                  placeholder="STU2026001"
+                />
+                {form.formState.errors.enrollmentNumber && (
+                  <FieldError>
+                    {form.formState.errors.enrollmentNumber.message}
+                  </FieldError>
                 )}
               </Field>
 
               <Field>
                 <FieldLabel>Date of Birth</FieldLabel>
                 <Input
-                  {...register("dateOfBirth")}
+                  {...form.register("dateOfBirth")}
                   type="date"
                   max={format(new Date(), "yyyy-MM-dd")}
                 />
-                {errors.dateOfBirth && <FieldError>{errors.dateOfBirth.message}</FieldError>}
+                {form.formState.errors.dateOfBirth && (
+                  <FieldError>
+                    {form.formState.errors.dateOfBirth.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Gender</FieldLabel>
                 <Select
-                  value={watch("gender")}
+                  value={form.watch("gender")}
                   onValueChange={(value) =>
-                    setValue("gender", value as "Male" | "Female" | "Other")
+                    form.setValue(
+                      "gender",
+                      value as "Male" | "Female" | "Other",
+                    )
                   }
                 >
                   <SelectTrigger>
@@ -295,7 +332,11 @@ export default function StudentsPage() {
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.gender && <FieldError>{errors.gender.message}</FieldError>}
+                {form.formState.errors.gender && (
+                  <FieldError>
+                    {form.formState.errors.gender.message}
+                  </FieldError>
+                )}
               </Field>
             </div>
             <DialogFooter>
@@ -303,8 +344,8 @@ export default function StudentsPage() {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setCreateDialogOpen(false)
-                  reset()
+                  setCreateDialogOpen(false);
+                  form.reset();
                 }}
               >
                 Cancel
@@ -324,7 +365,8 @@ export default function StudentsPage() {
             <DialogTitle>Invite Student to Portal</DialogTitle>
             <DialogDescription>
               Send an activation email to{" "}
-              {selectedStudent && `${selectedStudent.firstName} ${selectedStudent.lastName}`}
+              {selectedStudent &&
+                `${selectedStudent.firstName} ${selectedStudent.lastName}`}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -342,19 +384,22 @@ export default function StudentsPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setInviteDialogOpen(false)
-                setInviteEmail("")
-                setSelectedStudent(null)
+                setInviteDialogOpen(false);
+                setInviteEmail("");
+                setSelectedStudent(null);
               }}
             >
               Cancel
             </Button>
-            <Button onClick={handleInvite} disabled={isInviting || !inviteEmail}>
+            <Button
+              onClick={handleInvite}
+              disabled={isInviting || !inviteEmail}
+            >
               {isInviting ? "Sending…" : "Send Invitation"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { Badge } from "@/components/atoms/badge"
-import { Button } from "@/components/atoms/button"
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
 import {
   Dialog,
   DialogContent,
@@ -7,102 +7,111 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/atoms/dialog"
-import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
-import { Input } from "@/components/atoms/input"
-import type { Column } from "@/components/organisms/data-table"
-import { EntityListLayout } from "@/components/organisms/entity-list-layout"
-import { useGetSubjectsQuery } from "@/features/academic/academic-api"
-import type { TeacherResponse } from "@/features/teachers/@types"
-import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field"
+} from "@/components/atoms/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/atoms/field";
+import { Input } from "@/components/atoms/input";
+import type { Column } from "@/components/organisms/data-table";
+import { EntityListLayout } from "@/components/organisms/entity-list-layout";
+import { useGetSubjectsQuery } from "@/features/academic/academic-api";
+import type { TeacherResponse } from "@/features/teachers/@types";
+import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field";
 import {
   useCreateTeacherMutation,
   useGetTeachersQuery,
   useInviteTeacherMutation,
   useResendTeacherInviteMutation,
-} from "@/features/teachers/teacher-api"
-import { useAuth } from "@/hooks/use-auth"
-import { usePaginatedSearch } from "@/hooks/use-paginated-search"
-import { createTeacherSchema, type CreateTeacherFormData } from "@/lib/validation/teacher"
-import { PATHS } from "@/routes/paths"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { EyeIcon, MailIcon, PlusIcon } from "lucide-react"
-import { useState } from "react"
-import { Controller, useForm } from "react-hook-form"
-import { useNavigate } from "react-router"
-import { toast } from "sonner"
+} from "@/features/teachers/teacher-api";
+import { useAuth } from "@/hooks/use-auth";
+import { usePaginatedSearch } from "@/hooks/use-paginated-search";
+import {
+  createTeacherSchema,
+  type CreateTeacherFormData,
+} from "@/lib/validation/teacher";
+import { PATHS } from "@/routes/paths";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { EyeIcon, MailIcon, PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 export default function TeachersPage() {
-  const navigate = useNavigate()
-  const { isAdmin } = useAuth()
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   // ── Search + pagination state (URL-synced) ──────────────────────────────────
-  const { page, searchQuery, searchInput, handleSearchChange, handlePageChange } =
-    usePaginatedSearch()
+  const {
+    page,
+    searchQuery,
+    searchInput,
+    handleSearchChange,
+    handlePageChange,
+  } = usePaginatedSearch();
 
   // ── API (server-side pagination + search) ───────────────────────────────────
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetTeachersQuery({ page, search: searchQuery || undefined })
+  const { data, isLoading, isError } = useGetTeachersQuery({
+    page,
+    search: searchQuery || undefined,
+  });
 
-  const [createTeacher, { isLoading: isCreating }] = useCreateTeacherMutation()
-  const [inviteTeacher, { isLoading: isInviting }] = useInviteTeacherMutation()
-  const [resendTeacherInvite, { isLoading: isResending }] = useResendTeacherInviteMutation()
+  const [createTeacher, { isLoading: isCreating }] = useCreateTeacherMutation();
+  const [inviteTeacher, { isLoading: isInviting }] = useInviteTeacherMutation();
+  const [resendTeacherInvite, { isLoading: isResending }] =
+    useResendTeacherInviteMutation();
 
-  const { data: subjects = [] } = useGetSubjectsQuery()
+  const { data: subjects = [] } = useGetSubjectsQuery();
 
   // ── Dialog state ────────────────────────────────────────────────────────────
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
-  const [selectedTeacher, setSelectedTeacher] = useState<TeacherResponse | null>(null)
-  const [inviteEmail, setInviteEmail] = useState("")
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] =
+    useState<TeacherResponse | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
 
   // ── Create form ─────────────────────────────────────────────────────────────
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm<CreateTeacherFormData>({
+  const form = useForm<CreateTeacherFormData>({
     resolver: zodResolver(createTeacherSchema),
     defaultValues: { subjectIds: [] },
-  })
+  });
 
   // ── Derived data ─────────────────────────────────────────────────────────────
-  const teachers = data?.items ?? []
-  const totalCount = data?.totalCount ?? 0
+  const teachers = data?.items ?? [];
+  const totalCount = data?.totalCount ?? 0;
 
   // ── Handlers ────────────────────────────────────────────────────────────────
   const onSubmitCreate = async (formData: CreateTeacherFormData) => {
     try {
-      await createTeacher(formData).unwrap()
-      toast.success("Teacher created successfully")
-      setCreateDialogOpen(false)
-      reset()
+      await createTeacher(formData).unwrap();
+      toast.success("Teacher created successfully");
+      setCreateDialogOpen(false);
+      form.reset();
     } catch {
-      toast.error("Failed to create teacher")
+      toast.error("Failed to create teacher");
     }
-  }
+  };
 
   const handleInvite = async () => {
-    if (!selectedTeacher || !inviteEmail) return
+    if (!selectedTeacher || !inviteEmail) return;
     try {
-      await inviteTeacher({ id: selectedTeacher.id, email: inviteEmail }).unwrap()
-      toast.success(`Invitation sent to ${inviteEmail}`)
-      setInviteDialogOpen(false)
-      setInviteEmail("")
-      setSelectedTeacher(null)
+      await inviteTeacher({
+        id: selectedTeacher.id,
+        email: inviteEmail,
+      }).unwrap();
+      toast.success(`Invitation sent to ${inviteEmail}`);
+      setInviteDialogOpen(false);
+      setInviteEmail("");
+      setSelectedTeacher(null);
     } catch (error: any) {
       const message =
-        error?.data?.detail ?? error?.data?.title ?? error?.data?.message ?? "Failed to send invitation"
-      toast.error(message)
+        error?.data?.detail ??
+        error?.data?.title ??
+        error?.data?.message ??
+        "Failed to send invitation";
+      toast.error(message);
     }
-  }
+  };
 
   // ── Columns ─────────────────────────────────────────────────────────────────
   const columns: Column<TeacherResponse>[] = [
@@ -145,7 +154,10 @@ export default function TeachersPage() {
       header: "Status",
       cell: ({ row }: { row: { original: TeacherResponse } }) =>
         row.original.isActive ? (
-          <Badge variant="outline" className="border-green-300 text-green-700 bg-green-50">
+          <Badge
+            variant="outline"
+            className="border-green-300 text-green-700 bg-green-50"
+          >
             Active
           </Badge>
         ) : (
@@ -156,8 +168,8 @@ export default function TeachersPage() {
       id: "actions",
       header: "Actions",
       cell: ({ row }: { row: { original: TeacherResponse } }) => {
-        const teacher = row.original
-        const hasAccount = !!teacher.userId || teacher.hasPortalAccount
+        const teacher = row.original;
+        const hasAccount = !!teacher.userId || teacher.hasPortalAccount;
 
         return (
           <div className="flex items-center gap-2">
@@ -177,9 +189,9 @@ export default function TeachersPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setSelectedTeacher(teacher)
-                      setInviteEmail("")
-                      setInviteDialogOpen(true)
+                      setSelectedTeacher(teacher);
+                      setInviteEmail("");
+                      setInviteDialogOpen(true);
                     }}
                     title="Invite to portal"
                   >
@@ -192,12 +204,14 @@ export default function TeachersPage() {
                     disabled={isResending}
                     onClick={async () => {
                       try {
-                        await resendTeacherInvite(teacher.id).unwrap()
-                        toast.success("Invitation resent successfully")
+                        await resendTeacherInvite(teacher.id).unwrap();
+                        toast.success("Invitation resent successfully");
                       } catch (error: any) {
                         toast.error(
-                          error?.data?.detail ?? error?.data?.title ?? "Failed to resend invitation",
-                        )
+                          error?.data?.detail ??
+                            error?.data?.title ??
+                            "Failed to resend invitation",
+                        );
                       }
                     }}
                     title="Resend invitation"
@@ -208,10 +222,10 @@ export default function TeachersPage() {
               </>
             )}
           </div>
-        )
+        );
       },
     },
-  ]
+  ];
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -262,44 +276,64 @@ export default function TeachersPage() {
       {/* ── Create Teacher Dialog ── */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleSubmit(onSubmitCreate)}>
+          <form onSubmit={form.handleSubmit(onSubmitCreate)}>
             <DialogHeader>
               <DialogTitle>Add New Teacher</DialogTitle>
-              <DialogDescription>Enter the teacher's information below.</DialogDescription>
+              <DialogDescription>
+                Enter the teacher's information below.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <Field>
                 <FieldLabel>First Name</FieldLabel>
-                <Input {...register("firstName")} placeholder="Jane" />
-                {errors.firstName && <FieldError>{errors.firstName.message}</FieldError>}
+                <Input {...form.register("firstName")} placeholder="Jane" />
+                {form.formState.errors.firstName && (
+                  <FieldError>
+                    {form.formState.errors.firstName.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Last Name</FieldLabel>
-                <Input {...register("lastName")} placeholder="Smith" />
-                {errors.lastName && <FieldError>{errors.lastName.message}</FieldError>}
+                <Input {...form.register("lastName")} placeholder="Smith" />
+                {form.formState.errors.lastName && (
+                  <FieldError>
+                    {form.formState.errors.lastName.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Employee ID</FieldLabel>
-                <Input {...register("employeeId")} placeholder="TCH2026001" />
-                {errors.employeeId && <FieldError>{errors.employeeId.message}</FieldError>}
+                <Input
+                  {...form.register("employeeId")}
+                  placeholder="TCH2026001"
+                />
+                {form.formState.errors.employeeId && (
+                  <FieldError>
+                    {form.formState.errors.employeeId.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Phone Number</FieldLabel>
-                <Input {...register("phoneNumber")} placeholder="+1 555 000 0000" />
+                <Input
+                  {...form.register("phoneNumber")}
+                  placeholder="+1 555 000 0000"
+                />
               </Field>
 
               <Controller
                 name="subjectIds"
-                control={control}
+                control={form.control}
                 render={({ field }) => (
                   <SubjectChecklistField
                     subjects={subjects}
                     value={field.value}
                     onChange={field.onChange}
-                    error={errors.subjectIds?.message}
+                    error={form.formState.errors.subjectIds?.message}
                   />
                 )}
               />
@@ -309,8 +343,8 @@ export default function TeachersPage() {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setCreateDialogOpen(false)
-                  reset()
+                  setCreateDialogOpen(false);
+                  form.reset();
                 }}
               >
                 Cancel
@@ -330,7 +364,8 @@ export default function TeachersPage() {
             <DialogTitle>Invite Teacher to Portal</DialogTitle>
             <DialogDescription>
               Send an activation email to{" "}
-              {selectedTeacher && `${selectedTeacher.firstName} ${selectedTeacher.lastName}`}
+              {selectedTeacher &&
+                `${selectedTeacher.firstName} ${selectedTeacher.lastName}`}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -348,19 +383,22 @@ export default function TeachersPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setInviteDialogOpen(false)
-                setInviteEmail("")
-                setSelectedTeacher(null)
+                setInviteDialogOpen(false);
+                setInviteEmail("");
+                setSelectedTeacher(null);
               }}
             >
               Cancel
             </Button>
-            <Button onClick={handleInvite} disabled={isInviting || !inviteEmail}>
+            <Button
+              onClick={handleInvite}
+              disabled={isInviting || !inviteEmail}
+            >
               {isInviting ? "Sending…" : "Send Invitation"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

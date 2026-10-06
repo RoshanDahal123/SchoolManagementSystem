@@ -1,56 +1,52 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { useNavigate, useSearchParams } from "react-router"
-import { toast } from "sonner"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
 
-import { Button } from "@/components/atoms/button"
-import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
-import { Input } from "@/components/atoms/input"
-import { useActivateAccountMutation } from "@/features/auth/auth-api"
+import { Button } from "@/components/atoms/button";
+import { Field, FieldError, FieldLabel } from "@/components/atoms/field";
+import { Input } from "@/components/atoms/input";
+import { useActivateAccountMutation } from "@/features/auth/auth-api";
 import {
-    activateAccountSchema,
-    type ActivateAccountFormData,
-} from "@/lib/validation/auth"
-import { PATHS } from "@/routes/paths"
+  activateAccountSchema,
+  type ActivateAccountFormData,
+} from "@/lib/validation/auth";
+import { PATHS } from "@/routes/paths";
 
 export default function ActivateAccountPage() {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const token = searchParams.get("token")
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const token = searchParams.get("token");
 
-  const [activateAccount, { isLoading }] = useActivateAccountMutation()
+  const [activateAccount, { isLoading }] = useActivateAccountMutation();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ActivateAccountFormData>({
+  const form = useForm<ActivateAccountFormData>({
     resolver: zodResolver(activateAccountSchema),
-  })
+  });
 
   const onSubmit = async (data: ActivateAccountFormData) => {
     if (!token) {
-      toast.error("Invalid activation link")
-      return
+      toast.error("Invalid activation link");
+      return;
     }
 
     try {
       await activateAccount({
         token,
         newPassword: data.password,
-      }).unwrap()
+      }).unwrap();
 
-      toast.success("Account activated successfully! You can now login.")
-      navigate(PATHS.login)
+      toast.success("Account activated successfully! You can now login.");
+      navigate(PATHS.login);
     } catch (error: any) {
       const message =
         error?.data?.detail ||
         error?.data?.title ||
         error?.data?.message ||
-        "Failed to activate account"
-      toast.error(message)
+        "Failed to activate account";
+      toast.error(message);
     }
-  }
+  };
 
   if (!token) {
     return (
@@ -62,7 +58,7 @@ export default function ActivateAccountPage() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -77,16 +73,16 @@ export default function ActivateAccountPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <Field>
             <FieldLabel>New Password</FieldLabel>
             <Input
               type="password"
               placeholder="Enter new password"
-              {...register("password")}
+              {...form.register("password")}
             />
-            {errors.password && (
-              <FieldError>{errors.password.message}</FieldError>
+            {form.formState.errors.password && (
+              <FieldError>{form.formState.errors.password.message}</FieldError>
             )}
           </Field>
 
@@ -95,10 +91,12 @@ export default function ActivateAccountPage() {
             <Input
               type="password"
               placeholder="Confirm your password"
-              {...register("confirmPassword")}
+              {...form.register("confirmPassword")}
             />
-            {errors.confirmPassword && (
-              <FieldError>{errors.confirmPassword.message}</FieldError>
+            {form.formState.errors.confirmPassword && (
+              <FieldError>
+                {form.formState.errors.confirmPassword.message}
+              </FieldError>
             )}
           </Field>
 
@@ -108,5 +106,5 @@ export default function ActivateAccountPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }
