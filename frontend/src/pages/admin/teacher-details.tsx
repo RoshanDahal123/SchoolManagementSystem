@@ -7,10 +7,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/atoms/alert-dialog"
-import { Badge } from "@/components/atoms/badge"
-import { Button } from "@/components/atoms/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+} from "@/components/atoms/alert-dialog";
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card";
 import {
   Dialog,
   DialogContent,
@@ -18,115 +23,126 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/atoms/dialog"
-import { Field, FieldError, FieldLabel } from "@/components/atoms/field"
-import { Input } from "@/components/atoms/input"
-import { Skeleton } from "@/components/atoms/skeleton"
-import { useGetSubjectsQuery } from "@/features/academic/academic-api"
-import type { TeacherAssignmentResponse } from "@/features/teachers/@types"
-import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field"
+} from "@/components/atoms/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/atoms/field";
+import { Input } from "@/components/atoms/input";
+import { Skeleton } from "@/components/atoms/skeleton";
+import { useGetSubjectsQuery } from "@/features/academic/academic-api";
+import type { TeacherAssignmentResponse } from "@/features/teachers/@types";
+import { SubjectChecklistField } from "@/features/teachers/components/subject-checklist-field";
 import {
   useDeactivateTeacherMutation,
   useGetTeacherAssignmentsQuery,
   useGetTeacherByIdQuery,
   useReactivateTeacherMutation,
-  useUpdateTeacherMutation
-} from "@/features/teachers/teacher-api"
-import { createTeacherSchema, type CreateTeacherFormData } from "@/lib/validation/teacher"
-import { PATHS } from "@/routes/paths"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
-import { ArrowLeftIcon, MailIcon } from "lucide-react"
-import { useEffect, useState } from "react"
-import { Controller, useForm } from "react-hook-form"
-import { useNavigate, useParams } from "react-router"
-import { toast } from "sonner"
+  useUpdateTeacherMutation,
+} from "@/features/teachers/teacher-api";
+import {
+  createTeacherSchema,
+  type CreateTeacherFormData,
+} from "@/lib/validation/teacher";
+import { PATHS } from "@/routes/paths";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { ArrowLeftIcon, MailIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 export default function TeacherDetailsPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  const { data: teacher, isLoading, error } = useGetTeacherByIdQuery(id!)
-  const [updateTeacher, { isLoading: isUpdating }] = useUpdateTeacherMutation()
-  const [deactivateTeacher, { isLoading: isDeactivating }] = useDeactivateTeacherMutation()
-  const [reactivateTeacher, { isLoading: isReactivating }] = useReactivateTeacherMutation()
-  const { data: subjects = [] } = useGetSubjectsQuery()
-  const {data:assignments=[],isLoading:isAssignmentsLoading}= useGetTeacherAssignmentsQuery(id!,{
-    skip:!id
-  })
+  const { data: teacher, isLoading, error } = useGetTeacherByIdQuery(id!);
+  const [updateTeacher, { isLoading: isUpdating }] = useUpdateTeacherMutation();
+  const [deactivateTeacher, { isLoading: isDeactivating }] =
+    useDeactivateTeacherMutation();
+  const [reactivateTeacher, { isLoading: isReactivating }] =
+    useReactivateTeacherMutation();
+  const { data: subjects = [] } = useGetSubjectsQuery();
+  const { data: assignments = [], isLoading: isAssignmentsLoading } =
+    useGetTeacherAssignmentsQuery(id!, {
+      skip: !id,
+    });
 
-const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentResponse[]>>((acc, a) => {
-    (acc[a.academicYearName] ??= []).push(a)
-    return acc
-  }, {})
+  const assignmentsByYear = assignments.reduce<
+    Record<string, TeacherAssignmentResponse[]>
+  >((acc, a) => {
+    (acc[a.academicYearName] ??= []).push(a);
+    return acc;
+  }, {});
 
   // ── Dialog state ────────────────────────────────────────────────────────────
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
-  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false);
 
   // ── Edit form ────────────────────────────────────────────────────────────────
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm<CreateTeacherFormData>({
+  const form = useForm<CreateTeacherFormData>({
     resolver: zodResolver(createTeacherSchema),
-  })
+  });
 
   // Pre-fill form when the dialog opens
   useEffect(() => {
     if (editDialogOpen && teacher) {
-      reset({
+      form.reset({
         firstName: teacher.firstName,
         lastName: teacher.lastName,
         employeeId: teacher.employeeId,
         phoneNumber: teacher.phoneNumber ?? "",
         subjectIds: teacher.specializations.map((s) => s.subjectId),
-      })
+      });
     }
-  }, [editDialogOpen, teacher, reset])
+  }, [editDialogOpen, teacher]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const onSubmitEdit = async (formData: CreateTeacherFormData) => {
-    if (!teacher) return
+    if (!teacher) return;
     try {
-      await updateTeacher({ id: teacher.id, data: formData }).unwrap()
-      toast.success("Teacher updated successfully")
-      setEditDialogOpen(false)
+      await updateTeacher({ id: teacher.id, data: formData }).unwrap();
+      toast.success("Teacher updated successfully");
+      setEditDialogOpen(false);
     } catch (err: any) {
       const message =
-        err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to update teacher"
-      toast.error(message)
+        err?.data?.detail ??
+        err?.data?.title ??
+        err?.data?.message ??
+        "Failed to update teacher";
+      toast.error(message);
     }
-  }
+  };
 
   const handleDeactivate = async () => {
-    if (!teacher) return
+    if (!teacher) return;
     try {
-      await deactivateTeacher(teacher.id).unwrap()
-      toast.success("Teacher deactivated successfully")
-      setDeactivateDialogOpen(false)
+      await deactivateTeacher(teacher.id).unwrap();
+      toast.success("Teacher deactivated successfully");
+      setDeactivateDialogOpen(false);
     } catch (err: any) {
       const message =
-        err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to deactivate teacher"
-      toast.error(message)
+        err?.data?.detail ??
+        err?.data?.title ??
+        err?.data?.message ??
+        "Failed to deactivate teacher";
+      toast.error(message);
     }
-  }
+  };
 
   const handleReactivate = async () => {
-    if (!teacher) return
+    if (!teacher) return;
     try {
-      await reactivateTeacher(teacher.id).unwrap()
-      toast.success("Teacher reactivated successfully")
-      setReactivateDialogOpen(false)
+      await reactivateTeacher(teacher.id).unwrap();
+      toast.success("Teacher reactivated successfully");
+      setReactivateDialogOpen(false);
     } catch (err: any) {
       const message =
-        err?.data?.detail ?? err?.data?.title ?? err?.data?.message ?? "Failed to reactivate teacher"
-      toast.error(message)
+        err?.data?.detail ??
+        err?.data?.title ??
+        err?.data?.message ??
+        "Failed to reactivate teacher";
+      toast.error(message);
     }
-  }
+  };
 
   // ── Loading state ────────────────────────────────────────────────────────────
   if (isLoading) {
@@ -144,7 +160,7 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   // ── Error / not found state ───────────────────────────────────────────────────
@@ -164,20 +180,25 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
           </div>
         </Card>
       </div>
-    )
+    );
   }
 
   // ── Derived display values ───────────────────────────────────────────────────
-  const initials = `${teacher.firstName.charAt(0)}${teacher.lastName.charAt(0)}`.toUpperCase()
-  const visibleSpecializations = teacher.specializations.slice(0, 3)
-  const extraSpecializationCount = teacher.specializations.length - 3
+  const initials =
+    `${teacher.firstName.charAt(0)}${teacher.lastName.charAt(0)}`.toUpperCase();
+  const visibleSpecializations = teacher.specializations.slice(0, 3);
+  const extraSpecializationCount = teacher.specializations.length - 3;
 
   // ── Main render ──────────────────────────────────────────────────────────────
   return (
     <>
       <div className="space-y-6">
         {/* 1. Back button row */}
-        <Button variant="ghost" className="w-fit" onClick={() => navigate(PATHS.adminTeachers)}>
+        <Button
+          variant="ghost"
+          className="w-fit"
+          onClick={() => navigate(PATHS.adminTeachers)}
+        >
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
           Back to Teachers
         </Button>
@@ -198,12 +219,17 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                   <h1 className="text-2xl font-bold tracking-tight">
                     {teacher.firstName} {teacher.lastName}
                   </h1>
-                  <p className="font-mono text-sm text-muted-foreground">{teacher.employeeId}</p>
+                  <p className="font-mono text-sm text-muted-foreground">
+                    {teacher.employeeId}
+                  </p>
 
                   {/* Status badge */}
                   <div className="flex flex-wrap items-center gap-2">
                     {teacher.isActive ? (
-                      <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                      <Badge
+                        variant="outline"
+                        className="border-green-300 bg-green-50 text-green-700"
+                      >
                         Active
                       </Badge>
                     ) : (
@@ -217,7 +243,9 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                       </Badge>
                     ))}
                     {extraSpecializationCount > 0 && (
-                      <Badge variant="outline">+{extraSpecializationCount} more</Badge>
+                      <Badge variant="outline">
+                        +{extraSpecializationCount} more
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -225,7 +253,10 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
 
               {/* Right: action buttons */}
               <div className="flex shrink-0 gap-2">
-                <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(true)}
+                >
                   Edit
                 </Button>
                 {teacher.isActive ? (
@@ -263,7 +294,9 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
               <div className="flex items-center justify-between py-2.5 border-b last:border-0">
                 <span className="text-sm text-muted-foreground">Phone</span>
                 <span className="text-sm font-medium">
-                  {teacher.phoneNumber ?? <span className="text-muted-foreground">—</span>}
+                  {teacher.phoneNumber ?? (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between py-2.5 border-b last:border-0">
@@ -276,7 +309,10 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                 <span className="text-sm text-muted-foreground">Status</span>
                 <span className="text-sm font-medium">
                   {teacher.isActive ? (
-                    <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                    <Badge
+                      variant="outline"
+                      className="border-green-300 bg-green-50 text-green-700"
+                    >
                       Active
                     </Badge>
                   ) : (
@@ -299,7 +335,10 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                 <span className="text-sm text-muted-foreground">Linked</span>
                 <span className="text-sm font-medium">
                   {teacher.hasPortalAccount ? (
-                    <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                    <Badge
+                      variant="outline"
+                      className="border-green-300 bg-green-50 text-green-700"
+                    >
                       Yes
                     </Badge>
                   ) : (
@@ -317,11 +356,16 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                 </div>
               )}
               <div className="flex items-center justify-between py-2.5 border-b last:border-0">
-                <span className="text-sm text-muted-foreground">Portal Status</span>
+                <span className="text-sm text-muted-foreground">
+                  Portal Status
+                </span>
                 <span className="text-sm font-medium">
                   {teacher.hasPortalAccount ? (
                     teacher.isPortalActive ? (
-                      <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                      <Badge
+                        variant="outline"
+                        className="border-green-300 bg-green-50 text-green-700"
+                      >
                         Active
                       </Badge>
                     ) : (
@@ -334,7 +378,8 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
               </div>
               {!teacher.hasPortalAccount && (
                 <p className="pt-1 text-xs text-muted-foreground">
-                  Use the invite button from the teachers list to send a portal activation email.
+                  Use the invite button from the teachers list to send a portal
+                  activation email.
                 </p>
               )}
             </CardContent>
@@ -357,7 +402,9 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
                   ))}
                 </div>
               ) : (
-                <p className="py-2 text-sm text-muted-foreground">No specializations recorded.</p>
+                <p className="py-2 text-sm text-muted-foreground">
+                  No specializations recorded.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -373,20 +420,27 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
               <p className="text-sm text-muted-foreground">Loading…</p>
             ) : assignments.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Not currently assigned to teach any class. Assign this teacher from the Academic →
-                Curriculum screen.
+                Not currently assigned to teach any class. Assign this teacher
+                from the Academic → Curriculum screen.
               </p>
             ) : (
               <div className="space-y-4">
                 {Object.entries(assignmentsByYear).map(([yearName, rows]) => (
                   <div key={yearName}>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">{yearName}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      {yearName}
+                    </p>
                     <ul className="space-y-1.5">
                       {rows.map((a) => (
-                        <li key={a.classSubjectId} className="text-sm flex items-center gap-2">
+                        <li
+                          key={a.classSubjectId}
+                          className="text-sm flex items-center gap-2"
+                        >
                           <Badge variant="outline">{a.gradeLevelName}</Badge>
                           <span>{a.subjectName}</span>
-                          <span className="text-xs text-muted-foreground">({a.subjectCode})</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({a.subjectCode})
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -401,44 +455,64 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
       {/* ── Edit Dialog ─────────────────────────────────────────────────────────── */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleSubmit(onSubmitEdit)}>
+          <form onSubmit={form.handleSubmit(onSubmitEdit)}>
             <DialogHeader>
               <DialogTitle>Edit Teacher</DialogTitle>
-              <DialogDescription>Update the teacher's information below.</DialogDescription>
+              <DialogDescription>
+                Update the teacher's information below.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <Field>
                 <FieldLabel>First Name</FieldLabel>
-                <Input {...register("firstName")} placeholder="Jane" />
-                {errors.firstName && <FieldError>{errors.firstName.message}</FieldError>}
+                <Input {...form.register("firstName")} placeholder="Jane" />
+                {form.formState.errors.firstName && (
+                  <FieldError>
+                    {form.formState.errors.firstName.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Last Name</FieldLabel>
-                <Input {...register("lastName")} placeholder="Smith" />
-                {errors.lastName && <FieldError>{errors.lastName.message}</FieldError>}
+                <Input {...form.register("lastName")} placeholder="Smith" />
+                {form.formState.errors.lastName && (
+                  <FieldError>
+                    {form.formState.errors.lastName.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Employee ID</FieldLabel>
-                <Input {...register("employeeId")} placeholder="TCH2026001" />
-                {errors.employeeId && <FieldError>{errors.employeeId.message}</FieldError>}
+                <Input
+                  {...form.register("employeeId")}
+                  placeholder="TCH2026001"
+                />
+                {form.formState.errors.employeeId && (
+                  <FieldError>
+                    {form.formState.errors.employeeId.message}
+                  </FieldError>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel>Phone Number</FieldLabel>
-                <Input {...register("phoneNumber")} placeholder="+1 555 000 0000" />
+                <Input
+                  {...form.register("phoneNumber")}
+                  placeholder="+1 555 000 0000"
+                />
               </Field>
 
               <Controller
                 name="subjectIds"
-                control={control}
+                control={form.control}
                 render={({ field }) => (
                   <SubjectChecklistField
                     subjects={subjects}
                     value={field.value}
                     onChange={field.onChange}
-                    error={errors.subjectIds?.message}
+                    error={form.formState.errors.subjectIds?.message}
                   />
                 )}
               />
@@ -460,7 +534,10 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
       </Dialog>
 
       {/* ── Deactivate Confirmation ──────────────────────────────────────────────── */}
-      <AlertDialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
+      <AlertDialog
+        open={deactivateDialogOpen}
+        onOpenChange={setDeactivateDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Deactivate Teacher</AlertDialogTitle>
@@ -469,8 +546,8 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
               <strong>
                 {teacher.firstName} {teacher.lastName}
               </strong>{" "}
-              and their portal access. They will no longer be able to log in. You can reactivate
-              them at any time.
+              and their portal access. They will no longer be able to log in.
+              You can reactivate them at any time.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -487,7 +564,10 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
       </AlertDialog>
 
       {/* ── Reactivate Confirmation ──────────────────────────────────────────────── */}
-      <AlertDialog open={reactivateDialogOpen} onOpenChange={setReactivateDialogOpen}>
+      <AlertDialog
+        open={reactivateDialogOpen}
+        onOpenChange={setReactivateDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Reactivate Teacher</AlertDialogTitle>
@@ -511,5 +591,5 @@ const assignmentsByYear = assignments.reduce<Record<string, TeacherAssignmentRes
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
