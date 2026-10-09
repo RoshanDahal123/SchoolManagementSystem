@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="SchoolManagementSystem.Application.Tests/SchoolManagementSystem.Application.Tests.csproj" />
   <Project Path="SchoolManagementSystem.Application/SchoolManagementSystem.Application.csproj" />
   <Project Path="SchoolManagementSystem.Domain/SchoolManagementSystem.Domain.csproj" />
   <Project Path="SchoolManagementSystem.Infrastructure/SchoolManagementSystem.Infrastructure.csproj" />
