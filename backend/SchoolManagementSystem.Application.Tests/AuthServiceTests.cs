@@ -271,6 +271,29 @@ public class AuthServiceTests
         _refreshTokenRepo.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()),Times.Never);
 
     }
+    [Test]
+    public void RefreshAsync_WhenUserNotFound_ThrowsInvalidCredentialsException()
+    {
+        const string rawToken = "raw-token";
+        const string hashToken = "hash-token";
+        var userId = Guid.NewGuid();
+
+        // A valid, active token whose owner no longer exists
+        var existing = RefreshToken.Create(userId, hashToken, DateTime.UtcNow.AddDays(1));
+        _jwtTokenService.Setup(j=>j.HashToken(rawToken)).Returns(hashToken);
+
+        _refreshTokenRepo.Setup(r => r.GetByTokenHashAsync(hashToken, It.IsAny<CancellationToken>())).ReturnsAsync(existing);
+        _userRepo.Setup(u => u.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync((User?) null);
+
+
+        //Act+Assert
+
+        Assert.ThrowsAsync<InvalidCredentialsException>(() => _sut.RefreshAsync(rawToken));
+        //The userLookup must have happened
+        _userRepo.Verify(u => u.GetByIdAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
+        _refreshTokenRepo.Verify(r => r.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Never);
+        _refreshTokenRepo.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
 
 
