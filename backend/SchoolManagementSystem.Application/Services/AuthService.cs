@@ -124,7 +124,7 @@ public sealed class AuthService : IAuthService
         var refreshTokenEntity = RefreshToken.Create(user.Id, refreshTokenHash, refreshTokenExpiry);
         await _refreshTokenRepository.AddAsync(refreshTokenEntity, cancellationToken);
         await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
-
+    
         return new AuthResult(
             AccessToken: accessToken.Token,
             AccessTokenExpiresAtUtc: accessToken.ExpiresAtUtc,
