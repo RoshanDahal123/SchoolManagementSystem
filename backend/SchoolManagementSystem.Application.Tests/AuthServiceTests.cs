@@ -1,12 +1,12 @@
 ﻿
 using Moq;
-using SchoolManagementSystem.Application.DTOs.Auth;
-using SchoolManagementSystem.Application.Interfaces;
-using SchoolManagementSystem.Application.Services;
-using SchoolManagementSystem.Domain.Entities;
-
-
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Application.Features.Auth.DTOs;
+using SchoolManagementSystem.Application.Features.Auth.Interfaces;
+using SchoolManagementSystem.Application.Features.Auth.Services;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Exceptions;
+using SchoolManagementSystem.Domain.Common.Exceptions;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
 namespace SchoolManagementSystem.Application.Tests.Services;
 
 [TestFixture]
@@ -49,7 +49,7 @@ public class AuthServiceTests
 
     private static User CreateUser(bool isActive = true)
     {
-        var user = User.Create("Roshan", "Dahal", "roshan@test.com", "hashed-password", Domain.Enums.UserRole.Student);
+        var user = User.Create("Roshan", "Dahal", "roshan@test.com", "hashed-password", UserRole.Student);
         if (!isActive) user.Deactivate();
         return user;
     }
@@ -204,7 +204,7 @@ public class AuthServiceTests
         // Nothing was looked up, created or saved after the failure
         _userRepo.Verify(u => u.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         _refreshTokenRepo.Verify(r => r.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Never);
-        _refreshTokenRepo.Verify(r=>r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _refreshTokenRepo.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
 
@@ -215,15 +215,15 @@ public class AuthServiceTests
         const string raw = "revoked-raw";
         const string hash = "revoked-hash";
         var user = CreateUser();
-        var existingToken = RefreshToken.Create(user.Id,hash, DateTime.UtcNow.AddDays(1));
+        var existingToken = RefreshToken.Create(user.Id, hash, DateTime.UtcNow.AddDays(1));
 
         existingToken.Revoke();
 
-        _jwtTokenService.Setup(j=>j.HashToken(raw)).Returns(hash);
+        _jwtTokenService.Setup(j => j.HashToken(raw)).Returns(hash);
         _refreshTokenRepo.Setup(r => r.GetByTokenHashAsync(hash, It.IsAny<CancellationToken>())).ReturnsAsync(existingToken);
 
-         Assert.ThrowsAsync<InvalidCredentialsException>(() => _sut.RefreshAsync(raw));
-    
+        Assert.ThrowsAsync<InvalidCredentialsException>(() => _sut.RefreshAsync(raw));
+
         _userRepo.Verify(u => u.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         _refreshTokenRepo.Verify(r => r.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Never);
         _refreshTokenRepo.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -250,7 +250,7 @@ public class AuthServiceTests
     [Test]
     public void RefreshAsync_WhenUserIsDeactivated_ThrowDomainException()
     {
-        var user = CreateUser(isActive:false);
+        var user = CreateUser(isActive: false);
 
         const string raw = "raw-token";
         const string hash = "hash-token";
@@ -260,7 +260,7 @@ public class AuthServiceTests
         _jwtTokenService.Setup(j => j.HashToken(raw)).Returns(hash);
         _refreshTokenRepo.Setup(r => r.GetByTokenHashAsync(hash, It.IsAny<CancellationToken>())).ReturnsAsync(existing);
 
-       var ex= Assert.ThrowsAsync<DomainException>(() => _sut.RefreshAsync(raw));
+        var ex = Assert.ThrowsAsync<DomainException>(() => _sut.RefreshAsync(raw));
         Assert.That(ex!.Message, Does.Contain("deactivated"));
         // The old token must NOT be consumed, and nothing new may be stored
         //the rejected request doesnot consume the old token. because it shows the
@@ -268,7 +268,7 @@ public class AuthServiceTests
         Assert.That(existing.IsRevoked, Is.False);
         _userRepo.Verify(u => u.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
         _refreshTokenRepo.Verify(r => r.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Never);
-        _refreshTokenRepo.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()),Times.Never);
+        _refreshTokenRepo.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
 
     }
     [Test]
@@ -280,10 +280,10 @@ public class AuthServiceTests
 
         // A valid, active token whose owner no longer exists
         var existing = RefreshToken.Create(userId, hashToken, DateTime.UtcNow.AddDays(1));
-        _jwtTokenService.Setup(j=>j.HashToken(rawToken)).Returns(hashToken);
+        _jwtTokenService.Setup(j => j.HashToken(rawToken)).Returns(hashToken);
 
         _refreshTokenRepo.Setup(r => r.GetByTokenHashAsync(hashToken, It.IsAny<CancellationToken>())).ReturnsAsync(existing);
-        _userRepo.Setup(u => u.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync((User?) null);
+        _userRepo.Setup(u => u.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
 
 
         //Act+Assert
