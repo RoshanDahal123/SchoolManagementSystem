@@ -1,7 +1,0 @@
-{
-  "task_id": "task-feature-based-restructure",
-  "task_description": "Structural refactor of SchoolManagementSystem: move Domain entities/enums/exceptions, Infrastructure authentication/email/notifications/storage/configurations/repositories/seeders, and WebApi controllers/authorization/models from flat generic folders into Features/<Feature>/... subfolders. Update namespaces and all using directives across all projects. Application files are already correctly structured. No behavior, business logic, route, or public API changes.",
-  "status": "pending",
-  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
-  "blocked_reason": null
-}
