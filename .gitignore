@@ -47,6 +47,13 @@ coverage/
 
 # Logs
 *.log
+logs/
+
+# Kiro agent artifacts
+.agents/
+
+# Build archives
+*.zip
 
 # OS
 .DS_Store
