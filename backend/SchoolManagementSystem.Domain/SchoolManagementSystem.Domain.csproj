@@ -11,37 +11,4 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="10.0.12" />
   </ItemGroup>
 
-  <!-- Exclude old flat-folder files from compilation — originals kept on disk for recovery -->
-  <ItemGroup>
-    <Compile Remove="Entities/User.cs" />
-    <Compile Remove="Entities/RefreshToken.cs" />
-    <Compile Remove="Entities/AccountSetupToken.cs" />
-    <Compile Remove="Entities/Student.cs" />
-    <Compile Remove="Entities/Teacher.cs" />
-    <Compile Remove="Entities/TeacherSubject.cs" />
-    <Compile Remove="Entities/StudentEnrollment.cs" />
-    <Compile Remove="Entities/Attendance.cs" />
-    <Compile Remove="Entities/Announcement.cs" />
-    <Compile Remove="Entities/Notification.cs" />
-    <Compile Remove="Entities/CourseWork.cs" />
-    <Compile Remove="Entities/CourseWorkSubmission.cs" />
-    <Compile Remove="Entities/CourseWorkAttachment.cs" />
-    <Compile Remove="Entities/SubmissionAttachment.cs" />
-    <Compile Remove="Entities/AcademicYear.cs" />
-    <Compile Remove="Entities/GradeLevel.cs" />
-    <Compile Remove="Entities/Section.cs" />
-    <Compile Remove="Entities/SectionHomeRoomTeacher.cs" />
-    <Compile Remove="Entities/Subject.cs" />
-    <Compile Remove="Entities/ClassSubject.cs" />
-    <Compile Remove="Entities/ClassSubjectTeacher.cs" />
-    <Compile Remove="Enums/AttendanceStatus.cs" />
-    <Compile Remove="Enums/AnnouncementTargetRole.cs" />
-    <Compile Remove="Enums/SubmissionStatus.cs" />
-    <Compile Remove="Enums/EnrollmentStatus.cs" />
-    <Compile Remove="Enums/Gender.cs" />
-    <Compile Remove="Enums/UserRole.cs" />
-    <Compile Remove="Exceptions/DomainException.cs" />
-    <Compile Remove="Exceptions/InvalidCredentialsExceptions.cs" />
-  </ItemGroup>
-
 </Project>
