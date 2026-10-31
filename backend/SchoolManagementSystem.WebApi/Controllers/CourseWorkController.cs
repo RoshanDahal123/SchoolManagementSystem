@@ -5,7 +5,7 @@ using SchoolManagementSystem.Application.Features.Coursework.DTOs;
 using SchoolManagementSystem.Application.Features.Coursework.Interfaces;
 using SchoolManagementSystem.Application.Features.Storage.DTOs;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
-using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
 using SchoolManagementSystem.WebApi.Models;
 using System.Security.Claims;
 

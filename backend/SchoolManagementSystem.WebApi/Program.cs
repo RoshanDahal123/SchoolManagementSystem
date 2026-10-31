@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
-using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
 using SchoolManagementSystem.Infrastructure;
-using SchoolManagementSystem.Infrastructure.Notifications;
+using SchoolManagementSystem.Infrastructure.Features.Notifications.Realtime;
 using SchoolManagementSystem.Infrastructure.Persistence;
 using SchoolManagementSystem.WebApi.Authorization;
 using SchoolManagementSystem.WebApi.Middleware;
@@ -110,7 +110,8 @@ builder.Services.AddScoped<IAuthorizationHandler, StudentAttendanceAccessAuthori
 // Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("HomeroomTeacherOnly", policy => {
+    options.AddPolicy("HomeroomTeacherOnly", policy =>
+    {
         policy.RequireAuthenticatedUser();
         policy.RequireRole(
             UserRole.Teacher.ToString(),

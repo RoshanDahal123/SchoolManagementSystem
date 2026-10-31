@@ -4,8 +4,9 @@ using SchoolManagementSystem.Application.Features.Auth.DTOs;
 using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
-using SchoolManagementSystem.Domain.Enums;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
+using SchoolManagementSystem.Domain.Common.Exceptions;
+using SchoolManagementSystem.Domain.Features.Auth.Exceptions;
 using System.Security.Claims;
 
 namespace SchoolManagementSystem.WebApi.Controllers;
@@ -109,7 +110,7 @@ public sealed class AuthController : ControllerBase
         return Ok(new MeResponse(email, role, teacherId, studentId, user?.FirstName ?? "", user?.LastName ?? ""));
     }
 
-  
+
     [HttpPost("activate")]
     [AllowAnonymous]
     public async Task<IActionResult> Activate(ActivateAccountRequest request, CancellationToken ct)

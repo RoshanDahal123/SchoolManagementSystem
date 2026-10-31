@@ -5,7 +5,7 @@ using SchoolManagementSystem.Application.Features.Academic.Homeroom.Interfaces;
 using SchoolManagementSystem.Application.Features.Enrollments.Interfaces;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
-using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
 using System.Security.Claims;
 
 namespace SchoolManagementSystem.WebApi.Authorization;
