@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SchoolManagementSystem.Application;
-using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
 using SchoolManagementSystem.Infrastructure;
-using SchoolManagementSystem.Infrastructure.Hubs;
-using SchoolManagementSystem.Infrastructure.SqlRepo.Persistence;
-using SchoolManagementSystem.WebApi.Authorization;
+using SchoolManagementSystem.Infrastructure.Features.Notifications.Realtime;
+using SchoolManagementSystem.Infrastructure.Persistence;
+using SchoolManagementSystem.WebApi.Features.Attendance.Authorization;
 using SchoolManagementSystem.WebApi.Middleware;
 using Serilog;
 using System.Text;
@@ -21,7 +21,6 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-
     var builder = WebApplication.CreateBuilder(args);
 
     // Replace the built-in logging with Serilog; reads config from appsettings.json "Serilog" section.
@@ -76,7 +75,7 @@ try
                   .AllowAnyMethod()
                   .AllowCredentials();
         });
-    }); ;
+    });
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
