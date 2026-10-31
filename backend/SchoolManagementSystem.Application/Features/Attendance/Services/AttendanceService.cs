@@ -4,10 +4,11 @@ using SchoolManagementSystem.Application.Features.Attendance.DTOs;
 using SchoolManagementSystem.Application.Features.Attendance.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
 using SchoolManagementSystem.Application.Features.Enrollments.Interfaces;
-using SchoolManagementSystem.Domain.Enums;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Attendance.Enums;
+using SchoolManagementSystem.Domain.Features.Enrollments.Enums;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 using System.Security.Cryptography.X509Certificates;
-using AttendanceEntity = SchoolManagementSystem.Domain.Entities.Attendance;
+using AttendanceEntity = SchoolManagementSystem.Domain.Features.Attendance.Entities.Attendance;
 
 namespace SchoolManagementSystem.Application.Features.Attendance.Services
 {

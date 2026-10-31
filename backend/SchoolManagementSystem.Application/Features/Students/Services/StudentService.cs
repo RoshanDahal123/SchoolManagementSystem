@@ -5,9 +5,10 @@ using SchoolManagementSystem.Application.Features.Email.DTOs;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Application.Features.Auth.Interfaces;
 using SchoolManagementSystem.Application.Options;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Enums;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Students.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 using Microsoft.Extensions.Options;
 
 using System.Security.Cryptography;

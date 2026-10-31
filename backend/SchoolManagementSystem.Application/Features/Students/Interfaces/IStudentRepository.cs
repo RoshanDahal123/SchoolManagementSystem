@@ -1,6 +1,6 @@
 // Application/Interfaces/IStudentRepository.cs
 using SchoolManagementSystem.Application.Common;
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Students.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Students.Interfaces;
 

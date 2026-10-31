@@ -1,8 +1,8 @@
 // Application/Services/AcademicYearService.cs
 using SchoolManagementSystem.Application.Features.Academic.AcademicYears.DTOs;
 using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Academic.AcademicYears.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 
 namespace SchoolManagementSystem.Application.Features.Academic.AcademicYears.Services;
 

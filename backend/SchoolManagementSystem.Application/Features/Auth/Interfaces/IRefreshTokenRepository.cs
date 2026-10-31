@@ -1,4 +1,4 @@
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Auth.Interfaces;
 

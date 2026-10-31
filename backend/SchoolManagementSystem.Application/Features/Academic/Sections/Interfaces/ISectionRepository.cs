@@ -1,5 +1,5 @@
 // Application/Interfaces/ISectionRepository.cs
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Sections.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
 

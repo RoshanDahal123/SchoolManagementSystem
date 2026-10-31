@@ -10,9 +10,11 @@ using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfa
 using SchoolManagementSystem.Application.Features.Academic.Subjects.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.Homeroom.Interfaces;
 using SchoolManagementSystem.Application.Options;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Enums;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Teachers.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Subjects.Entities;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 using Microsoft.Extensions.Options;
 
 using System.Security.Cryptography;

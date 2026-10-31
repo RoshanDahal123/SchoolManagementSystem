@@ -3,14 +3,14 @@ using SchoolManagementSystem.Application.Features.Academic.Homeroom.DTOs;
 using SchoolManagementSystem.Application.Features.Academic.Homeroom.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
 using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Academic.Sections.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
 namespace SchoolManagementSystem.Application.Features.Academic.Homeroom.Services
 {
-    public sealed class SectionHomeroomTeacherService:ISectionHomeroomTeacherService
+    public sealed class SectionHomeroomTeacherService : ISectionHomeroomTeacherService
     {
         private readonly ISectionHomeroomTeacherRepository _homeroomRepo;
         private readonly ISectionRepository _sectionRepo;
@@ -28,10 +28,10 @@ namespace SchoolManagementSystem.Application.Features.Academic.Homeroom.Services
             _teacherRepo = teacherRepo;
         }
 
-       public async Task<SectionHomeroomTeacherResponse?> GetForSectionAsync(
-       Guid sectionId,
-       Guid academicYearId,
-       CancellationToken ct = default)
+        public async Task<SectionHomeroomTeacherResponse?> GetForSectionAsync(
+        Guid sectionId,
+        Guid academicYearId,
+        CancellationToken ct = default)
         {
             var assignment = await _homeroomRepo
                 .GetBySectionAndYearAsync(sectionId, academicYearId, ct);

@@ -1,8 +1,9 @@
 using SchoolManagementSystem.Application.Features.Auth.DTOs;
 using SchoolManagementSystem.Application.Exceptions;
 using SchoolManagementSystem.Application.Features.Auth.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Exceptions;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 using System.Security.Cryptography;
 using System.Text;
 

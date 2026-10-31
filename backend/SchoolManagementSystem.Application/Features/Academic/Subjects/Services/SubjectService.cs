@@ -1,8 +1,8 @@
 // Application/Services/SubjectService.cs
 using SchoolManagementSystem.Application.Features.Academic.Subjects.DTOs;
 using SchoolManagementSystem.Application.Features.Academic.Subjects.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Academic.Subjects.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 
 namespace SchoolManagementSystem.Application.Features.Academic.Subjects.Services;
 

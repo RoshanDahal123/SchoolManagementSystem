@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Sections.Entities;
 namespace SchoolManagementSystem.Application.Features.Academic.Homeroom.Interfaces
 {
     public interface ISectionHomeroomTeacherRepository

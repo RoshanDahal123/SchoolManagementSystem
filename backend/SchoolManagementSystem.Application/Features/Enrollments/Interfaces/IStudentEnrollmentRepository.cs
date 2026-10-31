@@ -1,4 +1,4 @@
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Enrollments.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Enrollments.Interfaces;
 

@@ -1,5 +1,5 @@
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Features.Announcements.Entities;
+using SchoolManagementSystem.Domain.Features.Announcements.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;

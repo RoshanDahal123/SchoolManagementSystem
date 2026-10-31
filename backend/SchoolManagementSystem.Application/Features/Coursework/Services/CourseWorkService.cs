@@ -7,9 +7,12 @@ using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Application.Features.Storage.Interfaces;
 using SchoolManagementSystem.Application.Features.Notifications.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Enums;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Coursework.Entities;
+using SchoolManagementSystem.Domain.Features.Coursework.Enums;
+using SchoolManagementSystem.Domain.Features.Enrollments.Entities;
+using SchoolManagementSystem.Domain.Features.Enrollments.Enums;
+using SchoolManagementSystem.Domain.Features.Students.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 
 namespace SchoolManagementSystem.Application.Features.Coursework.Services;
 

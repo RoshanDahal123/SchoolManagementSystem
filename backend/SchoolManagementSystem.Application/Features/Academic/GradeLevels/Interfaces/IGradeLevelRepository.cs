@@ -1,6 +1,6 @@
 // Application/Interfaces/IGradeLevelRepository.cs
 using SchoolManagementSystem.Application.Common;
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.GradeLevels.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Academic.GradeLevels.Interfaces;
 

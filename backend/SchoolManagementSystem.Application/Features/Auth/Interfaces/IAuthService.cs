@@ -1,5 +1,4 @@
 using SchoolManagementSystem.Application.Features.Auth.DTOs;
-using SchoolManagementSystem.Domain.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Auth.Interfaces;
 

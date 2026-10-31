@@ -3,9 +3,9 @@ using SchoolManagementSystem.Application.Features.Enrollments.Interfaces;
 using SchoolManagementSystem.Application.Features.Students.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Enums;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Enrollments.Entities;
+using SchoolManagementSystem.Domain.Features.Enrollments.Enums;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 
 namespace SchoolManagementSystem.Application.Features.Enrollments.Services;
 

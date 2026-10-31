@@ -1,6 +1,6 @@
 // Application/Interfaces/ITeacherRepository.cs
 using SchoolManagementSystem.Application.Common;
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Teachers.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Teachers.Interfaces;
 

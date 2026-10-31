@@ -1,4 +1,4 @@
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;

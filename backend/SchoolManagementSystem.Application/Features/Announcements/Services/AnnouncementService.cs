@@ -1,9 +1,10 @@
 using SchoolManagementSystem.Application.Features.Announcements.DTOs;
 using SchoolManagementSystem.Application.Features.Announcements.Interfaces;
 using SchoolManagementSystem.Application.Features.Notifications.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
-using SchoolManagementSystem.Domain.Enums;
+using SchoolManagementSystem.Domain.Features.Announcements.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
+using SchoolManagementSystem.Domain.Features.Announcements.Enums;
+using SchoolManagementSystem.Domain.Features.Shared.Enums;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace SchoolManagementSystem.Application.Features.Announcements.Services;

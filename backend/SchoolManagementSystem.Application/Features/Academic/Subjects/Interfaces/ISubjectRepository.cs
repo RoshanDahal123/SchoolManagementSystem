@@ -1,5 +1,5 @@
 // Application/Interfaces/ISubjectRepository.cs
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Subjects.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Academic.Subjects.Interfaces;
 

@@ -2,8 +2,8 @@
 using SchoolManagementSystem.Application.Features.Academic.GradeLevels.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.Sections.DTOs;
 using SchoolManagementSystem.Application.Features.Academic.Sections.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Academic.Sections.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 
 namespace SchoolManagementSystem.Application.Features.Academic.Sections.Services;
 

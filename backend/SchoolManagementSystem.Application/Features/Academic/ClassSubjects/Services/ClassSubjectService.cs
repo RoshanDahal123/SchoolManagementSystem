@@ -5,8 +5,9 @@ using SchoolManagementSystem.Application.Features.Academic.ClassSubjects.Interfa
 using SchoolManagementSystem.Application.Features.Academic.GradeLevels.Interfaces;
 using SchoolManagementSystem.Application.Features.Academic.Subjects.Interfaces;
 using SchoolManagementSystem.Application.Features.Teachers.Interfaces;
-using SchoolManagementSystem.Domain.Entities;
-using SchoolManagementSystem.Domain.Exceptions;
+using SchoolManagementSystem.Domain.Features.Academic.ClassSubjects.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Subjects.Entities;
+using SchoolManagementSystem.Domain.Common.Exceptions;
 
 namespace SchoolManagementSystem.Application.Features.Academic.ClassSubjects.Services;
 

@@ -1,5 +1,5 @@
 // Application/Interfaces/IAcademicYearRepository.cs
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.AcademicYears.Entities;
 
 namespace SchoolManagementSystem.Application.Features.Academic.AcademicYears.Interfaces;
 

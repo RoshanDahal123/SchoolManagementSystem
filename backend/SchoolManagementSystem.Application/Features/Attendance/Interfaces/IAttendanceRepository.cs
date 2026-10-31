@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using AttendanceEntity = SchoolManagementSystem.Domain.Entities.Attendance;
+using AttendanceEntity = SchoolManagementSystem.Domain.Features.Attendance.Entities.Attendance;
 
 namespace SchoolManagementSystem.Application.Features.Attendance.Interfaces
 {
