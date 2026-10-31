@@ -9,7 +9,7 @@ using SchoolManagementSystem.Domain.Features.Shared.Enums;
 using SchoolManagementSystem.Infrastructure;
 using SchoolManagementSystem.Infrastructure.Features.Notifications.Realtime;
 using SchoolManagementSystem.Infrastructure.Persistence;
-using SchoolManagementSystem.WebApi.Authorization;
+using SchoolManagementSystem.WebApi.Features.Attendance.Authorization;
 using SchoolManagementSystem.WebApi.Middleware;
 using System.Text;
 

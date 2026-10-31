@@ -22,4 +22,30 @@
     <ProjectReference Include="..\SchoolManagementSystem.Infrastructure\SchoolManagementSystem.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Controllers\AuthController.cs" />
+    <Compile Remove="Controllers\StudentController.cs" />
+    <Compile Remove="Controllers\TeacherController.cs" />
+    <Compile Remove="Controllers\StudentEnrollmentsController.cs" />
+    <Compile Remove="Controllers\AttendanceController.cs" />
+    <Compile Remove="Controllers\AnnouncementController.cs" />
+    <Compile Remove="Controllers\DashboardController.cs" />
+    <Compile Remove="Controllers\CourseWorkController.cs" />
+    <Compile Remove="Controllers\NotificationsController.cs" />
+    <Compile Remove="Controllers\AcademicYearsController.cs" />
+    <Compile Remove="Controllers\GradeLevelsController.cs" />
+    <Compile Remove="Controllers\ClassSubjectsController.cs" />
+    <Compile Remove="Controllers\SubjectsController.cs" />
+    <Compile Remove="Controllers\SectionHomeroomTeachersController.cs" />
+    <Compile Remove="Authorization\HomeroomTeacherAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\HomeTeacherRequirement.cs" />
+    <Compile Remove="Authorization\SectionAttendanceReadAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\SectionAttendanceReadRequirement.cs" />
+    <Compile Remove="Authorization\SectionAttendanceResource.cs" />
+    <Compile Remove="Authorization\StudentAttendanceAccessAuthorizationHandler.cs" />
+    <Compile Remove="Authorization\StudentAttendanceAccessRequirement.cs" />
+    <Compile Remove="Authorization\StudentAttendanceResource.cs" />
+    <Compile Remove="Models\CourseWorkForms.cs" />
+  </ItemGroup>
+
 </Project>
