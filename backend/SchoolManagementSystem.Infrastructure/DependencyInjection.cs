@@ -17,21 +17,26 @@ using SchoolManagementSystem.Application.Features.Coursework.Interfaces;
 using SchoolManagementSystem.Application.Features.Dashboard.Interfaces;
 using SchoolManagementSystem.Application.Features.Notifications.Interfaces;
 using SchoolManagementSystem.Application.Features.Storage.Interfaces;
-using SchoolManagementSystem.Infrastructure.Authentication;
-using SchoolManagementSystem.Infrastructure.Email;
-using SchoolManagementSystem.Infrastructure.Notifications;
-using SchoolManagementSystem.Infrastructure.Storage;
 using SchoolManagementSystem.Infrastructure.Persistence;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Identity;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Students;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Teachers;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Academic;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Enrollments;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Attendances;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Announcements;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Coursework;
-using SchoolManagementSystem.Infrastructure.Persistence.Repositories.Dashboard;
-using SchoolManagementSystem.Infrastructure.Persistence.Seeders;
+using SchoolManagementSystem.Infrastructure.Features.Auth.Authentication;
+using SchoolManagementSystem.Infrastructure.Features.Auth.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Auth.Seeders;
+using SchoolManagementSystem.Infrastructure.Features.Email.Services;
+using SchoolManagementSystem.Infrastructure.Features.Storage.Services;
+using SchoolManagementSystem.Infrastructure.Features.Notifications.Services;
+using SchoolManagementSystem.Infrastructure.Features.Students.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Teachers.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Academic.AcademicYears.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Academic.GradeLevels.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Academic.Sections.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Academic.Subjects.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Academic.ClassSubjects.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Academic.Homeroom.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Enrollments.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Attendance.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Announcements.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Coursework.Persistence.Repositories;
+using SchoolManagementSystem.Infrastructure.Features.Dashboard.Persistence.Repositories;
 
 namespace SchoolManagementSystem.Infrastructure;
 
@@ -63,19 +68,19 @@ public static class DependencyInjection
         // Storage
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
-        // Repositories — Auth
+        // Repositories â€” Auth
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAccountSetupTokenRepository, AccountSetupTokenRepository>();
 
-        // Repositories — Students
+        // Repositories â€” Students
         services.AddScoped<IStudentRepository, StudentRepository>();
 
-        // Repositories — Teachers
+        // Repositories â€” Teachers
         services.AddScoped<ITeacherRepository, TeacherRepository>();
         services.AddScoped<ITeacherSubjectRepository, TeacherSubjectRepository>();
 
-        // Repositories — Academic
+        // Repositories â€” Academic
         services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
         services.AddScoped<IGradeLevelRepository, GradeLevelRepository>();
         services.AddScoped<ISectionRepository, SectionRepository>();
@@ -84,20 +89,20 @@ public static class DependencyInjection
         services.AddScoped<IClassSubjectTeacherRepository, ClassSubjectTeacherRepository>();
         services.AddScoped<ISectionHomeroomTeacherRepository, SectionHomeroomTeacherRepository>();
 
-        // Repositories — Enrollments
+        // Repositories â€” Enrollments
         services.AddScoped<IStudentEnrollmentRepository, StudentEnrollmentRepository>();
 
-        // Repositories — Attendance
+        // Repositories â€” Attendance
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
-        // Repositories — Announcements
+        // Repositories â€” Announcements
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 
-        // Repositories — Coursework
+        // Repositories â€” Coursework
         services.AddScoped<ICourseWorkRepository, CourseworkRepository>();
         services.AddScoped<ICourseWorkSubmissionRepository, CourseworkSubmissionRepository>();
 
-        // Repositories — Dashboard
+        // Repositories â€” Dashboard
         services.AddScoped<IDashboardRepository, DashboardRepository>();
 
         // Hosted services

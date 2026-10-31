@@ -1,0 +1,12 @@
+2026-10-08 07:08:25.186 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP OPTIONS /hubs/notifications/negotiate responded 204 in 0.2294 ms
+2026-10-08 07:08:25.187 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP OPTIONS /hubs/notifications/negotiate responded 204 in 0.1191 ms
+2026-10-08 07:08:27.287 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP POST /hubs/notifications/negotiate responded 401 in 0.7934 ms
+2026-10-08 07:08:27.287 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP POST /hubs/notifications/negotiate responded 401 in 0.7934 ms
+2026-10-08 07:08:37.713 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP OPTIONS /hubs/notifications/negotiate responded 204 in 0.1483 ms
+2026-10-08 07:08:37.714 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP OPTIONS /hubs/notifications/negotiate responded 204 in 0.1158 ms
+2026-10-08 07:08:37.720 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP POST /hubs/notifications/negotiate responded 401 in 0.9538 ms
+2026-10-08 07:08:37.723 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP POST /hubs/notifications/negotiate responded 401 in 0.7795 ms
+2026-10-08 07:09:08.708 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP OPTIONS /hubs/notifications/negotiate responded 204 in 0.1147 ms
+2026-10-08 07:09:08.709 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP OPTIONS /hubs/notifications/negotiate responded 204 in 0.1754 ms
+2026-10-08 07:09:08.713 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP POST /hubs/notifications/negotiate responded 401 in 0.8259 ms
+2026-10-08 07:09:08.715 +05:45 [INF] [Serilog.AspNetCore.RequestLoggingMiddleware] HTTP POST /hubs/notifications/negotiate responded 401 in 0.7274 ms

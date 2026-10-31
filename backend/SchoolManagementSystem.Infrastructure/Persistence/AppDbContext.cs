@@ -1,5 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-using SchoolManagementSystem.Domain.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.AcademicYears.Entities;
+using SchoolManagementSystem.Domain.Features.Auth.Entities;
+using SchoolManagementSystem.Domain.Features.Announcements.Entities;
+using SchoolManagementSystem.Domain.Features.Attendance.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.ClassSubjects.Entities;
+using SchoolManagementSystem.Domain.Features.Coursework.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.GradeLevels.Entities;
+using SchoolManagementSystem.Domain.Features.Notifications.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Sections.Entities;
+using SchoolManagementSystem.Domain.Features.Students.Entities;
+using SchoolManagementSystem.Domain.Features.Enrollments.Entities;
+using SchoolManagementSystem.Domain.Features.Academic.Subjects.Entities;
+using SchoolManagementSystem.Domain.Features.Teachers.Entities;
 
 namespace SchoolManagementSystem.Infrastructure.Persistence
 {
